@@ -1,1 +1,132 @@
-Here's the main file -- wanna get it hosted so I can see it and verify it's set up correctly.... 
+<!DOCTYPE html>
+<html lang="en">
+  <!-- <script type="module" src="js/main.js"></script> -->
+
+  <script  type="module" language="javascript">
+    import { basic, vip } from './js/main.js';
+    console.log("it's ",basic)
+    window.basicLocal = basic
+    window.vip = vip
+  </script>
+  <!-- Pico.css -->
+  <link
+    rel="stylesheet"
+    href="css/pico.min.css"
+  />
+  <style>
+   :root { 
+      /*--pico-line-height: 0.5rem;*/
+      --pico-form-element-spacing-vertical: 0rem;
+    }
+    details summary::after {
+      float: left;
+    }
+    details p {
+      margin-left: 40px;
+    }
+    .upload_block {
+      --pico-spacing: 4px;
+      margin-left: 40px;
+      border-left: 4mm solid rgba(211, 220, 50, .6);
+      padding-left: 10px;
+      small {
+        display: inline;
+      }
+      .page_count {
+        width: 100px;
+      }
+    }
+    .upload_block_add {
+      margin-left: 50px;
+    }
+  </style>
+  </head>
+
+  <body>
+    <main class="container">
+      <h2>1. Source PDF(s)</h2>
+      <details>
+        <summary>Instructions/Details</summary>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque urna diam,
+          tincidunt nec porta sed, auctor id velit. Etiam venenatis nisl ut orci consequat, vitae
+          tempus quam commodo. Nulla non mauris ipsum. Aliquam eu posuere orci. Nulla convallis
+          lectus rutrum quam hendrerit, in facilisis elit sollicitudin. Mauris pulvinar pulvinar
+          mi, dictum tristique elit auctor quis. Maecenas ac ipsum ultrices, porta turpis sit
+          amet, congue turpis.
+        </p>
+      </details>
+      <section id="upload_blocks">
+          <section class="upload_block">
+            <input class="page_count" type="number" name="text" placeholder="0" />
+            <small>preceeding blank page count</small>
+            <input type="file" id="file" name="file" accept=".pdf"/>
+          </section>
+          <section class="upload_block_add">
+            <button onclick="vip.addUploadBlock(this)">+</button>
+          </section>
+      </section>
+      <button onclick="vip.processUploads(document.getElementById('upload_blocks'))">Process Uploads</button>
+
+      <p>
+        blah blha balh
+            <button onclick="basicLocal.fun(this)">Primary</button>
+            <button class="secondary">Secondary</button>
+            <button class="contrast">Contrast</button>
+      </p>
+    </main>
+
+
+    <!-- Main -->
+    <main class="container">
+      <!-- Preview -->
+      <section id="preview">
+        <h2>Preview</h2>
+        <p>
+          Sed ultricies dolor non ante vulputate hendrerit. Vivamus sit amet suscipit sapien. Nulla
+          iaculis eros a elit pharetra egestas.
+        </p>
+        <form>
+          <div class="grid">
+            <input
+              type="text"
+              name="firstname"
+              placeholder="First name"
+              aria-label="First name"
+              required
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email address"
+              aria-label="Email address"
+              autocomplete="email"
+              required
+            />
+            <button type="submit">Subscribe</button>
+          </div>
+          <fieldset>
+            <label for="terms">
+              <input type="checkbox" role="switch" id="terms" name="terms" />
+              I agree to the
+              <a href="#" onclick="event.preventDefault()">Privacy Policy</a>
+            </label>
+          </fieldset>
+        </form>
+      </section>
+    </main>
+<script  type="module" language="javascript">
+  document.body.append(window.basicLocal.txt)
+</script>
+
+    PDF library by <a href="https://pdf-lib.js.org/" target="_blank">PDF-LIB</a><br>
+    CSS library by <a href="https://picocss.com/" target="_blank">pico</a>
+
+
+    <!-- Minimal theme switcher -->
+    <script src="js/minimal-theme-switcher.js"></script>
+
+    <!-- Modal -->
+    <script src="js/modal.js"></script>
+  </body>
+</html>
