@@ -3,10 +3,17 @@
   <!-- <script type="module" src="js/main.js"></script> -->
 
   <script src="js/drawing.js"></script>
+  <script src="lib/pdf-lib.js"></script>
+
+  <script language="javascript">
+    window.book = {
+      upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument } */],
+      unified_source: { /* pdf: PDFLib.PDFDocument  */ }, 
+    }
+  </script>
 
   <script  type="module" language="javascript">
     import { basic, vip } from './js/main.js';
-    console.log("it's ",basic)
     window.basicLocal = basic
     window.vip = vip
   </script>
@@ -68,6 +75,46 @@
     #imposition_layout tr:nth-child(odd) td:nth-child(even) {
       background-color: transparent;
     }
+    #printed_page_markup, #printed_page_adjustment {
+      opacity: 0.5;
+    }
+    #pdf_signatures {
+      .signature_block_size {
+        width: 50px;
+        margin-left: 50px;
+        padding: 0px 4px;
+      }
+      small {
+        display:inline;
+      }
+      .custom_signatures_field {
+        width: 400px;
+        margin-left: 50px;
+      }
+    }
+    #printer_paper {
+      label {
+        display: inline;
+      }
+      select {
+        width: 10em;
+      }
+      input {
+        width: 10em;
+      }
+      fieldset {
+        width: auto;
+        /*margin-bottom: 0px;*/
+      }
+      small {
+        display: inline;
+      }
+    }
+    #footer {
+      float: right;
+      margin-right: 50px;
+      margin-bottom: 50px;
+    }
   </style>
   </head>
 
@@ -76,22 +123,51 @@
       <section id="source_pdfs">
         <h2>1. Source PDF(s)</h2>
         <details>
-          <summary>Instructions/Details</summary>
+          <summary>Details &amp; Instructions</summary>
           <p>
-            Multiple PDFs can be used, but at least one is needed. Each PDF can be preceeded by N blank pages (default is 0)
+            Multiple PDFs can be used, but at least one is needed. <br>
+            Each PDF can be preceeded by <code>N</code> blank pages (default is <code>0</code>)<br>
+            Page selection can be either <code>all</code> (the default), <code>,</code> separated list of page numbers, a range defined via <code>-</code>. Blank pages can be inserted via <codE>b</codE>.<br>
+            <mark>Invalid page numbers will be ignored</mark>
           </p>
         </details>
         <section id="upload_blocks">
-            <section class="upload_block">
+            <!-- <section class="upload_block">
               <input class="page_count" type="number" name="text" placeholder="0" />
               <small>preceeding blank page count</small>
-              <input type="file" id="file" name="file" accept=".pdf"/>
-            </section>
-            <section class="upload_block_add">
-              <button onclick="vip.addUploadBlock(this)">+</button>
+              <input type="file" id="file" name="file" accept=".pdf"/><br>
+              <input class="page_count" type="text" name="text" placeholder="all" />
+              <small>page selection</small>
+            </section> -->
+            <section id="upload_block_add" class="upload_block_add">
+              <button onclick="drawing.addUploadBlock(
+                document.getElementById('upload_blocks'), 
+                document.getElementById('upload_block_add'),
+                false
+              )">+</button>
             </section>
         </section>
-        <button onclick="vip.processUploads(document.getElementById('upload_blocks'))">Process Uploads</button>
+        <script language="javascript">
+          drawing.addUploadBlock(
+            document.getElementById('upload_blocks'), 
+            document.getElementById('upload_block_add'),
+            true
+          )
+        </script>
+        <button onclick="vip.processUploads(
+        this,
+        document.getElementById('upload_blocks'),
+        document.getElementById('upload_blocks_result')
+        )"
+        >Process Uploads</button>
+        <br>&nbsp;
+        <details id="upload_blocks_result" style="visibility: hidden;">
+          <summary>Working Input Details</summary>
+          <p>
+            There are <code>150</code> pages.<br>
+            The working size in pixels is <code>150</code> x <code>150</code>
+          </p>
+        </details>
       </section>
 
       <section id="page_orientation">
@@ -161,17 +237,116 @@
             </tbody>
           </table>
         </fieldset>
+        <kbd style="width:600px;">I have to implement the other layouts... and I should try to do it dynamically </kbd>
       </section>
 
 
-      <section id="signatures">
+      <section id="pdf_signatures">
         <h2>4. Signatures</h2>
         <details>
           <summary>Instructions/Details</summary>
           <p>
-            This is about how the PDF is placed relative to the spine.
+            Omg as if I knew...
           </p>
         </details>
+        <fieldset>
+          <input type="radio" id="signature_mode_blocks" name="signature_mode" value="signature_mode_blocks" checked/>
+          Uniform Signature Sizes
+          <input class="signature_block_size" type="number" name="text" placeholder="4"/>
+          <small>folios per signature</small>
+          <BR>
+          <input type="radio" id="signature_mode_custom" name="signature_mode" value="signature_mode_blocks"/>
+          Custom Signatures
+          <!-- <input class="custom_signatures_field" type="text" id="valid" name="valid" placeholder="Valid" aria-invalid="false" /> -->
+          <!-- <input class="custom_signatures_field" type="text" id="valid" name="valid" placeholder="Valid" aria-invalid="true" /> -->
+          <input class="custom_signatures_field" type="text" id="valid" name="valid" placeholder="comma separated list of folio counts" disabled />
+        </fieldset>
+        <details>
+          <summary>Results - Pending...</summary>
+          <p>
+            Omg as if I knew...
+          </p>
+        </details>
+        <kbd style="width:600px;">This is a big unknown - I can't quite wrap my head around how this works</kbd>
+        <br>&nbsp;
+      </section>
+
+
+      <section id="printer_paper">
+        <h2>5. Printer Paper</h2>
+        <details>
+          <summary>Instructions/Details</summary>
+          <p>
+            Omg as if I knew...
+          </p>
+        </details>
+        <label for="select">Display Units</label>
+        <select id="select" name="select" required>
+          <option value="" selected>Metric</option>
+          <option>Imperial</option>
+        </select>
+        <BR>
+        <fieldset  role="group">
+          Paper Size&nbsp;
+          <select id="select" name="select" required>
+            <option value="" selected>Letter</option>
+            <option>A4</option>
+          </select>
+          <input type="text" id="paper_size" name="paper_size" placeholder="10x30" aria-invalid="false" />
+        </fieldset>
+        <small>cm</small>
+        <BR>
+        Margin Short Sides
+        <input type="number" id="paper_margin_top" name="paper_margin_top" placeholder="0" />
+        <small>cm</small>
+        <br>
+        Margin Long Sides
+        <input type="number" id="paper_margin_top" name="paper_margin_top" placeholder="0" />
+        <small>cm</small>
+      </section>
+
+      <section id="printed_page_markup">
+        <h2>6. Markup</h2>
+        <details>
+          <summary>Instructions/Details</summary>
+          <p>
+            Omg as if I knew...
+          </p>
+        </details>
+      </section>
+
+      <section id="printed_page_adjustment">
+        <h2>7. Post-Processing</h2>
+        <details>
+          <summary>Instructions/Details</summary>
+          <p>
+            This is to address printer skew
+          </p>
+        </details>
+        <kbd>Not Yet Implemented</kbd>
+      </section>
+
+      <section id="pdf_preview">
+        <h2>8. Preview</h2>
+        <details>
+          <summary>Instructions/Details</summary>
+          <p>
+            This is to address printer skew
+          </p>
+        </details>
+        <kbd>Not Yet Implemented</kbd>
+      </section>
+
+      <section id="pdf_download">
+        <h2>9. Download</h2>
+        <details>
+          <summary>Instructions/Details</summary>
+          <p>
+            This is to address printer skew
+          </p>
+        </details>
+        <kbd>Not Yet Implemented</kbd>
+      </section>
     </main>
 
 
@@ -219,18 +394,20 @@
       </p>
       </section>
     </main>
-<script  type="module" language="javascript">
-  document.body.append(window.basicLocal.txt)
-</script>
 
+<section id="footer">
+<small>
     PDF library by <a href="https://pdf-lib.js.org/" target="_blank">PDF-LIB</a><br>
-    CSS library by <a href="https://picocss.com/" target="_blank">pico</a>
+    CSS library by <a href="https://picocss.com/" target="_blank">pico</a><br>
+    based on <a href="https://momijizukamori.github.io/bookbinder-js/">Bookbinder-JS</a>
+</small>
+</section>
 
 
     <!-- Minimal theme switcher -->
-    <script src="js/minimal-theme-switcher.js"></script>
+    <!-- <script src="js/minimal-theme-switcher.js"></script> -->
 
     <!-- Modal -->
-    <script src="js/modal.js"></script>
+    <!-- <script src="js/modal.js"></script> -->
   </body>
 </html>
