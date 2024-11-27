@@ -16,19 +16,19 @@ export const vip = {
     form.removeUploadBlock(e.parentElement.parentElement, e.parentElement);
     window.book.upload_blocks[id] = {}
   },
-  processUploads : function(btn, detailsEl) {
-    console.log("== Processing Uploads...")
+  processUploads : function(t, btn, detailsEl) {
+    console.log("== Processing Uploads...", detailsEl)
     document.getElementById("upload_blocks").setAttribute("style","pointer-events: none;opacity: 0.7;")
     btn.setAttribute("disabled", "")
     btn.setAttribute("aria-busy", "true")
 
     let callback = function(){
-      console.log("=== Processing Uploads Complete")
       document.getElementById("upload_blocks").removeAttribute("style")
       btn.removeAttribute("disabled")
       btn.removeAttribute("aria-busy")
       detailsEl.removeAttribute("style")
       detailsEl.setAttribute("open", "")
+      console.log("=== Processing Uploads Complete ", detailsEl)
     }
     utils.processUploadBlocks(callback);
   },
