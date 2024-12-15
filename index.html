@@ -8,7 +8,11 @@
   <script language="javascript">
     window.book = {
       upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument } */],
-      unified_source: { /* pdf: PDFLib.PDFDocument  */ }, 
+      unified_source: { /* pdf: PDFLib.PDFDocument, pageCount: Int, maxWidth: Int, maxHeight: Int, _scale100px: Int, leftRotDeg: Int, rightRotDeg: Int  */ }, 
+      page_orientation: null,
+    }
+    function fakeBook() {
+      window.book.unified_source = {pageCount: 120, maxWidth: 113.386, maxHeight: 170.079, _scale100px: 0.5879620646875864}
     }
   </script>
 
@@ -35,20 +39,43 @@
     details p {
       margin-left: 40px;
     }
-    .upload_block {
-      --pico-spacing: 4px;
-      margin-left: 40px;
-      border-left: 4mm solid rgba(211, 220, 50, .6);
-      padding-left: 10px;
-      small {
-        display: inline;
-      }
-      .page_count {
-        width: 100px;
+    #title {
+      h1 {
+        font-family: monospace;
+        text-align: right;
+        margin-bottom: 50px;
+        font-size: 2em;
+        opacity: 0.5;
       }
     }
-    .upload_block_add {
-      margin-left: 50px;
+    #source_pdfs {
+      .upload_block {
+        --pico-spacing: 4px;
+        margin-left: 40px;
+        border-left: 4mm solid rgba(211, 220, 50, .6);
+        padding-left: 10px;
+        small {
+          display: inline;
+        }
+        .page_count {
+          width: 100px;
+        }
+      }
+      .upload_block_add {
+        margin-left: 50px;
+      }
+      #insert_pdf_source_errors_here {
+        display: block;
+        color: black;
+        background: red;
+        padding: 4px 12px;
+        border-radius: var(--pico-border-radius);
+      }
+      #example_pdf_upload_page {
+        float: right;
+        background: #daa52042;
+        border: 1px solid black;
+      }
     }
     #page_orientation {
       div {
@@ -58,8 +85,42 @@
         margin-right: -55px;
         margin-left: 20px;
       }
+      fieldset {
+        width: auto;
+      }
       .page_orientation_radio {
         margin-top: -35px;
+      }
+      #example_pdf_orientation {
+        display: block;
+        font-size: 10px;
+        position: relative;
+        border: 1px solid green;
+        text-align: center;
+        #example_pdf_orientation_page_left {
+            display: block;
+            border: 1px solid black;
+            background: red;
+            position: absolute;
+            top: 0px;
+            right: 0px;
+        }
+        #example_pdf_orientation_spine {
+            display: block;
+            border: 1px solid black;
+            background: red;
+            position: absolute;
+            top: 0px;
+            right: 0px;
+        }
+        #example_pdf_orientation_page_right {
+            display: inline-block;
+            border: 1px solid black;
+            background: red;
+            position: absolute;
+            top: 0px;
+            right: 0px;
+        }
       }
     }
     #imposition_layout {
@@ -122,15 +183,19 @@
 
   <body>
     <main class="container">
+      <section id="title">
+        <h1>Villainous Imposer<BR>[VI]</h1>
+      </section>
       <section id="source_pdfs">
         <h2>1. Source PDF(s)</h2>
         <details>
           <summary>Details &amp; Instructions</summary>
           <p>
             Multiple PDFs can be used, but at least one is needed. <br>
+            If the PDFs are diffent sizes, the maximum dimensions are used<BR>
             Each PDF can be preceeded by <code>N</code> blank pages (default is <code>0</code>)<br>
             Page selection can be either <code>all</code> (the default), <code>,</code> separated list of page numbers, a range defined via <code>-</code>. Blank pages can be inserted via <codE>b</codE>.<br>
-            <mark>Invalid page numbers will be ignored</mark>
+            <mark>Invalid page numbers will be ignored, invalid input will cause an error</mark>
           </p>
         </details>
         <section id="upload_blocks">
@@ -166,12 +231,11 @@
         <details id="upload_blocks_result" style="visibility: hidden;">
           <summary>Working Input Details</summary>
           <p>
-            <span id="insert_pdf_source_details_here"/>
-            There are <code>150</code> pages.<br>
-            The working size is <code>150</code> x <code>150</code>
+            <span id="insert_pdf_source_details_here"></span>
+            <span id="insert_pdf_source_errors_here"  style="visibility: hidden;"></span>
             <details id="extra_pdf_info" style="margin-left: 50px;">
               <summary><small>Learn more about PDFs</small></summary>
-              <p>What unit are those numbers in? Why, they're PDF units -- see <a href="https://supportz.activepdf.com/hc/en-us/articles/360002401633-What-are-PDF-Units-and-Coordinates" target="_blank">this page to learn about the PDF coordidate system!</a>
+              <p>What unit are those numbers in? Some says they're 'PDF units' -- see <a href="https://supportz.activepdf.com/hc/en-us/articles/360002401633-What-are-PDF-Units-and-Coordinates" target="_blank">this page to learn about the PDF coordidate system!</a> -- but a better answer would be to look back towards old school typesetting and learn about <a href="https://en.wikipedia.org/wiki/Point_(typography)" target="_blank">Points</a> and <a href="https://en.wikipedia.org/wiki/Pica_(typography)" target="_blank">Pica</a>
               </p>
             </details>
           </p>
@@ -179,13 +243,23 @@
       </section>
 
       <section id="page_orientation">
-        <h2>2. Page Orientation</h2>
+        <h2>2. PDF Orientation</h2>
         <details>
-          <summary>Instructions/Details</summary>
+          <summary>Explanation</summary>
           <p>
-            This is about how the PDF is placed relative to the spine.
+            This is about how the PDF pages are oriented relative to the spine.<BR>
+            Page <code>A</code> is the 1st page of the completed, closed textblock while <code>B</code> &amp; <code>C</code> are a sample spread (spine in the middle)<BR>
+            The rotation of the letters indicate how the pages would be oriented.<BR>
+            <mark>In most cases the 1st option is what is desired/expected</mark>, but there are reasons why you might want the others<BR>
+            (such as a <a href="https://en.wikipedia.org/wiki/Dwarsligger" target="_blank">Dwarsligger ("sleeper" or "crossbeam" in Dutch)</a>, calendars, Tweet-based texts, books for music, etc)
           </p>
         </details>
+        <div id="example_pdf_orientation">
+          <div id="example_pdf_orientation_page_right" style="visibility: hidden;">text right</div>
+          <div id="example_pdf_orientation_spine" style="visibility: hidden;">spine</div>
+          <div id="example_pdf_orientation_page_left" style="visibility: hidden;">text left</div>
+        </div>
+        <span>
         <fieldset>
           <div id="page_orientation_1"></div>
           <div id="page_orientation_2"></div>
@@ -201,10 +275,12 @@
              ['page_orientation_5', 90,-90,90],
              ['page_orientation_6', 180,180,180]]
             page_orientation_options.forEach((o, i) => {
-              drawing.renderPageRotationDemo(document.getElementById(o[0]), o[1], o[2], o[3], 50, i == 0)
+              drawing.renderPageRotationDemo(document.getElementById(o[0]), o[1], o[2], o[3], 50, i == -1)
              })
           </script>
         </fieldset>
+        </span>
+        <br>&nbsp;
       </section>
 
       <section id="imposition_layout"><h2>3. Imposition Layout</h2>
@@ -252,15 +328,16 @@
       <section id="pdf_signatures">
         <h2>4. Signatures</h2>
         <details>
-          <summary>Instructions/Details</summary>
+          <summary>Definitions &amp; Explinations</summary>
           <p>
-            Omg as if I knew...
+            It helps to have unified definitions. Here <code>folio</code> means <i>"a sheet of paper folded once to form two leaves (four pages) of a book."</i> <br>
+            A <code>signature</code> is <i>"one or more nested, collated <code>folios</code>"</i> and the PDF this page generates will contain one or more <code>signatures</code> that you'll need to assemble and sequence correctly in order to form your book.
           </p>
         </details>
         <fieldset>
           <input type="radio" id="signature_mode_blocks" name="signature_mode" value="signature_mode_blocks" checked/>
           Uniform Signature Sizes
-          <input class="signature_block_size" type="number" name="text" placeholder="4"/>
+          <input class="signature_block_size" type="number" name="text" placeholder="4" min="1" step="4"/>
           <small>folios per signature</small>
           <BR>
           <input type="radio" id="signature_mode_custom" name="signature_mode" value="signature_mode_blocks"/>

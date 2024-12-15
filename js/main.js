@@ -16,15 +16,15 @@ export const vip = {
     form.removeUploadBlock(e.parentElement.parentElement, e.parentElement);
     window.book.upload_blocks[id] = {}
   },
-  processUploads : function(t, btn, detailsEl) {
+  processUploads : function(btn, uploadSection, detailsEl) {
     console.log("== Processing Uploads...", detailsEl)
     document.getElementById("upload_blocks").setAttribute("style","pointer-events: none;opacity: 0.7;")
-    btn.setAttribute("disabled", "")
+    uploadSection.setAttribute("disabled", "")
     btn.setAttribute("aria-busy", "true")
 
     let callback = function(){
       document.getElementById("upload_blocks").removeAttribute("style")
-      btn.removeAttribute("disabled")
+      uploadSection.removeAttribute("disabled")
       btn.removeAttribute("aria-busy")
       detailsEl.removeAttribute("style")
       detailsEl.setAttribute("open", "")
@@ -32,10 +32,11 @@ export const vip = {
     }
     utils.processUploadBlocks(callback);
   },
-  test : function(e) {
-    console.log("It works!! ",name)
-    utils.openDoc(e.files[0])
-    window.reb = name
+  handlePageOrientationUpdate: function(e) {
+    console.log("PDF orientation set to option "+ e.getAttribute("data-page-orientation-id"))
+    window.book.unified_source.leftRotDeg = parseInt(e.getAttribute("data-page-orientation-left"))
+    window.book.unified_source.rightRotDeg = parseInt(e.getAttribute("data-page-orientation-right"))
+    window.drawing.updatePdfOrientationExample();
   },
   /*{ pageSelection: String, precedingBlanks: Int , file: File }*/
   uploadBlockBlank: function(e) {

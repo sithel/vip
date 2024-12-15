@@ -2,7 +2,11 @@ drawing = {
   /* writes to the document then and there our SVG stuff*/
   renderPageRotationDemo : function(el, aRot, bRot, cRot, scale, checked){
     let name = el.id + "_radio"
+    let id = el.id.substr(-1,1)
     let checkedText = checked ? " checked" : ""
+    if (checked) {
+      window.book.page_orientation = name
+    }
     let s = `
     <svg version="1.1" 
 width="`+scale+`px"
@@ -21,7 +25,9 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
 <g transform="rotate(`+bRot+` 49.624672 210.14436)">
 <path fill="#000000" d="m34.29297 238.00545l0 -53.4375l20.046875 0q6.125 0 9.828125 1.625q3.703125 1.609375 5.796875 4.984375q2.09375 3.375 2.09375 7.0625q0 3.421875 -1.859375 6.453125q-1.859375 3.015625 -5.609375 4.875q4.84375 1.421875 7.453125 4.859375q2.609375 3.421875 2.609375 8.078125q0 3.765625 -1.59375 7.0q-1.578125 3.21875 -3.921875 4.96875q-2.328125 1.75 -5.84375 2.640625q-3.515625 0.890625 -8.625 0.890625l-20.375 0zm7.078125 -30.984375l11.546875 0q4.703125 0 6.75 -0.625q2.6875 -0.796875 4.046875 -2.65625q1.375 -1.859375 1.375 -4.671875q0 -2.65625 -1.28125 -4.671875q-1.265625 -2.03125 -3.640625 -2.78125q-2.359375 -0.75 -8.125 -0.75l-10.671875 0l0 16.15625zm0 24.671875l13.296875 0q3.421875 0 4.8125 -0.25q2.4375 -0.4375 4.078125 -1.453125q1.640625 -1.03125 2.703125 -2.96875q1.0625 -1.953125 1.0625 -4.515625q0 -2.984375 -1.53125 -5.1875q-1.53125 -2.203125 -4.25 -3.09375q-2.71875 -0.890625 -7.828125 -0.890625l-12.34375 0l0 18.359375z" fill-rule="nonzero"/>
 </g></g></svg>
-    <input type="radio" id="`+name+`" class="page_orientation_radio" name="page_orientation" value="`+name+`" `+checkedText+`/>
+    <input type="radio" id="`+name+`" 
+        data-page-orientation-id="`+id+`" data-page-orientation-left=`+bRot+` data-page-orientation-right=`+aRot+`
+        class="page_orientation_radio" name="page_orientation" value="`+name+`" onchange="vip.handlePageOrientationUpdate(this)" `+checkedText+`/>
     `
     el.innerHTML = s;
   },
@@ -42,5 +48,23 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
     parent.insertBefore(newNode,addBtn);
     window.book.upload_blocks[idNum] = {};
     window.reb = parent;
+  },
+  updatePdfOrientationExample: function() {
+    let deets = window.book.unified_source;
+    // if (deets.pdf == undefined || deets.leftRotDeg == undefined) {
+    if (deets.leftRotDeg == undefined) {
+      return
+    }
+    let spineWidth = 30;
+    let w = deets.maxWidth * deets._scale100px;
+    let h = deets.maxHeight * deets._scale100px;
+    let isTurned = Math.abs(deets.leftRotDeg) == 90
+    let basePageDeets = `width:${w}px;height:${h}px;`
+    let leftMod = (isTurned) ? `right:${h + spineWidth -2}px;` : `right:${w + spineWidth - 2}px;`;
+    document.getElementById("example_pdf_orientation_page_left").setAttribute("style",basePageDeets+"transform: rotate("+deets.leftRotDeg+"deg);"+leftMod);
+    document.getElementById("example_pdf_orientation_page_right").setAttribute("style",basePageDeets+"transform: rotate("+deets.rightRotDeg+"deg);")
+    let sw = (isTurned) ? w : h
+    let spineDeets = `width:${sw}px;transform: rotate(90deg);height:${spineWidth}px;right:${((isTurned) ? h/2 : sw)+ spineWidth/2-2}px;top:35px;`
+    document.getElementById("example_pdf_orientation_spine").setAttribute("style",spineDeets)//+"writing-mode: vertical-lr;")
   }
 }
