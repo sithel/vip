@@ -95,31 +95,31 @@
         display: block;
         font-size: 10px;
         position: relative;
-        border: 1px solid green;
         text-align: center;
+        width: auto;
+        float: right;
         #example_pdf_orientation_page_left {
-            display: block;
+            display: inline-block;
+            background: #daa52042;
             border: 1px solid black;
-            background: red;
-            position: absolute;
-            top: 0px;
-            right: 0px;
+            width: 100px;
+            height: 100px;
+            padding:0px;
         }
         #example_pdf_orientation_spine {
-            display: block;
-            border: 1px solid black;
-            background: red;
-            position: absolute;
-            top: 0px;
-            right: 0px;
+            display: inline-block;
+            background: #0d0c0942;
+            width: 100px;
+            height: 100px;
+            padding:0px;
         }
         #example_pdf_orientation_page_right {
             display: inline-block;
+            background: #daa52042;
             border: 1px solid black;
-            background: red;
-            position: absolute;
-            top: 0px;
-            right: 0px;
+            width: 100px;
+            height: 100px;
+            padding:0px;
         }
       }
     }
@@ -244,6 +244,9 @@
 
       <section id="page_orientation">
         <h2>2. PDF Orientation</h2>
+        <div id="example_pdf_orientation" style="visibility: hidden;">
+          <div id="example_pdf_orientation_page_right" ></div><div id="example_pdf_orientation_spine" ></div><div id="example_pdf_orientation_page_left" ></div>
+        </div>
         <details>
           <summary>Explanation</summary>
           <p>
@@ -254,11 +257,6 @@
             (such as a <a href="https://en.wikipedia.org/wiki/Dwarsligger" target="_blank">Dwarsligger ("sleeper" or "crossbeam" in Dutch)</a>, calendars, Tweet-based texts, books for music, etc)
           </p>
         </details>
-        <div id="example_pdf_orientation">
-          <div id="example_pdf_orientation_page_right" style="visibility: hidden;">text right</div>
-          <div id="example_pdf_orientation_spine" style="visibility: hidden;">spine</div>
-          <div id="example_pdf_orientation_page_left" style="visibility: hidden;">text left</div>
-        </div>
         <span>
         <fieldset>
           <div id="page_orientation_1"></div>
