@@ -112,7 +112,7 @@ export const utils = {
     let blocks = window.book.upload_blocks
       .filter(block => { return block.file != null })
     for (let i = 0; i < blocks.length; ++i) {
-      let block = window.book.upload_blocks[i]
+      let block = blocks[i]
       console.log("it could work ["+i+"] ", this) 
       block.pdfDoc = await this._ingestPdfFile(block.file)
     }

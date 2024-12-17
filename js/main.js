@@ -17,7 +17,7 @@ export const vip = {
     window.book.upload_blocks[id] = {}
   },
   processUploads : function(btn, uploadSection, detailsEl) {
-    console.log("== Processing Uploads...", detailsEl)
+    console.log("== Processing Uploads...")
     document.getElementById("upload_blocks").setAttribute("style","pointer-events: none;opacity: 0.7;")
     uploadSection.setAttribute("disabled", "")
     btn.setAttribute("aria-busy", "true")
@@ -28,7 +28,7 @@ export const vip = {
       btn.removeAttribute("aria-busy")
       detailsEl.removeAttribute("style")
       detailsEl.setAttribute("open", "")
-      console.log("=== Processing Uploads Complete ", detailsEl)
+      console.log("=== Processing Uploads Complete ")
     }
     utils.processUploadBlocks(callback);
   },
@@ -37,6 +37,9 @@ export const vip = {
     window.book.unified_source.leftRotDeg = parseInt(e.getAttribute("data-page-orientation-left"))
     window.book.unified_source.rightRotDeg = parseInt(e.getAttribute("data-page-orientation-right"))
     window.drawing.updatePdfOrientationExample();
+  },
+  handlePageImpositionUpdate: function(i) {
+    document.getElementById("imposition_more_info_text").innerHTML = imposition_options[i][3]
   },
   /*{ pageSelection: String, precedingBlanks: Int , file: File }*/
   uploadBlockBlank: function(e) {

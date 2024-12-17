@@ -38,14 +38,19 @@
     }
     details p {
       margin-left: 40px;
+      font-size: 0.75em;
     }
     #title {
       h1 {
         font-family: monospace;
         text-align: right;
-        margin-bottom: 50px;
         font-size: 2em;
         opacity: 0.5;
+      }
+      details {
+        margin-left: 50%;
+        font-family: monospace;
+        margin-bottom: 50px;
       }
     }
     #source_pdfs {
@@ -88,6 +93,9 @@
       fieldset {
         width: auto;
       }
+      #page_orientation_1 {
+        margin-left: 40px;
+      }
       .page_orientation_radio {
         margin-top: -35px;
       }
@@ -124,6 +132,12 @@
       }
     }
     #imposition_layout {
+      #imposition_more_info {
+        width: 50%;
+        font-size: 0.75em;
+        height: 150px;
+        padding: 0px;
+      }
       table {
         width: 80%;
         margin-left: 40px;
@@ -185,13 +199,29 @@
     <main class="container">
       <section id="title">
         <h1>Villainous Imposer<BR>[VI]</h1>
+        <details>
+          <summary>information & glossary</summary>
+          <p>
+            This is a tool written mostly for myself, made available for others.  It is focused on at-home, hobbiest printing for bookbinding (or pamphlets or zines)<br>
+            Imposition is the process of arranging multiple pages of a PDF onto a printed sheet so that they appear in the correct order after folding (some cutting may be involved)<br><br>
+            Relevant terms, as used by this tool:<br>
+            <b>folio</b> - folded piece of paper. part of a signature. made up of 4 pages. made up of 2 leaves<br>
+            <b>leaf</b> - half of a folio. made up of 2 pages. if you were to "tear a page out of a book", you'd be tearing a leaf out<br>
+            <b>page</b> - single page from the PDF, single page in the result. likely has a single page number on it<br>
+            <b>sheet</b> - the piece of paper fed into your printer, has 2 sides<br>
+            <b>side</b> - the front or back of a sheet of paper<br>
+            <b>signature</b> - one or more nested folios. sewn together to make a book. a single signature could make a pamphlet
+          </p>
+        </details>
       </section>
       <section id="source_pdfs">
         <h2>1. Source PDF(s)</h2>
         <details>
           <summary>Details &amp; Instructions</summary>
           <p>
-            Multiple PDFs can be used, but at least one is needed. <br>
+            The PDFs should be a "straight" PDF - 1 PDF page should be 1 result page<br>
+            <mark>Do not feed PDFs already exported as a "booklet" into this tool</mark><br>
+            Multiple PDFs can be used, but at least one is needed<br>
             If the PDFs are diffent sizes, the maximum dimensions are used<BR>
             Each PDF can be preceeded by <code>N</code> blank pages (default is <code>0</code>)<br>
             Page selection can be either <code>all</code> (the default), <code>,</code> separated list of page numbers, a range defined via <code>-</code>. Blank pages can be inserted via <codE>b</codE>.<br>
@@ -279,6 +309,45 @@
         </fieldset>
         </span>
         <br>&nbsp;
+      </section>
+
+
+      <section id="imposition_layout"><h2>3. Imposition Layout</h2>
+        <details>
+          <summary>Instructions/Details</summary>
+          <p>
+            This is how the PDF pages will be tiled on the printed page
+          </p>
+        </details>
+        <table>
+          <tr>
+            <td id="imposition_more_info"><div id="imposition_more_info_text"></div></td>
+            <td rowspan="2">Folding instructions</td>
+          </tr>
+          <tr>
+            <td>
+              Signatures
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div id="imposition_options_list"></div>
+              <script language="javascript">
+                imposition_options = [
+                  ["single", "Single", "1 page per side", "Yes, this is just like the source PDF -- not really useful for bookbinding/imposition, but given all the other features (trimming, re-ordering, padding) I figured why not"],
+                  ["folio", "Folio", "2 pages per side, 1 folio", "Minimal folding, large book, no cutting/trimming needed. Classic for beginners but too large for my personal taste"],
+                  ["quarto", "Quarto", "4 pages per side, 2 folio", "Perfect! Produces something closer to a more 'typical' book IMO with room to trim -- you could cut the folios apart pre-assembly, leave them folded and wait for the trimming step to separate, or go old school and make an <a href='https://onlineacademiccommunity.uvic.ca/theopenbook/2024/02/15/opening-the-unopened/' target='_blank'>unopend book</a> for the reader to slice with their <a href='https://en.wikipedia.org/wiki/Paper_knife' target='_blank'>paper knife</a> as they read"],
+                  ["octavo_fat", "Octavo [fat]", "8 pages per side, 4 folio", "Starting to get smaller but still easy to assemble. This has nested folds on the top AND on the side that can sometimes be bulky - binder's prefernece"],
+                  ["octavo_thin", "Ocatvo [thin]", "8 pages per side", "Starting to get smaller but still easy to assemble. This has a fold on edge that could compound skew problems, but there's no nested top fold - binder's preference"],
+                  ["6_side", "", "8 pages per side", "Starting to get smaller but still easy to assemble. This has a fold on edge that could compound skew problems, but there's no nested top fold - binder's preference"],
+                  ]
+                imposition_options.forEach((o, i) => {
+                  drawing.renderImpositionOptions(document.getElementById("imposition_options_list"), o, i)
+                 })
+              </script>
+            </td>
+          </tr>
+        </table>
       </section>
 
       <section id="imposition_layout"><h2>3. Imposition Layout</h2>

@@ -1,4 +1,15 @@
 drawing = {
+  /* info: [0] - id, [1] - display name (short), [2] - brief desc, [3] - long desc */
+  renderImpositionOptions: function(el, info, i){
+    let newNode = document.createElement("div");
+    s = `
+    <input type="radio" name="page_imposition" value="single" id="`+info[0]+`" onchange='vip.handlePageImpositionUpdate(`+i+`)'>
+    <label for="`+info[0]+`">`+info[1]+`</label><br>
+    <small><label for="`+info[0]+`">`+info[2]+`</label></small>
+    `
+    newNode.innerHTML = s;
+    el.appendChild(newNode)
+  },
   /* writes to the document then and there our SVG stuff*/
   renderPageRotationDemo : function(el, aRot, bRot, cRot, scale, checked){
     let name = el.id + "_radio"
@@ -53,8 +64,9 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
     window.reb = parent;
   },
   updatePdfOrientationExample: function() {
+    console.log("   > drawing.updatePdfOrientationExample")
     let deets = window.book.unified_source;
-    if (deets.leftRotDeg == undefined) {
+    if (deets.pdf == undefined) {
       return
     }
     let spineWidth = 5;
