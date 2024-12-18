@@ -10,7 +10,7 @@
       upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument } */],
       unified_source: { pageCount: 123 /* pdf: PDFLib.PDFDocument, pageCount: Int, maxWidth: Int, maxHeight: Int, _scale100px: Int, leftRotDeg: Int, rightRotDeg: Int  */ }, 
       imposition: { /* canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>*/},
-      imposed: { /* sheets */ },
+      imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>> */ },
       page_orientation: null,
     }
     function fakeBook() {

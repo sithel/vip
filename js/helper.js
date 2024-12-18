@@ -27,15 +27,14 @@ export const form = {
       document.getElementById("folios_per_signature").setAttribute("placeholder", imp_info[4])
   },
   _populate_signature: function(start_page_num, sheet_i, folio_i, signature_size) {
-    console.log("   >>>>> Populating signature [start: "+start_page_num+"  on "+sheet_i+"@"+folio_i+" w/ "+" - "+signature_size );
     const next_page_num = start_page_num + signature_size * 4
     const folio_per_page = window.book.imposition.foliosPerSheet.reduce((acc, x) => acc + x, 0)
     let new_sig = Array.from({ length: signature_size }, (v, i) => {
-      // this is not the correct number order....
-      const new_folio = [start_page_num++,start_page_num++,start_page_num++,start_page_num++]
-      console.log("I see "+window.book.imposed.sheets)
+      const start = start_page_num + i * 2
+      const end = next_page_num - i * 2
+      const new_folio = [start, start + 1, end - 2, end - 1]
       window.book.imposed.sheets[sheet_i].push(new_folio)
-      console.log("     >>>>>>> $$$folio "+i+"/"+signature_size+" has us printing on "+sheet_i+" / f "+folio_i+" given "+folio_per_page +" pher sheet");
+      console.log("  > "+i+"/"+signature_size+" -> ["+sheet_i+"]["+folio_i+"] = ("+new_folio.join(", ")+")")
       if (++folio_i >= folio_per_page) {
         folio_i = 0
         sheet_i += 1
@@ -52,22 +51,19 @@ export const form = {
     let max_page_num = window.book.unified_source.pageCount;
     let sig_start = 0;
     let sheet_i = 0;
-    
     let folio_i = 0;
     const populate_signature = this._populate_signature
     const reducer = function(next_page_num, signature_size){
-       console.log(" >>> reducer next_page_num: "+next_page_num+" -- signature_size "+signature_size) 
-        let new_sig = null;
-        [next_page_num, sheet_i, folio_i, new_sig] = populate_signature(next_page_num, sheet_i, folio_i, signature_size);
-        console.log(" >>>>>> next_page_num "+next_page_num+" --- new_sig"+ new_sig) 
-        window.book.imposed.signatures.push(new_sig);
-        console.log(" >>> sig size: "+window.book.imposed.signatures.length+"  /  "+ window.book.imposed.sheets.length +" sheets");
-        return next_page_num + 20;
+      let new_sig = null;
+      // signature_size = ((next_page_num + signature_size * 4) < max_page_num) ? signature_size : Math.ceil((max_page_num - next_page_num)/4)
+      // console.log("signature_size : "+signature_size)
+      [next_page_num, sheet_i, folio_i, new_sig] = populate_signature(next_page_num, sheet_i, folio_i, signature_size);
+      window.book.imposed.signatures.push(new_sig);
+      console.log(" > "+window.book.imposed.signatures.length+" signatures, "+window.book.imposed.sheets.length+" sheets ~ page "+next_page_num+" ~ signature_size : "+signature_size)
+      return next_page_num;
     }
     while (sig_start < max_page_num) {
-      console.log(" >> "+sig_start+" < "+max_page_num)
       sig_start = sig_sequence.reduce(reducer, sig_start)
-      console.log(" >>> "+sig_start+" < "+max_page_num)
     }
   },
   calImpositionInfo: function(pageCount) {
@@ -91,15 +87,17 @@ export const form = {
       outputEl.innerHTML = "<mark>Invalid input ["+inputEl.value+"] - requires single number or a comma separated list of numbers</mark>"
       return;
     }
-
+    this._populateSheets(counts)
     let s = "<small>"
     const isSuggestion = counts.length == suggested.length && counts.every((x,i) => x == suggested[i])
     const suggestedCounts = (canCustomize && !isSuggestion) ? "<sub>suggested "+suggested.join(", ")+"</sub>" : ""
     s += "Given: " + counts.join(", ") +" folios per signature  "+suggestedCounts+"<br>"
-    s += " -> Signature size(s): " + counts.map(x => x * 4).join(", ")+"<br>"
+    s += " ➥ Signature size(s): " + counts.map(x => x * 4).join(", ")+"<br>"
     s += "With "+folioPerSheet.reduce((acc, x) => acc + x, 0) + " folios per sheet<br>"
     s += "And "+ pageCount + " pages ("+Math.ceil(pageCount/4)+" folios)<br>"
+    s += " ➥ "+window.book.imposed.sheets.length+" printed sheets<br>"
+    s += " ➥ "+window.book.imposed.signatures.length+" signatures<br>"
     outputEl.innerHTML = s +"</small>"
-    this._populateSheets(counts)
+    
   }
 }
