@@ -39,9 +39,9 @@ export const vip = {
     window.drawing.updatePdfOrientationExample();
   },
   handlePageImpositionUpdate: function(i) {
-    window.book.imposition["canCustomizeCounts"] = imposition_options[i][3]
-    window.book.imposition["defaultFolioCounts"] = imposition_options[i][4]
-    window.book.imposition["foliosPerSheet"] = imposition_options[i][5]
+    window.book.imposition.canCustomizeCounts = imposition_options[i][3]
+    window.book.imposition.defaultFolioCounts = imposition_options[i][4]
+    window.book.imposition.foliosPerSheet = imposition_options[i][5]
     form.setSelectedImpositionInfo(imposition_options[i])
     form.calImpositionInfo(window.book.unified_source.pageCount)
   },

@@ -8,9 +8,9 @@
   <script language="javascript">
     window.book = {
       upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument } */],
-      unified_source: { pageCount: 123 /* pdf: PDFLib.PDFDocument, pageCount: Int, maxWidth: Int, maxHeight: Int, _scale100px: Int, leftRotDeg: Int, rightRotDeg: Int  */ }, 
+      unified_source: { pageCount: 124 /* pdf: PDFLib.PDFDocument, pageCount: Int, maxWidth: Int, maxHeight: Int, _scale100px: Int, leftRotDeg: Int, rightRotDeg: Int  */ }, 
       imposition: { /* canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>*/},
-      imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>> */ },
+      imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, hasSplitSig: Boolean, requiresCutting: Boolean */ },
       page_orientation: null,
     }
     function fakeBook() {
@@ -335,9 +335,7 @@
         <table>
           <tr>
             <td id="imposition_more_info"><div id="imposition_more_info_text"></div></td>
-            <td rowspan="2">Folding instructions<br>
-                          <div id="imposition_folio_calculations" style="display:none;"></div>
-                        </td>
+            <td rowspan="2"><div id="imposition_folio_calculations" style="display:none;"></div></td>
           </tr>
           <tr>
             <td>
@@ -349,14 +347,14 @@
               <div id="imposition_options_list"></div>
               <script language="javascript">
                 imposition_options = [
-                  ["single", "Single", "1 page per side, no folio", false, -1, [], "Yes, this is just like the source PDF -- not really useful for bookbinding/imposition, but given all the other features (trimming, re-ordering, padding) I figured why not"],
+                  ["single", "Single", "1 page per side, no folio", false, -1, [0.5], "Yes, this is just like the source PDF -- not really useful for bookbinding/imposition, but given all the other features (trimming, re-ordering, padding) I figured why not"],
                   ["folio", "Folio", "2 pages per side, 1 folio", true, 4, [1], "Minimal folding, large book, no cutting/trimming needed. Classic for beginners but too large for my personal taste"],
                   ["quarto", "Quarto", "4 pages per side, 2 folio", true, 4, [2], "Perfect! Produces something closer to a more 'typical' book IMO with room to trim -- you could cut the folios apart pre-assembly, leave them folded and wait for the trimming step to separate, or go old school and make an <a href='https://onlineacademiccommunity.uvic.ca/theopenbook/2024/02/15/opening-the-unopened/' target='_blank'>unopend book</a> for the reader to slice with their <a href='https://en.wikipedia.org/wiki/Paper_knife' target='_blank'>paper knife</a> as they read"],
-                  ["6_side", "Sexto", "6 pages per side, 3 folio", true, 4, [3], "A wide format, assembled via an easy zig zag fold"],
+                  ["6_side", "Sexto", "6 pages per side, 3 folio", true, 3, [3], "A wide format, assembled via an easy zig zag fold"],
                   ["octavo_fat", "Octavo [fat]", "8 pages per side, 4 folio", true, 4, [4], "Starting to get smaller but still easy to assemble. This has nested folds on the top AND on the side that can sometimes be bulky - binder's prefernece"],
                   ["octavo_thin", "Ocatvo [thin]", "8 pages per side, 4 folio", true, 4, [4], "Starting to get smaller but still easy to assemble. This has a fold on edge that could compound skew problems, but there's no nested top fold - binder's preference"],
                   ["sextodecimo", "Sextodecimo", "16 pages per side, 8 folio", true, 4, [8], "Palm sized on most paper"],
-                  ["8_zine", "8 Page Zine", "special assembly", false, -1, [], "Classic format that requires no glue but is a fixed size. Printed on one side, it requires a small slide down the center. There are many better write-ups out there on how to assemble it- like <a href='https://www.quarantinepubliclibrary.com/tutorial' target='_blank'>like this one!</a>"],
+                  ["8_zine", "8 Page Zine", "special assembly", false, -1, [8], "Classic format that requires no glue but is a fixed size. Printed on one side, it requires a small slide down the center. There are many better write-ups out there on how to assemble it- like <a href='https://www.quarantinepubliclibrary.com/tutorial' target='_blank'>like this one!</a>"],
                   ["small_3_by_3", "Small", "18 per side, 3 folio x 3", false, 3, [3,3,3], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (3 folio)"],
                   ["little_3_3_4", "Litte", "20 per side, 3/3/4 folio", false, "3,3,4", [3,3,4], "Custom imposition - requires cutting the sheet into 3 different sections which are then assembled into fixed signature sizes (two 3 folios and a 4 folio per sheet)"],
                   ["tiny_4_by_4", "Tiny", "32 per side, 4 folio x 4", false, 4, [4,4,4,4], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (4 folio)"],
