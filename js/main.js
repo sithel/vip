@@ -39,7 +39,14 @@ export const vip = {
     window.drawing.updatePdfOrientationExample();
   },
   handlePageImpositionUpdate: function(i) {
-    document.getElementById("imposition_more_info_text").innerHTML = imposition_options[i][3]
+    window.book.imposition["canCustomizeCounts"] = imposition_options[i][3]
+    window.book.imposition["defaultFolioCounts"] = imposition_options[i][4]
+    window.book.imposition["foliosPerSheet"] = imposition_options[i][5]
+    form.setSelectedImpositionInfo(imposition_options[i])
+    form.calImpositionInfo(window.book.unified_source.pageCount)
+  },
+  handleFoliosPerSigUpdate: function() {
+    form.calImpositionInfo(window.book.unified_source.pageCount)
   },
   /*{ pageSelection: String, precedingBlanks: Int , file: File }*/
   uploadBlockBlank: function(e) {

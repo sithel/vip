@@ -8,7 +8,9 @@
   <script language="javascript">
     window.book = {
       upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument } */],
-      unified_source: { /* pdf: PDFLib.PDFDocument, pageCount: Int, maxWidth: Int, maxHeight: Int, _scale100px: Int, leftRotDeg: Int, rightRotDeg: Int  */ }, 
+      unified_source: { pageCount: 123 /* pdf: PDFLib.PDFDocument, pageCount: Int, maxWidth: Int, maxHeight: Int, _scale100px: Int, leftRotDeg: Int, rightRotDeg: Int  */ }, 
+      imposition: { /* canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>*/},
+      imposed: { /* sheets */ },
       page_orientation: null,
     }
     function fakeBook() {
@@ -132,14 +134,24 @@
       }
     }
     #imposition_layout {
+      .imposition_option {
+        display:inline-block;
+        width: 200px;
+        margin-right: 25px;
+      }
       #imposition_more_info {
         width: 50%;
         font-size: 0.75em;
         height: 150px;
         padding: 0px;
       }
+      #folios_per_signature {
+        width: 150px;
+        padding: 1px 5px;
+        margin: 0px;
+      }
+      }
       table {
-        width: 80%;
         margin-left: 40px;
       }
       td:nth-child(even) {
@@ -205,7 +217,7 @@
             This is a tool written mostly for myself, made available for others.  It is focused on at-home, hobbiest printing for bookbinding (or pamphlets or zines)<br>
             Imposition is the process of arranging multiple pages of a PDF onto a printed sheet so that they appear in the correct order after folding (some cutting may be involved)<br><br>
             Relevant terms, as used by this tool:<br>
-            <b>folio</b> - folded piece of paper. part of a signature. made up of 4 pages. made up of 2 leaves<br>
+            <b>folio</b> - a piece of paper with a single fold down the middle. part of a signature. made up of 4 pages. made up of 2 leaves<br>
             <b>leaf</b> - half of a folio. made up of 2 pages. if you were to "tear a page out of a book", you'd be tearing a leaf out<br>
             <b>page</b> - single page from the PDF, single page in the result. likely has a single page number on it<br>
             <b>sheet</b> - the piece of paper fed into your printer, has 2 sides<br>
@@ -316,30 +328,40 @@
         <details>
           <summary>Instructions/Details</summary>
           <p>
-            This is how the PDF pages will be tiled on the printed page
+            This is how the PDF pages will be tiled on the printed page<br>
+            <mark>Folios per Signature</mark> can take a single number (all signatures the same size) or a comma separated list of numbers of numbers for variable signature sizes (the sequence provided will be repeated if it does not account for all pages)
           </p>
         </details>
         <table>
           <tr>
             <td id="imposition_more_info"><div id="imposition_more_info_text"></div></td>
-            <td rowspan="2">Folding instructions</td>
+            <td rowspan="2">Folding instructions<br>
+                          <div id="imposition_folio_calculations" style="display:none;"></div>
+                        </td>
           </tr>
           <tr>
             <td>
-              Signatures
+              Folios per Signature: <input type="text" placeholder="666" disabled id="folios_per_signature" oninput="vip.handleFoliosPerSigUpdate()">
             </td>
           </tr>
           <tr>
-            <td>
+            <td width="100%" colspan="2">
               <div id="imposition_options_list"></div>
               <script language="javascript">
                 imposition_options = [
-                  ["single", "Single", "1 page per side", "Yes, this is just like the source PDF -- not really useful for bookbinding/imposition, but given all the other features (trimming, re-ordering, padding) I figured why not"],
-                  ["folio", "Folio", "2 pages per side, 1 folio", "Minimal folding, large book, no cutting/trimming needed. Classic for beginners but too large for my personal taste"],
-                  ["quarto", "Quarto", "4 pages per side, 2 folio", "Perfect! Produces something closer to a more 'typical' book IMO with room to trim -- you could cut the folios apart pre-assembly, leave them folded and wait for the trimming step to separate, or go old school and make an <a href='https://onlineacademiccommunity.uvic.ca/theopenbook/2024/02/15/opening-the-unopened/' target='_blank'>unopend book</a> for the reader to slice with their <a href='https://en.wikipedia.org/wiki/Paper_knife' target='_blank'>paper knife</a> as they read"],
-                  ["octavo_fat", "Octavo [fat]", "8 pages per side, 4 folio", "Starting to get smaller but still easy to assemble. This has nested folds on the top AND on the side that can sometimes be bulky - binder's prefernece"],
-                  ["octavo_thin", "Ocatvo [thin]", "8 pages per side", "Starting to get smaller but still easy to assemble. This has a fold on edge that could compound skew problems, but there's no nested top fold - binder's preference"],
-                  ["6_side", "", "8 pages per side", "Starting to get smaller but still easy to assemble. This has a fold on edge that could compound skew problems, but there's no nested top fold - binder's preference"],
+                  ["single", "Single", "1 page per side, no folio", false, -1, [], "Yes, this is just like the source PDF -- not really useful for bookbinding/imposition, but given all the other features (trimming, re-ordering, padding) I figured why not"],
+                  ["folio", "Folio", "2 pages per side, 1 folio", true, 4, [1], "Minimal folding, large book, no cutting/trimming needed. Classic for beginners but too large for my personal taste"],
+                  ["quarto", "Quarto", "4 pages per side, 2 folio", true, 4, [2], "Perfect! Produces something closer to a more 'typical' book IMO with room to trim -- you could cut the folios apart pre-assembly, leave them folded and wait for the trimming step to separate, or go old school and make an <a href='https://onlineacademiccommunity.uvic.ca/theopenbook/2024/02/15/opening-the-unopened/' target='_blank'>unopend book</a> for the reader to slice with their <a href='https://en.wikipedia.org/wiki/Paper_knife' target='_blank'>paper knife</a> as they read"],
+                  ["6_side", "Sexto", "6 pages per side, 3 folio", true, 4, [3], "A wide format, assembled via an easy zig zag fold"],
+                  ["octavo_fat", "Octavo [fat]", "8 pages per side, 4 folio", true, 4, [4], "Starting to get smaller but still easy to assemble. This has nested folds on the top AND on the side that can sometimes be bulky - binder's prefernece"],
+                  ["octavo_thin", "Ocatvo [thin]", "8 pages per side, 4 folio", true, 4, [4], "Starting to get smaller but still easy to assemble. This has a fold on edge that could compound skew problems, but there's no nested top fold - binder's preference"],
+                  ["sextodecimo", "Sextodecimo", "16 pages per side, 8 folio", true, 4, [8], "Palm sized on most paper"],
+                  ["8_zine", "8 Page Zine", "special assembly", false, -1, [], "Classic format that requires no glue but is a fixed size. Printed on one side, it requires a small slide down the center. There are many better write-ups out there on how to assemble it- like <a href='https://www.quarantinepubliclibrary.com/tutorial' target='_blank'>like this one!</a>"],
+                  ["small_3_by_3", "Small", "18 per side, 3 folio x 3", false, 3, [3,3,3], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (3 folio)"],
+                  ["little_3_3_4", "Litte", "20 per side, 3/3/4 folio", false, "3,3,4", [3,3,4], "Custom imposition - requires cutting the sheet into 3 different sections which are then assembled into fixed signature sizes (two 3 folios and a 4 folio per sheet)"],
+                  ["tiny_4_by_4", "Tiny", "32 per side, 4 folio x 4", false, 4, [4,4,4,4], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (4 folio)"],
+                  ["mini", "Mini", "60 per side, 2/3 folio x 6 ", false, "2,3", [2,3,2,3,2,3,2,3,2,3,2,3], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes- each row is made up of two signatures "],
+                  ["thumb", "Thumbnail", "???", false, -1, [], "gotta' figure this out"]
                   ]
                 imposition_options.forEach((o, i) => {
                   drawing.renderImpositionOptions(document.getElementById("imposition_options_list"), o, i)

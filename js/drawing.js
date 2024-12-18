@@ -1,5 +1,13 @@
 drawing = {
-  /* info: [0] - id, [1] - display name (short), [2] - brief desc, [3] - long desc */
+  /* info: 
+  [0] - id, 
+  [1] - display name (short), 
+  [2] - brief desc, 
+  [3] - can customize folio count
+  [4] - default folio count
+  [5] - list of folios per sheet
+  [6] - long desc 
+  */
   renderImpositionOptions: function(el, info, i){
     let newNode = document.createElement("div");
     s = `
@@ -7,6 +15,8 @@ drawing = {
     <label for="`+info[0]+`">`+info[1]+`</label><br>
     <small><label for="`+info[0]+`">`+info[2]+`</label></small>
     `
+    newNode.id = 'option_'+info[0]
+    newNode.setAttribute("class","imposition_option")
     newNode.innerHTML = s;
     el.appendChild(newNode)
   },
