@@ -8,7 +8,7 @@
   <script language="javascript">
     window.book = {
       upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument } */],
-      unified_source: { pageCount: 124 /* pdf: PDFLib.PDFDocument, pageCount: Int, maxWidth: Int, maxHeight: Int, _scale100px: Int, leftRotDeg: Int, rightRotDeg: Int  */ }, 
+      unified_source: { pageCount: 124 /* pdf: PDFLib.PDFDocument, pageCount: Int, maxWidth: Int, maxHeight: Int, _scale100px: Int, leftRotDeg: Int, rightRotDeg: Int, marginLeft: Int, marginRight: Int, marginTop: Int, marginBottom: Int  */ }, 
       imposition: { /* canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>*/},
       imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, hasSplitSig: Boolean, requiresCutting: Boolean */ },
       page_orientation: null,
@@ -84,7 +84,34 @@
         border: 1px solid black;
       }
     }
-    #page_orientation {
+    #page_manipulation {
+      #pdf_marins_example{
+        float:right;
+        width: auto;
+        td {
+          background: #daa52042;
+          border: 1px solid black;
+          padding: 0px;
+          margin:0px;
+        }
+      }
+      #pdf_margins {
+        margin-left: 40px;
+        input {
+          width: 75px;
+          padding: 0px 4px;
+          margin: 0px;
+        }
+        label {
+          width: auto;
+          display: inline-block;
+        }
+        #pdf_margins_center {
+          display: inline-block;
+          vertical-align: middle;
+          text-align: right;
+        }
+      }
       div {
         display: inline;
       }
@@ -188,6 +215,9 @@
       select {
         width: 10em;
       }
+      #paper_size_options {
+        width: 20em;
+      }
       input {
         width: 10em;
       }
@@ -197,6 +227,32 @@
       }
       small {
         display: inline;
+      }
+    }
+    #pdf_placement {
+      #layout_padding {
+        margin-left: 40px;
+        input {
+          width: 75px;
+          padding: 0px 4px;
+          margin: 0px;
+        }
+        label {
+          width: auto;
+          display: inline-block;
+        }
+        #pdf_margins_center {
+          display: inline-block;
+          vertical-align: middle;
+          text-align: right;
+        }
+      }
+      #pdf_page_scaling_label, #pdf_white_space_placement_label {
+        display: inline;
+        margin-left: 40px;
+      }
+      #pdf_page_scaling, #pdf_white_space_placement {
+        width:auto;
       }
     }
     #footer {
@@ -284,11 +340,32 @@
         </details>
       </section>
 
-      <section id="page_orientation">
-        <h2>2. PDF Orientation</h2>
+      <section id="page_manipulation">
+        <h2>2. PDF Manipulation</h2>
+          <details>
+          <summary>Explanation</summary>
+          <p>
+            This is to alter the (pre-rotation) PDF dimensions - negative values cut into the PDF, positive values expand/pad the PDF
+          </p>
+        </details>
+        <table id="pdf_marins_example" style="display:none;">
+          <tr><td colspan="3" id="example_pdf_margin_top"></td></tr>
+          <tr><td id="example_pdf_margin_left"></td><td id="example_pdf_margin_block"></td><td id="example_pdf_margin_right"></td></tr>
+          <tr><td colspan="3" id="example_pdf_margin_bottom"></td></tr>
+        </table>
+        <div id="pdf_margins">
+          PDF Margins<br> &nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="pdf_marin_left">left </label><input type=number size="2" id="pdf_marin_left" oninput="vip.handlePdfMarginUpdate()">
+              <div id="pdf_margins_center">
+                <label for="pdf_marin_top">top</label> <input type=number size="2" id="pdf_marin_top" oninput="vip.handlePdfMarginUpdate()"><br>
+                <label for="pdf_marin_bottom"> bottom </label><input type=number size="2" id="pdf_marin_bottom" oninput="vip.handlePdfMarginUpdate()">
+              </div>
+              <input type=number size="2" id="pdf_marin_right" oninput="vip.handlePdfMarginUpdate()"><label for="pdf_marin_right"> right</label>
+        </div>
         <div id="example_pdf_orientation" style="visibility: hidden;">
           <div id="example_pdf_orientation_page_right" ></div><div id="example_pdf_orientation_spine" ></div><div id="example_pdf_orientation_page_left" ></div>
         </div>
+        <br style="float:clear;">
         <details>
           <summary>Explanation</summary>
           <p>
@@ -379,32 +456,79 @@
           </p>
         </details>
         <label for="select">Display Units</label>
-        <select id="select" name="select" required>
-          <option value="" selected>Metric</option>
-          <option>Imperial</option>
+        <select id="select" name="select" required onchange="vip.handleUnitChange(this)">
+          <option value="metric" id="unit_metric" data-display="cm" data-convert-from-pt=1/28.346 selected>Metric (cm)</option>
+          <option value="imperial" id="unit_imperial" data-display="in" data-convert-from-pt=1/72>Imperial</option>
+          <option value="points" id="unit_points"  data-display="pt" data-convert-from-pt=1>Points</option>
         </select>
         <BR>
         <fieldset  role="group">
           Paper Size&nbsp;
-          <select id="select" name="select" required>
+          <select id="paper_size_options" name="paper_size_options" required>
             <option value="" selected>Letter</option>
             <option>A4</option>
           </select>
           <input type="text" id="paper_size" name="paper_size" placeholder="10x30" aria-invalid="false" />
         </fieldset>
-        <small>cm</small>
+        <small class="units">cm</small>
         <BR>
         Margin Short Sides
         <input type="number" id="paper_margin_top" name="paper_margin_top" placeholder="0" />
-        <small>cm</small>
+        <small class="units">cm</small>
         <br>
         Margin Long Sides
         <input type="number" id="paper_margin_top" name="paper_margin_top" placeholder="0" />
-        <small>cm</small>
+        <small class="units">cm</small>
+      </section>
+
+      <section id="pdf_placement">
+        <h2>6. PDF Placement</h2>
+        <details>
+          <summary>Instructions/Details</summary>
+          <p>
+            <b>Original</b><br>
+            Only the <code>top</code> and <code>inner</code> margins are considered. Positive values shift it down/away from the spine. Negative values shift it up/towards the spine.<BR>
+            <b>Fit - Proportional</b><br>
+            Positive padding numbers push the PDF inward, makes it smaller. Negative padding pulls it out, making it larger. A padding of <code>N</code> on one side and <code>-N</code> on the other side of the PDf is the same as translating/shifting it. The PDF will scale such that it's small enough to honor the tightest constraints (ex: inner/outer margins that squeeze the PDF will override top/bottom margins that expand the PDF)<BR>
+            <b>Fit - Proportional</b><br>
+            Positive padding numbers push the PDF inward, makes it smaller. Negative padding pulls it out, making it larger. A padding of <code>N</code> on one side and <code>-N</code> on the other side of the PDf is the same as translating/shifting it.
+          </p>
+        </details>
+        <div>
+          <label id="pdf_page_scaling_label" for="pdf_page_scaling">PDF Scaling</label>
+          <select id="pdf_page_scaling" name="select" required onchange="vip.handlePdfPageScaling(this)">
+            <option value="original" id="scaling_original">Original</option>
+            <option value="fit" id="scaling_fit">Fit - Proportional</option>
+            <option value="fill" id="scaling_fill">Fill - Stretch</option>
+          </select>
+        </div>
+        <div id="layout_padding">
+          Padding<br> &nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="pdf_padding_inner">inner </label><input type=number size="2" id="pdf_padding_inner" oninput="vip.handlePdfMarginUpdate()">
+              <div id="pdf_margins_center">
+                <label for="pdf_padding_bottom">top</label> <input type=number size="2" id="pdf_padding_top" oninput="vip.handlePdfMarginUpdate()"><br>
+                <label for="pdf_padding_bottom"> bottom </label><input type=number size="2" id="pdf_padding_bottom" oninput="vip.handlePdfMarginUpdate()">
+              </div>
+              <input type=number size="2" id="pdf_padding_outer" oninput="vip.handlePdfMarginUpdate()"><label for="pdf_padding_outer"> outer</label>
+        </div>
+        <div>
+          <label id="pdf_white_space_placement_label" for="pdf_white_space_placement">PDF Positioning</label>
+          <select id="pdf_white_space_placement" name="select" required onchange="vip.handlePdfPageScaling(this)">
+            <option value="snug_center" id="placement_snug_center">snug against spine, centered vertically</option>
+            <option value="snug_top" id="placement_snug_top">snug against spine, top aligned</option>
+            <option value="center" id="placement_center">centered horizontally, centered vertially</option>
+            <option value="center_top" id="placement_center_top">centered horizontally, top aligned</option>
+          </select>
+        </div>
+        <svg height="150" width="150" id="pdf_placement_svg">
+        </svg>
+        <script language="javascript">
+          drawing.renderPreviewSvg(document.getElementById("pdf_placement_svg"))
+        </script>
       </section>
 
       <section id="printed_page_markup">
-        <h2>6. Markup</h2>
+        <h2>7. Markup</h2>
         <details>
           <summary>Instructions/Details</summary>
           <p>
@@ -414,7 +538,7 @@
       </section>
 
       <section id="printed_page_adjustment">
-        <h2>7. Post-Processing</h2>
+        <h2>8. Post-Processing</h2>
         <details>
           <summary>Instructions/Details</summary>
           <p>
@@ -425,7 +549,7 @@
       </section>
 
       <section id="pdf_preview">
-        <h2>8. Preview</h2>
+        <h2>9. Preview</h2>
         <details>
           <summary>Instructions/Details</summary>
           <p>
@@ -436,7 +560,7 @@
       </section>
 
       <section id="pdf_download">
-        <h2>9. Download</h2>
+        <h2>10. Download</h2>
         <details>
           <summary>Instructions/Details</summary>
           <p>

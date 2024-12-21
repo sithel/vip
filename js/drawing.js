@@ -82,6 +82,8 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
     let spineWidth = 5;
     let w = deets.maxWidth * deets._scale100px;
     let h = deets.maxHeight * deets._scale100px;
+    const marginDeets = "width:"+w+"px;height:"+h+"px;display:block;background:red;margin-bottom:10px;"
+    document.getElementById("example_pdf_margin_block").setAttribute("style",marginDeets);
     let isTurned = Math.abs(deets.leftRotDeg) == 90
     let basePageDeets = `width:${(isTurned) ? h : w}px;height:${(isTurned) ? w : h}px;`
     document.getElementById("example_pdf_orientation_page_left").setAttribute("style",basePageDeets);
@@ -89,5 +91,36 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
     let spineDeets = `width:${spineWidth}px;height:${(isTurned)? w : h}px;`
     document.getElementById("example_pdf_orientation_spine").setAttribute("style",spineDeets)
     document.getElementById("example_pdf_orientation").setAttribute("style","")
+  },
+  renderPreviewSvg: function(el) {
+    const color1 = `repeating-linear-gradient(
+    133deg,
+    #ffeb3b3b,
+    #ffc1078c 10px,
+    #ff9800 10px,
+    #ff9800 15px
+  )`
+    const cell_w = Math.random() * 100 + 50
+    const cell_h = Math.random() * 150 + 50
+    const w = Math.random() * 100 + 50
+    const h = Math.random() * 150 + 50
+    el.innerHTML = `
+          <defs>
+            <linearGradient id="Gradient-1"x1="3%" y1="4%" x2="6%" y2="6%">
+                <stop offset="0%" stop-color= "red" />
+                <stop offset="50%" stop-color= "white" />
+              </linearGradient>
+            <linearGradient id="repeat-1"xlink:href="#Gradient-1"spreadMethod="repeat" />
+            <linearGradient id="Gradient-2"x1="-3%" y1="-4%" x2="6%" y2="6%">
+                <stop offset="0%" stop-color= "green" />
+                <stop offset="50%" stop-color= "white" />
+              </linearGradient>
+            <linearGradient id="repeat-2"xlink:href="#Gradient-2"spreadMethod="repeat" />
+          </defs>
+          <rect x="25" y=0 width="`+cell_w+`" height="`+cell_h+`"  fill= "url(#repeat-1)"></rect>
+          <rect x="40" y="10" width="`+w+`" height="`+h+`"  fill= "url(#repeat-2)"></rect>
+          <rect x="20" y="0" width="5" height="`+cell_h+`" style="fill:rgb(84 98 45 / 43%);"></rect>
+          <text x="-50" y="15" class="small" transform="rotate(-90 0 0)" style="color:rgb(1 1 1 / 78%);">spine</text>
+    `
   }
 }

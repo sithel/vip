@@ -1,4 +1,4 @@
-import { form } from './helper.js';
+import { form, PAGE_SIZES } from './helper.js';
 import { utils } from './pdf.js';
 
 export const basic = {
@@ -32,6 +32,18 @@ export const vip = {
     }
     utils.processUploadBlocks(callback);
   },
+  handlePdfMarginUpdate: function() {
+    const top = parseInt(document.getElementById("pdf_marin_top").value)
+    window.book.unified_source.marginTop = (isNaN(top)) ? 0 : top
+    const bottom = parseInt(document.getElementById("pdf_marin_bottom").value)
+    window.book.unified_source.marginBottom = (isNaN(bottom)) ? 0 : bottom
+    const left = parseInt(document.getElementById("pdf_marin_left").value)
+    window.book.unified_source.marginLeft = (isNaN(left)) ? 0 : left
+    const right = parseInt(document.getElementById("pdf_marin_right").value)
+    window.book.unified_source.marginRight = (isNaN(right)) ? 0 : right
+    console.log(" margins "+window.book.unified_source.marginTop+" / "+window.book.unified_source.marginBottom+" / " + window.book.unified_source.marginLeft +" / "+ window.book.unified_source.marginRight)
+    form.renderPDFMarginPreview()
+  },
   handlePageOrientationUpdate: function(e) {
     console.log("PDF orientation set to option "+ e.getAttribute("data-page-orientation-id"))
     window.book.unified_source.leftRotDeg = parseInt(e.getAttribute("data-page-orientation-left"))
@@ -63,6 +75,26 @@ export const vip = {
     let id = parseInt(e.getAttribute("data-upload-index"))
     console.log("I see [page selection] "+id+" has ["+e.value+"] ", e)
     window.book.upload_blocks[id].pageSelection = e.value
+  },
+  handlePdfPageScaling: function() {
+
+  },
+  handleUnitChange: function(e) {
+    const roundIt = function(num) {
+      return Math.round((num + Number.EPSILON) * 100) / 100
+    }
+    const selected = document.getElementById("unit_"+e.value)
+    const display = selected.getAttribute("data-display")
+    const scale = eval(selected.getAttribute("data-convert-from-pt"))
+    Array.from(document.getElementsByClassName("units")).forEach(x => x.innerHTML = display)
+    console.log("display "+ display+" / scale "+scale)
+    window.reb = PAGE_SIZES
+
+    document.getElementById("paper_size_options").innerHTML = Object.keys(PAGE_SIZES)
+      .map(p => "<option value='"+p+"'>"+p+" ("+roundIt(PAGE_SIZES[p][0] * scale)+" x "+roundIt(PAGE_SIZES[p][1] * scale)+" "+display+")</option>")
+      // .map(s => console.log(" > size "+s.length+" :: ["+s+"]"))
+
+      .join("\n")
   }
   // renderPageRotationDemo : function(aRot, bRot, cRot, scale){ drawing.renderPageRotationDemo(aRot, bRot, cRot, scale) }
 }
