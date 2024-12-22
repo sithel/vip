@@ -201,6 +201,8 @@ export const form = {
     if (window.book.imposed.hasSplitSig)
       s += "<mark> ✂️ Warning : Signatures split across sheets! Is this what you really wanted? If not, double check your folios-per-signature</mark><br>"
     outputEl.innerHTML = s +"</small>"
-    
+  },
+  updatePlacementPreview: function(){
+    console.error("??? what call this? not written")
   }
 }

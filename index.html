@@ -8,22 +8,32 @@
   <script language="javascript">
     window.book = {
       upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument } */],
-      unified_source: { pageCount: 124 /* pdf: PDFLib.PDFDocument, pageCount: Int, maxWidth: Int, maxHeight: Int, _scale100px: Int, leftRotDeg: Int, rightRotDeg: Int, marginLeft: Int, marginRight: Int, marginTop: Int, marginBottom: Int  */ }, 
+      unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0 /* pdf: PDFLib.PDFDocument, pageCount: Int, maxWidth: Int, maxHeight: Int, _scale100px: Int,  */ }, 
       imposition: { /* canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>*/},
       imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, hasSplitSig: Boolean, requiresCutting: Boolean */ },
       page_orientation: null,
+      display_unit: null, // what to show, ex: cm
+      display_unit_scale: null // what to multiple pts by, ex: 1/72
     }
     function fakeBook() {
       window.book.unified_source = {pageCount: 120, maxWidth: 113.386, maxHeight: 170.079, _scale100px: 0.5879620646875864}
+    }
+    function roundIt(num) {
+      return Math.round((num + Number.EPSILON) * 100) / 100
     }
   </script>
 
   <script  type="module" language="javascript">
     import { basic, vip } from './js/main.js';
+    import { unified_source_modifier} from './js/state_modifiers.js';
     import { tests } from './tests/miscTests.js';
     tests();
+    unified_source_modifier.attach()
     window.basicLocal = basic
     window.vip = vip
+
+    document.getElementById("unit_selector").value = "points";
+    document.getElementById("unit_selector").dispatchEvent(new Event('change'));
   </script>
   <!-- Pico.css -->
   <link
@@ -230,6 +240,12 @@
       }
     }
     #pdf_placement {
+      small {
+        margin-bottom: 0px;
+      }
+      #layout_padding_center_info {
+        font-size: 0.75em;
+      }
       #layout_padding {
         margin-left: 40px;
         input {
@@ -345,7 +361,7 @@
           <details>
           <summary>Explanation</summary>
           <p>
-            This is to alter the (pre-rotation) PDF dimensions - negative values cut into the PDF, positive values expand/pad the PDF
+            This is to alter the (pre-rotation) PDF dimensions - negative values cut into the PDF, positive values expand/pad the PDF. For pages that are smaller than the max page size, they are first centered and then padded out to match the max size before the margin modifiers are applied. 
           </p>
         </details>
         <table id="pdf_marins_example" style="display:none;">
@@ -455,8 +471,8 @@
             Omg as if I knew...
           </p>
         </details>
-        <label for="select">Display Units</label>
-        <select id="select" name="select" required onchange="vip.handleUnitChange(this)">
+        <label for="unit_selector">Display Units</label>
+        <select id="unit_selector" name="unit_selector" required onchange="vip.handleUnitChange(this)">
           <option value="metric" id="unit_metric" data-display="cm" data-convert-from-pt=1/28.346 selected>Metric (cm)</option>
           <option value="imperial" id="unit_imperial" data-display="in" data-convert-from-pt=1/72>Imperial</option>
           <option value="points" id="unit_points"  data-display="pt" data-convert-from-pt=1>Points</option>
@@ -506,7 +522,8 @@
           Padding<br> &nbsp;&nbsp;&nbsp;
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="pdf_padding_inner">inner </label><input type=number size="2" id="pdf_padding_inner" oninput="vip.handlePdfMarginUpdate()"><small class="units">cm</small>
               <div id="pdf_margins_center">
-                <label for="pdf_padding_bottom">top</label> <input type=number size="2" id="pdf_padding_top" oninput="vip.handlePdfMarginUpdate()"><small class="units">cm</small><br>
+                <label for="pdf_padding_top">top</label> <input type=number size="2" id="pdf_padding_top" oninput="vip.handlePdfMarginUpdate()"><small class="units">cm</small><br>
+                <div id="layout_padding_center_info"></div>
                 <label for="pdf_padding_bottom"> bottom </label><input type=number size="2" id="pdf_padding_bottom" oninput="vip.handlePdfMarginUpdate()"><small class="units">cm</small>
               </div>
               <label for="pdf_padding_outer"> outer</label><input type=number size="2" id="pdf_padding_outer" oninput="vip.handlePdfMarginUpdate()"><small class="units">cm</small>

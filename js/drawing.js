@@ -80,11 +80,9 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
       return
     }
     let spineWidth = 5;
-    let w = deets.maxWidth * deets._scale100px;
-    let h = deets.maxHeight * deets._scale100px;
+    const {w, h, isTurned} = window.book.unified_source.calcRotationPreviewRenderInfo()
     const marginDeets = "width:"+w+"px;height:"+h+"px;display:block;background:red;margin-bottom:10px;"
     document.getElementById("example_pdf_margin_block").setAttribute("style",marginDeets);
-    let isTurned = Math.abs(deets.leftRotDeg) == 90
     let basePageDeets = `width:${(isTurned) ? h : w}px;height:${(isTurned) ? w : h}px;`
     document.getElementById("example_pdf_orientation_page_left").setAttribute("style",basePageDeets);
     document.getElementById("example_pdf_orientation_page_right").setAttribute("style",basePageDeets)

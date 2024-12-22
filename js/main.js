@@ -29,6 +29,7 @@ export const vip = {
       detailsEl.removeAttribute("style")
       detailsEl.setAttribute("open", "")
       console.log("=== Processing Uploads Complete ")
+      window.book.unified_source.processUpdate()
     }
     utils.processUploadBlocks(callback);
   },
@@ -43,12 +44,13 @@ export const vip = {
     window.book.unified_source.marginRight = (isNaN(right)) ? 0 : right
     console.log(" margins "+window.book.unified_source.marginTop+" / "+window.book.unified_source.marginBottom+" / " + window.book.unified_source.marginLeft +" / "+ window.book.unified_source.marginRight)
     form.renderPDFMarginPreview()
+    window.book.unified_source.processUpdate();
   },
   handlePageOrientationUpdate: function(e) {
     console.log("PDF orientation set to option "+ e.getAttribute("data-page-orientation-id"))
     window.book.unified_source.leftRotDeg = parseInt(e.getAttribute("data-page-orientation-left"))
     window.book.unified_source.rightRotDeg = parseInt(e.getAttribute("data-page-orientation-right"))
-    window.drawing.updatePdfOrientationExample();
+    window.book.unified_source.processUpdate()
   },
   handlePageImpositionUpdate: function(i) {
     window.book.imposition.canCustomizeCounts = imposition_options[i][3]
@@ -80,12 +82,12 @@ export const vip = {
 
   },
   handleUnitChange: function(e) {
-    const roundIt = function(num) {
-      return Math.round((num + Number.EPSILON) * 100) / 100
-    }
+    const roundIt = window.roundIt;
     const selected = document.getElementById("unit_"+e.value)
     const display = selected.getAttribute("data-display")
     const scale = eval(selected.getAttribute("data-convert-from-pt"))
+    window.book.display_unit = display
+    window.book.display_unit_scale = scale
     Array.from(document.getElementsByClassName("units")).forEach(x => x.innerHTML = display)
     console.log("display "+ display+" / scale "+scale)
     window.reb = PAGE_SIZES
