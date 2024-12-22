@@ -100,10 +100,19 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
     #ff9800 10px,
     #ff9800 15px
   )`
-    const cell_w = Math.random() * 100 + 50
+    const cell_w = Math.random() * 100 + 50 // comes from imposition + paper
     const cell_h = Math.random() * 150 + 50
-    const w = Math.random() * 100 + 50
+    const w = Math.random() * 100 + 150     // comes from pdf input + pdf margin + pdf rotation
     const h = Math.random() * 150 + 50
+    const padding = {                       // comes from user input PDF Placement Padding
+      top: Math.random() * 10 + -5,
+      bottom: Math.random() * 10 + -5,
+      left: Math.random() * 10 + -5,
+      right: Math.random() * 10 + -5
+    }
+    const scale_mode = "fit"                // comes from user input pdf_page_scaling
+    const placement_mode = "snug_top"       // comes from user input pdf_white_space_placement
+
     el.innerHTML = `
           <defs>
             <linearGradient id="Gradient-1"x1="3%" y1="4%" x2="6%" y2="6%">
@@ -113,11 +122,18 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
             <linearGradient id="repeat-1"xlink:href="#Gradient-1"spreadMethod="repeat" />
             <linearGradient id="Gradient-2"x1="-3%" y1="-4%" x2="6%" y2="6%">
                 <stop offset="0%" stop-color= "green" />
-                <stop offset="50%" stop-color= "white" />
+                <stop offset="50%" stop-color= "transparent" />
               </linearGradient>
             <linearGradient id="repeat-2"xlink:href="#Gradient-2"spreadMethod="repeat" />
+            <pattern id="pattern"
+                     width="12" height="10"
+                     patternUnits="userSpaceOnUse">
+              <rect x="0" y="0" fill="#00f" width="4" height="10"></rect>
+              <rect x="4" y="0" fill="#f00" width="4" height="10"></rect>
+              <rect x="8" y="0" fill="#0f0" width="4" height="10"></rect>
+            </pattern>
           </defs>
-          <rect x="25" y=0 width="`+cell_w+`" height="`+cell_h+`"  fill= "url(#repeat-1)"></rect>
+          <rect x="25" y=0 width="`+cell_w+`" height="`+cell_h+`"  fill= "url(#pattern)"></rect>
           <rect x="40" y="10" width="`+w+`" height="`+h+`"  fill= "url(#repeat-2)"></rect>
           <rect x="20" y="0" width="5" height="`+cell_h+`" style="fill:rgb(84 98 45 / 43%);"></rect>
           <text x="-50" y="15" class="small" transform="rotate(-90 0 0)" style="color:rgb(1 1 1 / 78%);">spine</text>

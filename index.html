@@ -237,7 +237,7 @@
           padding: 0px 4px;
           margin: 0px;
         }
-        label {
+        label, small {
           width: auto;
           display: inline-block;
         }
@@ -473,11 +473,11 @@
         <small class="units">cm</small>
         <BR>
         Margin Short Sides
-        <input type="number" id="paper_margin_top" name="paper_margin_top" placeholder="0" />
+        <input type="number" id="paper_margin_short" name="paper_margin_short" placeholder="0" />
         <small class="units">cm</small>
         <br>
         Margin Long Sides
-        <input type="number" id="paper_margin_top" name="paper_margin_top" placeholder="0" />
+        <input type="number" id="paper_margin_long" name="paper_margin_long" placeholder="0" />
         <small class="units">cm</small>
       </section>
 
@@ -504,12 +504,12 @@
         </div>
         <div id="layout_padding">
           Padding<br> &nbsp;&nbsp;&nbsp;
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="pdf_padding_inner">inner </label><input type=number size="2" id="pdf_padding_inner" oninput="vip.handlePdfMarginUpdate()">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="pdf_padding_inner">inner </label><input type=number size="2" id="pdf_padding_inner" oninput="vip.handlePdfMarginUpdate()"><small class="units">cm</small>
               <div id="pdf_margins_center">
-                <label for="pdf_padding_bottom">top</label> <input type=number size="2" id="pdf_padding_top" oninput="vip.handlePdfMarginUpdate()"><br>
-                <label for="pdf_padding_bottom"> bottom </label><input type=number size="2" id="pdf_padding_bottom" oninput="vip.handlePdfMarginUpdate()">
+                <label for="pdf_padding_bottom">top</label> <input type=number size="2" id="pdf_padding_top" oninput="vip.handlePdfMarginUpdate()"><small class="units">cm</small><br>
+                <label for="pdf_padding_bottom"> bottom </label><input type=number size="2" id="pdf_padding_bottom" oninput="vip.handlePdfMarginUpdate()"><small class="units">cm</small>
               </div>
-              <input type=number size="2" id="pdf_padding_outer" oninput="vip.handlePdfMarginUpdate()"><label for="pdf_padding_outer"> outer</label>
+              <label for="pdf_padding_outer"> outer</label><input type=number size="2" id="pdf_padding_outer" oninput="vip.handlePdfMarginUpdate()"><small class="units">cm</small>
         </div>
         <div>
           <label id="pdf_white_space_placement_label" for="pdf_white_space_placement">PDF Positioning</label>
