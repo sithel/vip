@@ -81,6 +81,44 @@ export const vip = {
   handlePdfPageScaling: function() {
 
   },
+  handlePaperSizeDropdownChange: function(el) {
+    console.log("We selected '"+el.value+"'")
+    console.log(PAGE_SIZES[el.value])
+    window.book.selected_paper_size = el.value
+    const customDimens = function() {
+      const customEl = document.getElementById("paper_size_custom")
+      return [customEl.getAttribute("data-width-pt"),customEl.getAttribute("data-height-pt")]
+    }
+    const dimens = (el.value == "custom") ? customDimens() : PAGE_SIZES[el.value]
+    window.book.selected_paper_dimensions = dimens
+    document.getElementById("paper_size").setAttribute("placeholder", dimens[0] +" x "+dimens[1])
+    if (el.value != "custom") {
+      document.getElementById("paper_size").value = ""
+    } else {
+      document.getElementById("paper_size").value = dimens[0] + " x " + dimens[1]
+    }
+  },
+  handleManualPaperSizeChange: function(el) {
+    const optionEl = document.getElementById("paper_size_custom")
+    console.log("Looking at '"+el.value+"' given ", optionEl)
+    if (el.value == "") {
+      el.removeAttribute("aria-invalid")
+      if (optionEl != null)
+        optionEl.remove()
+      return;
+    }
+    const [w,h] =el.value.split("x").map(n => n.trim()).map(n => n.trim()).map(n => parseInt(n))
+    const custom = (optionEl == null) ? document.createElement("option") : optionEl;
+    custom.setAttribute("value", "custom");
+    custom.setAttribute("id", "paper_size_custom");
+    custom.setAttribute("data-width-pt", w);
+    custom.setAttribute("data-height-pt", h);
+    custom.innerHTML = "Custom ("+w+" x "+h+")"
+    if (optionEl == null)
+      document.getElementById("paper_size_options").appendChild(custom)
+    el.setAttribute("aria-invalid", isNaN(w) || isNaN(h))
+    document.getElementById("paper_size_options").value = "custom"
+  },
   handleUnitChange: function(e) {
     const roundIt = window.roundIt;
     const selected = document.getElementById("unit_"+e.value)
@@ -94,8 +132,6 @@ export const vip = {
 
     document.getElementById("paper_size_options").innerHTML = Object.keys(PAGE_SIZES)
       .map(p => "<option value='"+p+"'>"+p+" ("+roundIt(PAGE_SIZES[p][0] * scale)+" x "+roundIt(PAGE_SIZES[p][1] * scale)+" "+display+")</option>")
-      // .map(s => console.log(" > size "+s.length+" :: ["+s+"]"))
-
       .join("\n")
   }
   // renderPageRotationDemo : function(aRot, bRot, cRot, scale){ drawing.renderPageRotationDemo(aRot, bRot, cRot, scale) }

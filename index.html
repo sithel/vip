@@ -13,7 +13,9 @@
       imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, hasSplitSig: Boolean, requiresCutting: Boolean */ },
       page_orientation: null,
       display_unit: null, // what to show, ex: cm
-      display_unit_scale: null // what to multiple pts by, ex: 1/72
+      display_unit_scale: null, // what to multiple pts by, ex: 1/72
+      selected_paper_size: null, // key into PAGE_SIZES object
+      selected_paper_dimensions: [0,0] // width / height in PT
     }
     function fakeBook() {
       window.book.unified_source = {pageCount: 120, maxWidth: 113.386, maxHeight: 170.079, _scale100px: 0.5879620646875864}
@@ -34,6 +36,8 @@
 
     document.getElementById("unit_selector").value = "points";
     document.getElementById("unit_selector").dispatchEvent(new Event('change'));
+    document.getElementById("paper_size_options").value = "LETTER";
+    document.getElementById("paper_size_options").dispatchEvent(new Event('change'));
   </script>
   <!-- Pico.css -->
   <link
@@ -348,7 +352,7 @@
             <span id="insert_pdf_source_details_here"></span>
             <span id="insert_pdf_source_errors_here"  style="visibility: hidden;"></span>
             <details id="extra_pdf_info" style="margin-left: 50px;">
-              <summary><small>Learn more about PDFs</small></summary>
+              <summary><small>Learn more about PDFs &amp; units </small></summary>
               <p>What unit are those numbers in? Some says they're 'PDF units' -- see <a href="https://supportz.activepdf.com/hc/en-us/articles/360002401633-What-are-PDF-Units-and-Coordinates" target="_blank">this page to learn about the PDF coordidate system!</a> -- but a better answer would be to look back towards old school typesetting and learn about <a href="https://en.wikipedia.org/wiki/Point_(typography)" target="_blank">Points</a> and <a href="https://en.wikipedia.org/wiki/Pica_(typography)" target="_blank">Pica</a>
               </p>
             </details>
@@ -480,11 +484,11 @@
         <BR>
         <fieldset  role="group">
           Paper Size&nbsp;
-          <select id="paper_size_options" name="paper_size_options" required>
+          <select id="paper_size_options" name="paper_size_options" onchange="vip.handlePaperSizeDropdownChange(this)"> 
             <option value="" selected>Letter</option>
             <option>A4</option>
           </select>
-          <input type="text" id="paper_size" name="paper_size" placeholder="10x30" aria-invalid="false" />
+          <input type="text" id="paper_size" name="paper_size" placeholder="10x30" oninput="vip.handleManualPaperSizeChange(this)"/>
         </fieldset>
         <small class="units">cm</small>
         <BR>
