@@ -37,7 +37,6 @@ export const PAGE_SIZES = {
   FLSA: [612, 936],
   FLSE: [648, 936],
   HALFLETTER: [396, 612],
-  _11X17: [792, 1224],
   ID_1: [242.65, 153],
   ID_2: [297, 210],
   ID_3: [354, 249],
@@ -71,7 +70,7 @@ export const form = {
     parent.removeChild(removeBtn)
   },
   setSelectedImpositionInfo: function(imp_info){ 
-    document.getElementById("imposition_more_info_text").innerHTML = imp_info[6]
+    document.getElementById("imposition_more_info_text").innerHTML = imp_info[7]
     if (window.book.imposition["canCustomizeCounts"])
       document.getElementById("folios_per_signature").removeAttribute("disabled")
     else {

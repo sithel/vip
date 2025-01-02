@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
   <!-- <script type="module" src="js/main.js"></script> -->
-
   <script src="js/drawing.js"></script>
   <script src="lib/pdf-lib.js"></script>
+  <script src="lib/jszip.js"></script>
+  <script src="lib/file-saver.js"></script>
 
   <script language="javascript">
     window.book = {
       upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument } */],
       unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0 /* pdf: PDFLib.PDFDocument, pageCount: Int, maxWidth: Int, maxHeight: Int, _scale100px: Int,  */ }, 
-      imposition: { /* canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>*/},
+      imposition: { /* canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>, cellCount_l:Int, cellCount_s:Int*/},
       imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, hasSplitSig: Boolean, requiresCutting: Boolean */ },
+      physical: { /* scaling: String, display_unit: String */},
       page_orientation: null,
       display_unit: null, // what to show, ex: cm
       display_unit_scale: null, // what to multiple pts by, ex: 1/72
@@ -27,10 +29,11 @@
 
   <script  type="module" language="javascript">
     import { basic, vip } from './js/main.js';
-    import { unified_source_modifier} from './js/state_modifiers.js';
+    import { unified_source_modifier, imposed_modifier} from './js/state_modifiers.js';
     import { tests } from './tests/miscTests.js';
     tests();
     unified_source_modifier.attach()
+    imposed_modifier.attach()
     window.basicLocal = basic
     window.vip = vip
 
@@ -177,7 +180,7 @@
     #imposition_layout {
       .imposition_option {
         display:inline-block;
-        width: 200px;
+        width: 210px;
         margin-right: 25px;
       }
       #imposition_more_info {
@@ -280,6 +283,12 @@
       margin-right: 50px;
       margin-bottom: 50px;
     }
+    #pdf_download {
+      input {
+        margin-left: 40px;
+        width:auto;
+      }
+    }
   </style>
   </head>
 
@@ -375,12 +384,12 @@
         </table>
         <div id="pdf_margins">
           PDF Margins<br> &nbsp;&nbsp;&nbsp;
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="pdf_marin_left">left </label><input type=number size="2" id="pdf_marin_left" oninput="vip.handlePdfMarginUpdate()">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="pdf_margin_left">left </label><input type=number size="2" id="pdf_margin_left" oninput="vip.handlePdfMarginUpdate()">
               <div id="pdf_margins_center">
-                <label for="pdf_marin_top">top</label> <input type=number size="2" id="pdf_marin_top" oninput="vip.handlePdfMarginUpdate()"><br>
-                <label for="pdf_marin_bottom"> bottom </label><input type=number size="2" id="pdf_marin_bottom" oninput="vip.handlePdfMarginUpdate()">
+                <label for="pdf_margin_top">top</label> <input type=number size="2" id="pdf_margin_top" oninput="vip.handlePdfMarginUpdate()"><br>
+                <label for="pdf_margin_bottom"> bottom </label><input type=number size="2" id="pdf_margin_bottom" oninput="vip.handlePdfMarginUpdate()">
               </div>
-              <input type=number size="2" id="pdf_marin_right" oninput="vip.handlePdfMarginUpdate()"><label for="pdf_marin_right"> right</label>
+              <input type=number size="2" id="pdf_margin_right" oninput="vip.handlePdfMarginUpdate()"><label for="pdf_margin_right"> right</label>
         </div>
         <div id="example_pdf_orientation" style="visibility: hidden;">
           <div id="example_pdf_orientation_page_right" ></div><div id="example_pdf_orientation_spine" ></div><div id="example_pdf_orientation_page_left" ></div>
@@ -412,7 +421,7 @@
              ['page_orientation_5', 90,-90,90],
              ['page_orientation_6', 180,180,180]]
             page_orientation_options.forEach((o, i) => {
-              drawing.renderPageRotationDemo(document.getElementById(o[0]), o[1], o[2], o[3], 50, i == -1)
+              drawing.renderPageRotationDemo(document.getElementById(o[0]), o[1], o[2], o[3], 50, i == 0)
              })
           </script>
         </fieldset>
@@ -421,54 +430,8 @@
       </section>
 
 
-      <section id="imposition_layout"><h2>3. Imposition Layout</h2>
-        <details>
-          <summary>Instructions/Details</summary>
-          <p>
-            This is how the PDF pages will be tiled on the printed page<br>
-            <mark>Folios per Signature</mark> can take a single number (all signatures the same size) or a comma separated list of numbers of numbers for variable signature sizes (the sequence provided will be repeated if it does not account for all pages)
-          </p>
-        </details>
-        <table>
-          <tr>
-            <td id="imposition_more_info"><div id="imposition_more_info_text"></div></td>
-            <td rowspan="2"><div id="imposition_folio_calculations" style="display:none;"></div></td>
-          </tr>
-          <tr>
-            <td>
-              Folios per Signature: <input type="text" placeholder="666" disabled id="folios_per_signature" oninput="vip.handleFoliosPerSigUpdate()">
-            </td>
-          </tr>
-          <tr>
-            <td width="100%" colspan="2">
-              <div id="imposition_options_list"></div>
-              <script language="javascript">
-                imposition_options = [
-                  ["single", "Single", "1 page per side, no folio", false, -1, [0.5], "Yes, this is just like the source PDF -- not really useful for bookbinding/imposition, but given all the other features (trimming, re-ordering, padding) I figured why not"],
-                  ["folio", "Folio", "2 pages per side, 1 folio", true, 4, [1], "Minimal folding, large book, no cutting/trimming needed. Classic for beginners but too large for my personal taste"],
-                  ["quarto", "Quarto", "4 pages per side, 2 folio", true, 4, [2], "Perfect! Produces something closer to a more 'typical' book IMO with room to trim -- you could cut the folios apart pre-assembly, leave them folded and wait for the trimming step to separate, or go old school and make an <a href='https://onlineacademiccommunity.uvic.ca/theopenbook/2024/02/15/opening-the-unopened/' target='_blank'>unopend book</a> for the reader to slice with their <a href='https://en.wikipedia.org/wiki/Paper_knife' target='_blank'>paper knife</a> as they read"],
-                  ["6_side", "Sexto", "6 pages per side, 3 folio", true, 3, [3], "A wide format, assembled via an easy zig zag fold"],
-                  ["octavo_fat", "Octavo [fat]", "8 pages per side, 4 folio", true, 4, [4], "Starting to get smaller but still easy to assemble. This has nested folds on the top AND on the side that can sometimes be bulky - binder's prefernece"],
-                  ["octavo_thin", "Ocatvo [thin]", "8 pages per side, 4 folio", true, 4, [4], "Starting to get smaller but still easy to assemble. This has a fold on edge that could compound skew problems, but there's no nested top fold - binder's preference"],
-                  ["sextodecimo", "Sextodecimo", "16 pages per side, 8 folio", true, 4, [8], "Palm sized on most paper"],
-                  ["8_zine", "8 Page Zine", "special assembly", false, -1, [8], "Classic format that requires no glue but is a fixed size. Printed on one side, it requires a small slide down the center. There are many better write-ups out there on how to assemble it- like <a href='https://www.quarantinepubliclibrary.com/tutorial' target='_blank'>like this one!</a>"],
-                  ["small_3_by_3", "Small", "18 per side, 3 folio x 3", false, 3, [3,3,3], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (3 folio)"],
-                  ["little_3_3_4", "Litte", "20 per side, 3/3/4 folio", false, "3,3,4", [3,3,4], "Custom imposition - requires cutting the sheet into 3 different sections which are then assembled into fixed signature sizes (two 3 folios and a 4 folio per sheet)"],
-                  ["tiny_4_by_4", "Tiny", "32 per side, 4 folio x 4", false, 4, [4,4,4,4], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (4 folio)"],
-                  ["mini", "Mini", "60 per side, 2/3 folio x 6 ", false, "2,3", [2,3,2,3,2,3,2,3,2,3,2,3], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes- each row is made up of two signatures "],
-                  ["thumb", "Thumbnail", "???", false, -1, [], "gotta' figure this out"]
-                  ]
-                imposition_options.forEach((o, i) => {
-                  drawing.renderImpositionOptions(document.getElementById("imposition_options_list"), o, i)
-                 })
-              </script>
-            </td>
-          </tr>
-        </table>
-      </section>
-
       <section id="printer_paper">
-        <h2>5. Printer Paper</h2>
+        <h2>3. Printer Paper</h2>
         <details>
           <summary>Instructions/Details</summary>
           <p>
@@ -501,16 +464,66 @@
         <small class="units">cm</small>
       </section>
 
+
+      <section id="imposition_layout"><h2>4. Imposition Layout</h2>
+        <details>
+          <summary>Instructions/Details</summary>
+          <p>
+            This is how the PDF pages will be tiled on the printed page<br>
+            <mark>Folios per Signature</mark> can take a single number (all signatures the same size) or a comma separated list of numbers of numbers for variable signature sizes (the sequence provided will be repeated if it does not account for all pages)
+          </p>
+        </details>
+        <table>
+          <tr>
+            <td id="imposition_more_info"><div id="imposition_more_info_text"></div></td>
+            <td rowspan="2"><div id="imposition_folio_calculations" style="display:none;"></div></td>
+          </tr>
+          <tr>
+            <td>
+              Folios per Signature: <input type="text" placeholder="666" disabled id="folios_per_signature" oninput="vip.handleFoliosPerSigUpdate()">
+            </td>
+          </tr>
+          <tr>
+            <td width="100%" colspan="2">
+              <div id="imposition_options_list"></div>
+              <script language="javascript">
+                imposition_options = [
+                  ["single", "Single", "1 page per side, no folio", false, -1, [0.5], [1,1], "Yes, this is just like the source PDF -- not really useful for bookbinding/imposition, but given all the other features (trimming, re-ordering, padding) I figured why not", false],
+                  ["folio", "Folio", "2 pages per side, 1 folio", true, 4, [1], [1,2], "Minimal folding, large book, no cutting/trimming needed. Classic for beginners but too large for my personal taste", true],
+                  ["quarto", "Quarto", "4 pages per side, 2 folio", true, 4, [2], [2,2], "Perfect! Produces something closer to a more 'typical' book IMO with room to trim -- you could cut the folios apart pre-assembly, leave them folded and wait for the trimming step to separate, or go old school and make an <a href='https://onlineacademiccommunity.uvic.ca/theopenbook/2024/02/15/opening-the-unopened/' target='_blank'>unopend book</a> for the reader to slice with their <a href='https://en.wikipedia.org/wiki/Paper_knife' target='_blank'>paper knife</a> as they read", false],
+                  ["6_side", "Sexto", "6 pages per side, 3 folio", true, 3, [3], [2,3], "A wide format, assembled via an easy Z fold - requires trimming on top and bottom to separate folios", false],
+                  ["octavo_fat", "Octavo [fat]", "8 pages per side, 4 folio", true, 4, [4], [2,4], "Starting to get smaller but still easy to assemble. This has nested folds on the top AND on the side that can sometimes be bulky - binder's prefernece", true],
+                  ["octavo_thin", "Ocatvo [thin]", "8 pages per side, 4 folio", true, 4, [4],[2,4], "Starting to get smaller but still easy to assemble. This has a fold on edge that could compound skew problems, but there's no nested top fold - binder's preference", true],
+                  ["8_zine", "8 Page Zine", "special assembly", false, -1, [8], [2, 4], "Classic format that requires no glue but is a fixed size. Printed on one side, it requires a small slide down the center. There are many better write-ups out there on how to assemble it- like <a href='https://www.quarantinepubliclibrary.com/tutorial' target='_blank'>like this one!</a>", true],
+                  ["sextodecimo_fat", "Sextodecimo [fat]", "16 pages per side, 8 folio", true, 4, [8], [4,4], "Palm sized on most paper, nested folds along the top", false],
+                  ["sextodecimo_thin", "Sextodecimo [thin]", "16 pages per side, 8 folio", true, 4, [8], [4,4], "Palm sized on most paper, long strip with fold in the middle", false],
+                  ["small_3_by_3", "Small", "18 per side, 3 folio x 3", false, 3, [3,3,3], [3,6], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (3 folio)", true],
+                  ["little_3_3_4", "Litte", "20 per side, 3/3/4 folio", false, "3,3,4", [3,3,4], [4,5], "Custom imposition - requires cutting the sheet into 3 different sections which are then assembled into fixed signature sizes (two 3 folios and a 4 folio per sheet)", false],
+                  ["tiny_4_by_4", "Tiny", "32 per side, 4 folio x 4", false, 4, [4,4,4,4], [4,8], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (4 folio)", true],
+                  ["mini", "Mini", "60 per side, 2/3 folio x 6 ", false, "2,3", [2,3,2,3,2,3,2,3,2,3,2,3], [6,10], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes- each row is made up of two signatures ", true],
+                  ]
+                imposition_options.forEach((o, i) => {
+                  drawing.renderImpositionOptions(document.getElementById("imposition_options_list"), o, i)
+                 })
+              </script>
+            </td>
+          </tr>
+        </table>
+      </section>
+
       <section id="pdf_placement">
-        <h2>6. PDF Placement</h2>
+        <h2>5. PDF Placement</h2>
         <details>
           <summary>Instructions/Details</summary>
           <p>
             <b>Original</b><br>
+            Retains the original PDF sizing, which could potentially spill out and over onto other pages, resulting in overlapping the PDF content (there is no clipping)<br>
             Only the <code>top</code> and <code>inner</code> margins are considered. Positive values shift it down/away from the spine. Negative values shift it up/towards the spine.<BR>
             <b>Fit - Proportional</b><br>
+            Maintains the original PDF aspect ratio, scaled down to fit into the space provided<br>
             Positive padding numbers push the PDF inward, makes it smaller. Negative padding pulls it out, making it larger. A padding of <code>N</code> on one side and <code>-N</code> on the other side of the PDf is the same as translating/shifting it. The PDF will scale such that it's small enough to honor the tightest constraints (ex: inner/outer margins that squeeze the PDF will override top/bottom margins that expand the PDF)<BR>
-            <b>Fit - Proportional</b><br>
+            <b>Fill - Stretch</b><br>
+            Distors the PDF's aspect ratio, stretching it in both directions to fill the entire space allowed<BR>
             Positive padding numbers push the PDF inward, makes it smaller. Negative padding pulls it out, making it larger. A padding of <code>N</code> on one side and <code>-N</code> on the other side of the PDf is the same as translating/shifting it.
           </p>
         </details>
@@ -524,13 +537,13 @@
         </div>
         <div id="layout_padding">
           Padding<br> &nbsp;&nbsp;&nbsp;
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="pdf_padding_inner">inner </label><input type=number size="2" id="pdf_padding_inner" oninput="vip.handlePdfMarginUpdate()"><small class="units">cm</small>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="pdf_padding_inner">inner </label><input type=number size="2" id="pdf_padding_inner" oninput="vip.handleImpositionPaddingUpdate()"><small class="units">cm</small>
               <div id="pdf_margins_center">
-                <label for="pdf_padding_top">top</label> <input type=number size="2" id="pdf_padding_top" oninput="vip.handlePdfMarginUpdate()"><small class="units">cm</small><br>
+                <label for="pdf_padding_top">top</label> <input type=number size="2" id="pdf_padding_top" oninput="vip.handleImpositionPaddingUpdate()"><small class="units">cm</small><br>
                 <div id="layout_padding_center_info"></div>
-                <label for="pdf_padding_bottom"> bottom </label><input type=number size="2" id="pdf_padding_bottom" oninput="vip.handlePdfMarginUpdate()"><small class="units">cm</small>
+                <label for="pdf_padding_bottom"> bottom </label><input type=number size="2" id="pdf_padding_bottom" oninput="vip.handleImpositionPaddingUpdate()"><small class="units">cm</small>
               </div>
-              <label for="pdf_padding_outer"> outer</label><input type=number size="2" id="pdf_padding_outer" oninput="vip.handlePdfMarginUpdate()"><small class="units">cm</small>
+              <label for="pdf_padding_outer"> outer</label><input type=number size="2" id="pdf_padding_outer" oninput="vip.handleImpositionPaddingUpdate()"><small class="units">cm</small>
         </div>
         <div>
           <label id="pdf_white_space_placement_label" for="pdf_white_space_placement">PDF Positioning</label>
@@ -549,7 +562,7 @@
       </section>
 
       <section id="printed_page_markup">
-        <h2>7. Markup</h2>
+        <h2>6. Markup</h2>
         <details>
           <summary>Instructions/Details</summary>
           <p>
@@ -559,7 +572,7 @@
       </section>
 
       <section id="printed_page_adjustment">
-        <h2>8. Post-Processing</h2>
+        <h2>7. Post-Processing</h2>
         <details>
           <summary>Instructions/Details</summary>
           <p>
@@ -570,7 +583,7 @@
       </section>
 
       <section id="pdf_preview">
-        <h2>9. Preview</h2>
+        <h2>8. Preview</h2>
         <details>
           <summary>Instructions/Details</summary>
           <p>
@@ -581,14 +594,9 @@
       </section>
 
       <section id="pdf_download">
-        <h2>10. Download</h2>
-        <details>
-          <summary>Instructions/Details</summary>
-          <p>
-            This is to address printer skew
-          </p>
-        </details>
-        <kbd>Not Yet Implemented</kbd>
+        <h2>9 Download</h2>
+        <input type=text id="file_download_name" placeholder="your_file_name">.pdf &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onclick="vip.downloadFile(document.getElementById('file_download_name').value, document.getElementById('file_download_name').getAttribute('placeholder'))">get that file!</button>
       </section>
     </main>
 
@@ -641,6 +649,7 @@
 <section id="footer">
 <small>
     PDF library by <a href="https://pdf-lib.js.org/" target="_blank">PDF-LIB</a><br>
+    Download libraries by<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/eligrey/FileSaver.js/tree/master" target="_blank">FileSaver.js</a> & <a href="http://stuartk.com/jszip" target="_blank">JSZip</a><br>
     CSS library by <a href="https://picocss.com/" target="_blank">pico</a><br>
     based on <a href="https://momijizukamori.github.io/bookbinder-js/">Bookbinder-JS</a>
 </small>

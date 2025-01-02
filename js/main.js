@@ -1,5 +1,6 @@
 import { form, PAGE_SIZES } from './helper.js';
 import { utils } from './pdf.js';
+import { fileHandler } from './files.js';
 
 export const basic = {
   txt : "sharks sharksss sharks",
@@ -34,15 +35,28 @@ export const vip = {
     utils.processUploadBlocks(callback);
   },
   handlePdfMarginUpdate: function() {
-    const top = parseInt(document.getElementById("pdf_marin_top").value)
+    const top = parseInt(document.getElementById("pdf_margin_top").value)
     window.book.unified_source.marginTop = (isNaN(top)) ? 0 : top
-    const bottom = parseInt(document.getElementById("pdf_marin_bottom").value)
+    const bottom = parseInt(document.getElementById("pdf_margin_bottom").value)
     window.book.unified_source.marginBottom = (isNaN(bottom)) ? 0 : bottom
-    const left = parseInt(document.getElementById("pdf_marin_left").value)
+    const left = parseInt(document.getElementById("pdf_margin_left").value)
     window.book.unified_source.marginLeft = (isNaN(left)) ? 0 : left
-    const right = parseInt(document.getElementById("pdf_marin_right").value)
+    const right = parseInt(document.getElementById("pdf_margin_right").value)
     window.book.unified_source.marginRight = (isNaN(right)) ? 0 : right
     console.log(" margins "+window.book.unified_source.marginTop+" / "+window.book.unified_source.marginBottom+" / " + window.book.unified_source.marginLeft +" / "+ window.book.unified_source.marginRight)
+    form.renderPDFMarginPreview()
+    window.book.unified_source.processUpdate();
+  },
+  handleImpositionPaddingUpdate: function() {
+    const top = parseInt(document.getElementById("pdf_padding_top").value)
+    window.book.unified_source.marginTop = (isNaN(top)) ? 0 : top
+    const bottom = parseInt(document.getElementById("pdf_padding_bottom").value)
+    window.book.unified_source.marginBottom = (isNaN(bottom)) ? 0 : bottom
+    const inner = parseInt(document.getElementById("pdf_padding_inner").value)
+    window.book.unified_source.marginInner = (isNaN(inner)) ? 0 : inner
+    const outer = parseInt(document.getElementById("pdf_padding_outer").value)
+    window.book.unified_source.marginOuter = (isNaN(outer)) ? 0 : outer
+    console.log(" margins "+window.book.unified_source.marginTop+" / "+window.book.unified_source.marginBottom+" / " + window.book.unified_source.marginInner +" / "+ window.book.unified_source.marginOuter)
     form.renderPDFMarginPreview()
     window.book.unified_source.processUpdate();
   },
@@ -56,8 +70,12 @@ export const vip = {
     window.book.imposition.canCustomizeCounts = imposition_options[i][3]
     window.book.imposition.defaultFolioCounts = imposition_options[i][4]
     window.book.imposition.foliosPerSheet = imposition_options[i][5]
+    window.book.imposition.cellCount_s = imposition_options[i][6][0]
+    window.book.imposition.cellCount_l = imposition_options[i][6][1]
+    window.book.imposition.rotate = imposition_options[i][8]
     form.setSelectedImpositionInfo(imposition_options[i])
     form.calImpositionInfo(window.book.unified_source.pageCount)
+    window.book.imposed.processUpdate();
   },
   handleFoliosPerSigUpdate: function() {
     form.calImpositionInfo(window.book.unified_source.pageCount)
@@ -79,7 +97,8 @@ export const vip = {
     window.book.upload_blocks[id].pageSelection = e.value
   },
   handlePdfPageScaling: function() {
-
+    window.book.physical.scaling = document.getElementById("pdf_page_scaling").value;
+    window.book.imposed.processUpdate();
   },
   handlePaperSizeDropdownChange: function(el) {
     console.log("We selected '"+el.value+"'")
@@ -87,9 +106,11 @@ export const vip = {
     window.book.selected_paper_size = el.value
     const customDimens = function() {
       const customEl = document.getElementById("paper_size_custom")
-      return [customEl.getAttribute("data-width-pt"),customEl.getAttribute("data-height-pt")]
+      PAGE_SIZES['custom'] = [customEl.getAttribute("data-width-pt"),customEl.getAttribute("data-height-pt")]
+      return PAGE_SIZES['custom']
     }
     const dimens = (el.value == "custom") ? customDimens() : PAGE_SIZES[el.value]
+    window.book.physical.paper_size = PAGE_SIZES[el.value]
     window.book.selected_paper_dimensions = dimens
     document.getElementById("paper_size").setAttribute("placeholder", dimens[0] +" x "+dimens[1])
     if (el.value != "custom") {
@@ -97,6 +118,7 @@ export const vip = {
     } else {
       document.getElementById("paper_size").value = dimens[0] + " x " + dimens[1]
     }
+    window.book.imposed.processUpdate();
   },
   handleManualPaperSizeChange: function(el) {
     const optionEl = document.getElementById("paper_size_custom")
@@ -118,6 +140,7 @@ export const vip = {
       document.getElementById("paper_size_options").appendChild(custom)
     el.setAttribute("aria-invalid", isNaN(w) || isNaN(h))
     document.getElementById("paper_size_options").value = "custom"
+    window.book.imposed.processUpdate();
   },
   handleUnitChange: function(e) {
     const roundIt = window.roundIt;
@@ -126,14 +149,23 @@ export const vip = {
     const scale = eval(selected.getAttribute("data-convert-from-pt"))
     window.book.display_unit = display
     window.book.display_unit_scale = scale
+    window.book.physical.display_unit = display
     Array.from(document.getElementsByClassName("units")).forEach(x => x.innerHTML = display)
     console.log("display "+ display+" / scale "+scale)
     window.reb = PAGE_SIZES
 
-    document.getElementById("paper_size_options").innerHTML = Object.keys(PAGE_SIZES)
+    const dropDownEl = document.getElementById("paper_size_options")
+    const selectedDropDown = dropDownEl.value
+    dropDownEl.innerHTML = Object.keys(PAGE_SIZES)
       .map(p => "<option value='"+p+"'>"+p+" ("+roundIt(PAGE_SIZES[p][0] * scale)+" x "+roundIt(PAGE_SIZES[p][1] * scale)+" "+display+")</option>")
       .join("\n")
+    dropDownEl.value = selectedDropDown
+    window.book.imposed.processUpdate();
+  },
+  downloadFile: function(fileName, defaultFileName) {
+    const nameToUse = (fileName == "") ? defaultFileName : fileName
+    console.log("Downloading file ["+fileName+"/"+defaultFileName+"] -> ["+nameToUse+"]")
+    console.log("gettin' ", fileHandler.makeTheZip(window.book.unified_source.pdf, nameToUse))
   }
-  // renderPageRotationDemo : function(aRot, bRot, cRot, scale){ drawing.renderPageRotationDemo(aRot, bRot, cRot, scale) }
 }
 

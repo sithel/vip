@@ -6,7 +6,8 @@ drawing = {
   [3] - can customize folio count
   [4] - default folio count
   [5] - list of folios per sheet
-  [6] - long desc 
+  [6] - cells on printed page [short, long] 
+  [7] - long desc 
   */
   renderImpositionOptions: function(el, info, i){
     let newNode = document.createElement("div");
@@ -98,10 +99,12 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
     #ff9800 10px,
     #ff9800 15px
   )`
-    const cell_w = Math.random() * 100 + 50 // comes from imposition + paper
-    const cell_h = Math.random() * 150 + 50
-    const w = Math.random() * 100 + 150     // comes from pdf input + pdf margin + pdf rotation
-    const h = Math.random() * 150 + 50
+    const {cell_w, cell_h, w, h} = (window.book.imposed.isValid) ? window.book.imposed.calcPreviewSvgInfo() : {
+     cell_w: Math.random() * 100 + 50, // comes from imposition + paper
+     cell_h: Math.random() * 150 + 50,
+     w: Math.random() * 100 + 150,     // comes from pdf input + pdf margin + pdf rotation
+     h: Math.random() * 150 + 50
+   }
     const padding = {                       // comes from user input PDF Placement Padding
       top: Math.random() * 10 + -5,
       bottom: Math.random() * 10 + -5,
@@ -111,6 +114,9 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
     const scale_mode = "fit"                // comes from user input pdf_page_scaling
     const placement_mode = "snug_top"       // comes from user input pdf_white_space_placement
 
+    el.setAttribute("height", Math.max(Math.max(150, cell_h), h))
+    el.setAttribute("width", Math.max(Math.max(150, cell_w), w))
+//fill= "url(#pattern)"
     el.innerHTML = `
           <defs>
             <linearGradient id="Gradient-1"x1="3%" y1="4%" x2="6%" y2="6%">
@@ -131,7 +137,7 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
               <rect x="8" y="0" fill="#0f0" width="4" height="10"></rect>
             </pattern>
           </defs>
-          <rect x="25" y=0 width="`+cell_w+`" height="`+cell_h+`"  fill= "url(#pattern)"></rect>
+          <rect x="25" y=0 width="`+cell_w+`" height="`+cell_h+`" style="fill:red;"></rect>
           <rect x="40" y="10" width="`+w+`" height="`+h+`"  fill= "url(#repeat-2)"></rect>
           <rect x="20" y="0" width="5" height="`+cell_h+`" style="fill:rgb(84 98 45 / 43%);"></rect>
           <text x="-50" y="15" class="small" transform="rotate(-90 0 0)" style="color:rgb(1 1 1 / 78%);">spine</text>
