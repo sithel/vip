@@ -1,6 +1,7 @@
 import { form, PAGE_SIZES } from './helper.js';
 import { utils } from './pdf.js';
 import { fileHandler } from './files.js';
+import { previewer } from './preview.js';
 
 export const basic = {
   txt : "sharks sharksss sharks",
@@ -164,6 +165,16 @@ export const vip = {
       .join("\n")
     dropDownEl.value = selectedDropDown
     window.book.imposed.processUpdate();
+  },
+  refreshPreview: async function() {
+    if (window.book.unified_source.hasValidPdf()) {
+      document.getElementById('preview_pdf_btn').setAttribute("aria-busy", "true")
+      await previewer.build(window.book.unified_source.pdf)
+        .then(() => {
+          document.getElementById('preview_pdf_btn').innerHTML = "Refresh PDF Preview";
+          document.getElementById('preview_pdf_btn').setAttribute("aria-busy", "")
+        });
+    }
   },
   downloadFile: function(fileName, defaultFileName) {
     const nameToUse = (fileName == "") ? defaultFileName : fileName

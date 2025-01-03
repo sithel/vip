@@ -66,6 +66,11 @@ Call `window.book.unified_source.processUpdate()` after base changes to re-calcu
 - `window.book.physical.display_unit` : either `metric`, `imperial`, or `points`
 - `window.book.physical.paper_size` : a 2 value list of the sheet's `[width, height]` in points
 
+
+## Preview (step 8)
+
+Minimal work, done in `preview.js`'s `build` function, kicked off via `vip.refreshPreview()`
+
 ## Download (step 9)
 
 Check out `files.js`
