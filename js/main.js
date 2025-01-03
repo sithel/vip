@@ -30,6 +30,9 @@ export const vip = {
       detailsEl.removeAttribute("style")
       detailsEl.setAttribute("open", "")
       console.log("=== Processing Uploads Complete ")
+      if (window.book.unified_source.hasValidPdf()) {
+        document.getElementById("page_manipulation").setAttribute("class","")
+      }
       window.book.unified_source.processUpdate()
     }
     utils.processUploadBlocks(callback);

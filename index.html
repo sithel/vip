@@ -52,6 +52,10 @@
       /*--pico-line-height: 0.5rem;*/
       --pico-form-element-spacing-vertical: 0rem;
     }
+    .disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
     details summary::after {
       float: left;
     }
@@ -235,7 +239,12 @@
       #paper_size_options {
         width: 20em;
       }
-      input {
+      #paper_margin_short, #paper_margin_long {
+        width: 4em;
+        padding: 2px;
+        margin-top: 0.75em;
+      }
+      #paper_size { 
         width: 10em;
       }
       fieldset {
@@ -284,8 +293,10 @@
       margin-bottom: 50px;
     }
     #pdf_download {
-      input {
+      div {
         margin-left: 40px;
+      }
+      #file_download_name {
         width:auto;
       }
     }
@@ -369,7 +380,7 @@
         </details>
       </section>
 
-      <section id="page_manipulation">
+      <section id="page_manipulation" class="disabled">
         <h2>2. PDF Manipulation</h2>
           <details>
           <summary>Explanation</summary>
@@ -435,7 +446,9 @@
         <details>
           <summary>Instructions/Details</summary>
           <p>
-            Omg as if I knew...
+            This has to do with <i>your</i> machine and the paper you're feeding into it. <BR><br>
+
+            The paper margins are to add white space on the edges of the printed page in case you do not have a full-bleed printer. They are mirrored on either side - so a <code>10 pt</code> margin on the Long Sides will put a <code>10 pt</code> on both sides for a total of <code>20 pt</code>
           </p>
         </details>
         <label for="unit_selector">Display Units</label>
@@ -455,11 +468,21 @@
         </fieldset>
         <small class="units">cm</small>
         <BR>
-        Margin Short Sides
+        Flip Paper
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <label for="flip_paper_short">
+          short side&nbsp;&nbsp;<input type="radio" id="flip_paper_short" name="flip_paper" value="short" checked>
+        </label>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <label for="flip_paper_short">
+          long side&nbsp;&nbsp;<input type="radio" id="flip_paper_long" name="flip_paper" value="long">
+        </label>
+        <BR>
+        Paper Margins 
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;short sides
         <input type="number" id="paper_margin_short" name="paper_margin_short" placeholder="0" />
         <small class="units">cm</small>
-        <br>
-        Margin Long Sides
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; long sides
         <input type="number" id="paper_margin_long" name="paper_margin_long" placeholder="0" />
         <small class="units">cm</small>
       </section>
@@ -511,7 +534,7 @@
         </table>
       </section>
 
-      <section id="pdf_placement">
+      <section id="pdf_placement" class="disabled">
         <h2>5. PDF Placement</h2>
         <details>
           <summary>Instructions/Details</summary>
@@ -521,10 +544,10 @@
             Only the <code>top</code> and <code>inner</code> margins are considered. Positive values shift it down/away from the spine. Negative values shift it up/towards the spine.<BR>
             <b>Fit - Proportional</b><br>
             Maintains the original PDF aspect ratio, scaled down to fit into the space provided<br>
-            Positive padding numbers push the PDF inward, makes it smaller. Negative padding pulls it out, making it larger. A padding of <code>N</code> on one side and <code>-N</code> on the other side of the PDf is the same as translating/shifting it. The PDF will scale such that it's small enough to honor the tightest constraints (ex: inner/outer margins that squeeze the PDF will override top/bottom margins that expand the PDF)<BR>
+            Positive padding numbers push the PDF inward, makes it smaller. Negative padding pulls it out, making it larger. A padding of <code>N</code> on one side and <code>-N</code> on the other side of the PDF is the same as translating/shifting it. The PDF will scale such that it's small enough to honor the tightest constraints (ex: inner/outer margins that squeeze the PDF will override top/bottom margins that expand the PDF)<BR>
             <b>Fill - Stretch</b><br>
             Distors the PDF's aspect ratio, stretching it in both directions to fill the entire space allowed<BR>
-            Positive padding numbers push the PDF inward, makes it smaller. Negative padding pulls it out, making it larger. A padding of <code>N</code> on one side and <code>-N</code> on the other side of the PDf is the same as translating/shifting it.
+            Positive padding numbers push the PDF inward, makes it smaller. Negative padding pulls it out, making it larger. A padding of <code>N</code> on one side and <code>-N</code> on the other side of the PDF is the same as translating/shifting it.
           </p>
         </details>
         <div>
@@ -582,7 +605,7 @@
         <kbd>Not Yet Implemented</kbd>
       </section>
 
-      <section id="pdf_preview">
+      <section id="pdf_preview" class="disabled">
         <h2>8. Preview</h2>
         <details>
           <summary>Instructions/Details</summary>
@@ -595,8 +618,24 @@
 
       <section id="pdf_download">
         <h2>9 Download</h2>
-        <input type=text id="file_download_name" placeholder="your_file_name">.pdf &nbsp;&nbsp;&nbsp;&nbsp;
-        <button onclick="vip.downloadFile(document.getElementById('file_download_name').value, document.getElementById('file_download_name').getAttribute('placeholder'))">get that file!</button>
+        <div>
+          Download: 
+          <label for="download-aggregate">
+            <input type="checkbox" id="download-aggregate" name="download-aggregate" checked="">
+            aggregate file (all signatures)
+          </label>
+          <label for="download-signatures">
+            <input type="checkbox" id="download-signatures" name="download-signatures" >
+            each signature as separate file
+          </label>
+          <label for="download-front-back">
+            <input type="checkbox" id="download-front-back" name="download-front-back" >
+            front / back of sheets as separate files
+          </label>
+          <BR>
+          <input type=text id="file_download_name" placeholder="your_file_name">.pdf &nbsp;&nbsp;&nbsp;&nbsp;
+          <button onclick="vip.downloadFile(document.getElementById('file_download_name').value, document.getElementById('file_download_name').getAttribute('placeholder'))">get that file!</button>
+        </div>
       </section>
     </main>
 
