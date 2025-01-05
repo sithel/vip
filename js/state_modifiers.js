@@ -47,12 +47,12 @@ export const unified_source_modifier = {
       }
       const targetPageNum = pageNum - acc
       if (targetPageNum < curBlock._pagesList.length) {
-        const pageListEntry = curBlock._pagesList[targetPageNum][0]
+        const pageListEntry = curBlock._pagesList[targetPageNum]
         if (pageListEntry == -1) {
           const page = curBlock.pdfDoc.getPage(targetPageNum)
           return "b"
         }
-        const page = curBlock.pdfDoc.getPage(pageListEntry)
+        const page = curBlock.pdfDoc.getPage(pageListEntry - 1) // page numbers foolishly indexed at 1
         return page
       } else {
         return acc + curBlock._pagesList.length

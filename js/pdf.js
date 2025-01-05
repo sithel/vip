@@ -69,7 +69,7 @@ export const utils = {
         continue;
       }
       // pagesList = pagesList.map(n => n[0])
-      blocks[i]._pagesList = pagesList
+      blocks[i]._pagesList = pagesList.flat()
       for(let j = 0; j < blocks[i].precedingBlanks; ++j) {
         pagesList.unshift(-1)
       }
@@ -128,5 +128,70 @@ export const utils = {
     console.log("open doc ran -- ", pdfDoc)
     console.log(pages)
     window.reb2 = pdfDoc
+  }
+}
+
+
+
+
+
+
+export const SIDE_COVERAGE_BOTH = 0
+export const SIDE_COVERAGE_FRONT = 1
+export const SIDE_COVERAGE_BACK = 2
+
+export const builder = {
+  _populateSheetFront: async function(new_pdf, folioList) {
+    console.log("I should handle B ",folioList)
+    const pageMap = folioList.map(f => [f[0],f[3]]).flat().reduce(function(acc, p) {
+      acc[p] = window.book.unified_source.getPdfPageForPageNumber(p);
+      return acc;
+    }, {})
+    console.log("pageMap is ",pageMap)
+    const rawPageNumsToEmbed = [...new Set(Object.keys(pageMap))];
+    const embeddedPages = await rawPageNumsToEmbed.reduce(async function(acc, p) {
+      if (p == -1) {
+        return acc;
+      }
+      acc[p] = await new_pdf.embedPage(pageMap[p])
+      return acc;
+    }, {})
+    const new_page = new_pdf.addPage()
+    folioList.forEach(function(f, i) {
+      // TODO :handle blanks
+      new_page.drawPage(embeddedPages[f[0]], { 
+                          x: 0,
+                          y: 100 * i,
+                          xScale: 0.5,
+                          yScale: 0.5,
+                          opacity: 0.75,
+                        })
+      new_page.drawPage(embeddedPages[f[3]], { 
+                          x: 100,
+                          y: 100 * i,
+                          xScale: 0.5,
+                          yScale: 0.5,
+                          opacity: 0.75,
+                        })
+    })
+  },
+  _populateSheetBack: function(new_pdf, sheetList) {
+    console.log("I should handle A "+sheetList)
+    // window.book.unified_source.getPdfPageForPageNumber(pageNum);
+  },
+  generatePreview: async function(firstSigOnly, side_coverage_mode) {
+    const new_pdf = await PDFLib.PDFDocument.create();
+    const sheets = window.book.imposed.sheets // TODO : prune down to just first signature if needed
+    // TODO : move embedding up to this section - do a single embedded pass for front/back/both
+    // build map that is result PageNum -> Embedded PDF ref
+    sheets.forEach(s => {
+      if (side_coverage_mode == SIDE_COVERAGE_BOTH || side_coverage_mode == SIDE_COVERAGE_FRONT) {
+        this._populateSheetFront(new_pdf, s);
+      }
+      if (side_coverage_mode == SIDE_COVERAGE_BOTH || side_coverage_mode == SIDE_COVERAGE_FRONT) {
+        this._populateSheetBack(new_pdf, s);
+      }
+    });
+    return new_pdf;
   }
 }

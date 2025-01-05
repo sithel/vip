@@ -168,12 +168,16 @@ export const vip = {
   },
   refreshPreview: async function() {
     if (window.book.unified_source.hasValidPdf()) {
+      console.log("Starting Preview build...")
       document.getElementById('preview_pdf_btn').setAttribute("aria-busy", "true")
-      await previewer.build(window.book.unified_source.pdf)
+      await previewer.build(document.getElementById("pdf_results_preview_mode").checked)
         .then(() => {
           document.getElementById('preview_pdf_btn').innerHTML = "Refresh PDF Preview";
           document.getElementById('preview_pdf_btn').setAttribute("aria-busy", "")
         });
+      console.log("Preview build completed...")
+    } else {
+      console.log("No valid PDF to work with")
     }
   },
   downloadFile: function(fileName, defaultFileName) {

@@ -66,6 +66,12 @@ Call `window.book.unified_source.processUpdate()` after base changes to re-calcu
 - `window.book.physical.display_unit` : either `metric`, `imperial`, or `points`
 - `window.book.physical.paper_size` : a 2 value list of the sheet's `[width, height]` in points
 
+## Imposition (step 4)
+
+## Placement / Imposed (step 5)
+
+- `window.book.imposed.sheets` : List of lists. Each entry in the outer list is a sheet of paper (front and back), which contains a list of folios, which contains a list of 4 pages making up that folio. The order of the folios within a sheet is specific to the imposition. The order of the pages in the folio is front, inner left, inner right, back
+- `window.book.imposed.signatures` : List of lists. Each entry in the outer list is a signature, which contains a list of folios, which contains a list of 4 pages making up the folio. The order of signatures is start of book to end of book. The order of folios in the signature is outer-most first and ends with inner-most. The order of the pages in the folio is front, inner left, inner right, back
 
 ## Preview (step 8)
 
