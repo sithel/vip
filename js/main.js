@@ -71,6 +71,7 @@ export const vip = {
     window.book.unified_source.processUpdate()
   },
   handlePageImpositionUpdate: function(i) {
+    window.book.imposition.name = imposition_options[i][0]
     window.book.imposition.canCustomizeCounts = imposition_options[i][3]
     window.book.imposition.defaultFolioCounts = imposition_options[i][4]
     window.book.imposition.foliosPerSheet = imposition_options[i][5]

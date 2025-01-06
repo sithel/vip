@@ -10,7 +10,7 @@
     window.book = {
       upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument } */],
       unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0 /* pdf: PDFLib.PDFDocument, pageCount: Int, maxWidth: Int, maxHeight: Int, _scale100px: Int,  */ }, 
-      imposition: { /* canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>, cellCount_l:Int, cellCount_s:Int*/},
+      imposition: { /* name: String, canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>, cellCount_l:Int, cellCount_s:Int*/},
       imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, hasSplitSig: Boolean, requiresCutting: Boolean */ },
       physical: { /* scaling: String, display_unit: String */},
       page_orientation: null,
@@ -539,7 +539,7 @@
                   ["little_3_3_4", "Litte", "20 per side, 3/3/4 folio", false, "3,3,4", [3,3,4], [4,5], "Custom imposition - requires cutting the sheet into 3 different sections which are then assembled into fixed signature sizes (two 3 folios and a 4 folio per sheet)", false],
                   ["tiny_4_by_4", "Tiny", "32 per side, 4 folio x 4", false, 4, [4,4,4,4], [4,8], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (4 folio)", true],
                   ["mini", "Mini", "60 per side, 2/3 folio x 6 ", false, "2,3", [2,3,2,3,2,3,2,3,2,3,2,3], [6,10], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes- each row is made up of two signatures ", true],
-                  ]
+                ]
                 imposition_options.forEach((o, i) => {
                   drawing.renderImpositionOptions(document.getElementById("imposition_options_list"), o, i)
                  })

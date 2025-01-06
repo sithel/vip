@@ -150,11 +150,13 @@ export const form = {
     }
   },
   _customImposeSingle: function(pageCount) {
+    // TODO : populate sheets and signatures!!
     const outputEl = document.getElementById("imposition_folio_calculations")
     outputEl.removeAttribute("style")
     outputEl.innerHTML = "<small>Given "+pageCount+" PDF pages<br> ➥ "+ Math.ceil(pageCount/2)+" sheets</small>"
   },
   _customImposeZine: function(pageCount) {
+    // TODO : populate sheets and signatures!!
     const outputEl = document.getElementById("imposition_folio_calculations")
     outputEl.removeAttribute("style")
     outputEl.innerHTML = "<small>Given "+pageCount+" PDF pages<br> ➥ "+ Math.ceil(pageCount/8)+" sheets</small>"

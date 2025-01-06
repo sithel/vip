@@ -1,3 +1,5 @@
+import { imposerMagic } from './imposer.js';
+
 export const utils = {
   /** 
     selectedPages - the 'all' or 1,2,3,4 or 1-5 or 1,b,4,b string given by user 
@@ -137,59 +139,65 @@ export const utils = {
 
 
 export const SIDE_COVERAGE_BOTH = 0
-export const SIDE_COVERAGE_FRONT = 1
-export const SIDE_COVERAGE_BACK = 2
+export const SIDE_COVERAGE_FRONT = 1    // folio [0] & [3]
+export const SIDE_COVERAGE_BACK = 2     // folio [1] & [2]
 
 export const builder = {
-  _populateSheetFront: async function(new_pdf, folioList) {
-    console.log("I should handle B ",folioList)
-    const pageMap = folioList.map(f => [f[0],f[3]]).flat().reduce(function(acc, p) {
-      acc[p] = window.book.unified_source.getPdfPageForPageNumber(p);
-      return acc;
-    }, {})
-    console.log("pageMap is ",pageMap)
-    const rawPageNumsToEmbed = [...new Set(Object.keys(pageMap))];
-    const embeddedPages = await rawPageNumsToEmbed.reduce(async function(acc, p) {
-      if (p == -1) {
-        return acc;
-      }
-      acc[p] = await new_pdf.embedPage(pageMap[p])
-      return acc;
-    }, {})
+  _populateSheetBack: function(new_pdf, sheetList, pageMap) {
+    console.log("  >> page back ",folioList)
+    console.log("  >> pageMap is ",pageMap)
     const new_page = new_pdf.addPage()
-    folioList.forEach(function(f, i) {
-      // TODO :handle blanks
-      new_page.drawPage(embeddedPages[f[0]], { 
-                          x: 0,
-                          y: 100 * i,
-                          xScale: 0.5,
-                          yScale: 0.5,
-                          opacity: 0.75,
-                        })
-      new_page.drawPage(embeddedPages[f[3]], { 
-                          x: 100,
-                          y: 100 * i,
-                          xScale: 0.5,
-                          yScale: 0.5,
-                          opacity: 0.75,
-                        })
-    })
   },
-  _populateSheetBack: function(new_pdf, sheetList) {
-    console.log("I should handle A "+sheetList)
-    // window.book.unified_source.getPdfPageForPageNumber(pageNum);
+  _buildFirstSigOnlySet: function() {
+    const result = new Set()
+    for(i = 0; i < window.book.imposed.sheets.length; ++i){
+      let sheetSigOverlap = new Set(window.book.imposed.sheets[i]).intersection(new Set(window.book.imposed.sheets[0]))
+      if (sheetSigOverlap.size == 0) {
+        return [result, i - 1]
+      }
+      window.book.imposed.sheets[i].forEach(item => result.add(item))
+    }
+    return [result, window.book.imposed.sheets.length]
+  },
+  _buildPageSetBasedOnSideCoverageMode: function(side_coverage_mode) {
+    if (side_coverage_mode == SIDE_COVERAGE_FRONT) {
+      return new Set(window.book.imposed.sheets.map(s => s.map(f => [f[0], f[3]])).flat().flat())
+    } else if (side_coverage_mode == SIDE_COVERAGE_BACK) {
+      return new Set(window.book.imposed.sheets.map(s => s.map(f => [f[1], f[2]])).flat().flat())
+    } else {
+      return new Set(window.book.imposed.sheets.flat().flat())
+    }
+  },
+  _buildAndEmbedPageMap: async function(firstSigOnly, side_coverage_mode, new_pdf) {
+    const [pageSet, sheetCount] = (firstSigOnly) ? this._buildFirstSigOnlySet() : [this._buildPageSetBasedOnSideCoverageMode(side_coverage_mode), window.book.imposed.sheets.length]
+    const pageMap = {}
+    for (const page of pageSet) {
+      if (page == -1)
+        continue;
+      const origPage =  window.book.unified_source.getPdfPageForPageNumber(page);
+      if (typeof page === "number") {
+        continue;
+      }
+      const newPage = await new_pdf.embedPage(origPage)
+      pageMap[page] = newPage;
+    }
+    return pageMap
   },
   generatePreview: async function(firstSigOnly, side_coverage_mode) {
+    console.log("[Generating Preview : start")
     const new_pdf = await PDFLib.PDFDocument.create();
-    const sheets = window.book.imposed.sheets // TODO : prune down to just first signature if needed
-    // TODO : move embedding up to this section - do a single embedded pass for front/back/both
-    // build map that is result PageNum -> Embedded PDF ref
-    sheets.forEach(s => {
+    const pageMap = await this._buildAndEmbedPageMap(firstSigOnly, side_coverage_mode, new_pdf)
+    const sheetCount = (firstSigOnly) ? this._buildFirstSigOnlySet()[1] : window.book.imposed.sheets.length
+    const sheets = window.book.imposed.sheets.slice(0, sheetCount)
+    console.log(" > Sheet count ["+sheetCount+"] -> ",sheets)
+
+    sheets.forEach((s,i) => {
       if (side_coverage_mode == SIDE_COVERAGE_BOTH || side_coverage_mode == SIDE_COVERAGE_FRONT) {
-        this._populateSheetFront(new_pdf, s);
+        const new_page = new_pdf.addPage();
+        imposerMagic.imposePdf(new_page, pageMap, s, i, true);
       }
       if (side_coverage_mode == SIDE_COVERAGE_BOTH || side_coverage_mode == SIDE_COVERAGE_FRONT) {
-        this._populateSheetBack(new_pdf, s);
+        this._populateSheetBack(new_pdf, s, pageMap);
       }
     });
     return new_pdf;
