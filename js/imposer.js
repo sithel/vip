@@ -63,23 +63,39 @@ export const imposerMagic = {
     const {pW, pH, renderPage, flip_short} = this._calcDimens(new_page)
     const cell_w = pW/2;
     const cell_h = pH/2;
+    const i = (is_front) ? [[0, 0], [0,3], [1,1], [1,2]] 
+        : (flip_short) ? [[1, 0], [1,3], [0,1], [0, 2]] 
+            : [[0, 2], [0,1], [1,3], [1,0]]
     if (folio_list.length < 1)
       return
-    renderPage(new_page, pageMap[folio_list[0][0]], 0,    pH/2, cell_w, cell_h, UP_SIDE_DOWN)
-    renderPage(new_page, pageMap[folio_list[0][3]], pW/2, pH/2, cell_w, cell_h, UP_SIDE_DOWN)
+    renderPage(new_page, pageMap[folio_list[i[0][0]][i[0][1]]], 0,    pH/2, cell_w, cell_h, UP_SIDE_DOWN)
+    renderPage(new_page, pageMap[folio_list[i[1][0]][i[1][1]]], pW/2, pH/2, cell_w, cell_h, UP_SIDE_DOWN)
     if (folio_list.length < 2)
       return
-    renderPage(new_page, pageMap[folio_list[1][1]], 0,    0,    cell_w, cell_h, RIGHT_SIDE_UP)
-    renderPage(new_page, pageMap[folio_list[1][2]], pW/2, 0,    cell_w, cell_h, RIGHT_SIDE_UP)
+    renderPage(new_page, pageMap[folio_list[i[2][0]][i[2][1]]], 0,    0,    cell_w, cell_h, RIGHT_SIDE_UP)
+    renderPage(new_page, pageMap[folio_list[i[3][0]][i[3][1]]], pW/2, 0,    cell_w, cell_h, RIGHT_SIDE_UP)
   },
   _handleSexto: function(new_page, pageMap, folio_list, sheet_index, is_front) {
-    const renderPage = this._renderPage
-    const pW = new_page.getWidth()
-    const pH = new_page.getHeight()
-    folio_list.forEach(function(f, i) {
-      renderPage(new_page, pageMap[f[0]], 0, i * pH/3)
-      renderPage(new_page, pageMap[f[3]], pW/2, i * pH/3)
-    })
+    const {pW, pH, renderPage, flip_short} = this._calcDimens(new_page)
+    const cell_w = pW/2;
+    const cell_h = pH/3;
+    const i = (is_front) ? [[0, 0], [0,3], [1,1], [1,2], [2, 0], [2, 3]] 
+        : (flip_short) ? [[2, 1], [2,2], [1,0], [1,3], [0, 1], [0, 2]] 
+            : [[0, 2], [0,1], [1,3], [1,0], [2, 2], [2, 1]] 
+    const outerFlip = (is_front) ? UP_SIDE_DOWN  : (flip_short) ? RIGHT_SIDE_UP : UP_SIDE_DOWN
+    const innerFlip = (is_front) ? RIGHT_SIDE_UP : (flip_short) ? UP_SIDE_DOWN  : RIGHT_SIDE_UP
+    if (folio_list.length < 1)
+      return
+    renderPage(new_page, pageMap[folio_list[i[0][0]][i[0][1]]], 0,    2 * pH/3, cell_w, cell_h, outerFlip)
+    renderPage(new_page, pageMap[folio_list[i[1][0]][i[1][1]]], pW/2, 2 * pH/3, cell_w, cell_h, outerFlip)
+    if (folio_list.length < 2)
+      return
+    renderPage(new_page, pageMap[folio_list[i[2][0]][i[2][1]]], 0,    pH/3,    cell_w, cell_h, innerFlip)
+    renderPage(new_page, pageMap[folio_list[i[3][0]][i[3][1]]], pW/2, pH/3,    cell_w, cell_h, innerFlip)
+    if (folio_list.length < 3)
+      return
+    renderPage(new_page, pageMap[folio_list[i[4][0]][i[4][1]]], 0,    0,    cell_w, cell_h, outerFlip)
+    renderPage(new_page, pageMap[folio_list[i[5][0]][i[5][1]]], pW/2, 0,    cell_w, cell_h, outerFlip)
   },
   _handleOctoFat: function(new_page, pageMap, folio_list, sheet_index, is_front) {
     const renderPage = this._renderPage
