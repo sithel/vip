@@ -79,7 +79,6 @@ export const utils = {
       const pages = original_pdf.getPages()
       let pagesSet = new Set(pagesList)
       for(const pageNumber of pagesSet) {
-        console.log("looking at pageIndex ",pageNumber," in ",pagesSet)
         if (pageNumber == -1)
           continue;
         let sourcePdfPage = pages[pageNumber - 1];
@@ -150,7 +149,7 @@ export const builder = {
   },
   _buildFirstSigOnlySet: function() {
     const result = new Set()
-    for(i = 0; i < window.book.imposed.sheets.length; ++i){
+    for(let i = 0; i < window.book.imposed.sheets.length; ++i){
       let sheetSigOverlap = new Set(window.book.imposed.sheets[i]).intersection(new Set(window.book.imposed.sheets[0]))
       if (sheetSigOverlap.size == 0) {
         return [result, i - 1]
@@ -175,7 +174,7 @@ export const builder = {
       if (page == -1)
         continue;
       const origPage =  window.book.unified_source.getPdfPageForPageNumber(page);
-      if (typeof page === "number") {
+      if (typeof origPage === "number") {
         continue;
       }
       const newPage = await new_pdf.embedPage(origPage)
@@ -197,7 +196,8 @@ export const builder = {
         imposerMagic.imposePdf(new_page, pageMap, s, i, true);
       }
       if (side_coverage_mode == SIDE_COVERAGE_BOTH || side_coverage_mode == SIDE_COVERAGE_FRONT) {
-        this._populateSheetBack(new_pdf, s, pageMap);
+        const new_page = new_pdf.addPage();
+        imposerMagic.imposePdf(new_page, pageMap, s, i, false);
       }
     });
     return new_pdf;

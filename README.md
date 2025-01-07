@@ -75,10 +75,19 @@ You can find the logic handling this over in `helper.js` `calImpositionInfo()`
 - `window.book.imposed.sheets` : List of lists. Each entry in the outer list is a sheet of paper (front and back), which contains a list of folios, which contains a list of 4 pages making up that folio. The order of the folios within a sheet is specific to the imposition. The order of the pages in the folio is front, inner left, inner right, back
 - `window.book.imposed.signatures` : List of lists. Each entry in the outer list is a signature, which contains a list of folios, which contains a list of 4 pages making up the folio. The order of signatures is start of book to end of book. The order of folios in the signature is outer-most first and ends with inner-most. The order of the pages in the folio is front, inner left, inner right, back
 
-## Preview (step 8)
+## Preview (step 8) / Rendering
 
-Minimal work, done in `preview.js`'s `build` function, kicked off via `vip.refreshPreview()`
+Starts in `preview.js`'s `build` function, kicked off via `vip.refreshPreview()`. Has some initial corner case logic (first signature only?) and hard coded assumptions (always 'both sides') - but otherwise runs the same path as the Downloaded PDF (see next section)
 
 ## Download (step 9)
 
-Check out `files.js`
+When rendering/building the PDF, some settings are stored in `window.book` and referenced via hard-coded links. Some settings are passed in as parameters the further along the process you go. Some settings are checked at-time-of-evaluation via `document.getElementById`
+
+- `document.getElementById("flip_paper_short").checked` : never stored, always evaluated when rendering
+
+Drawing on the canvas always confuses me. Some notes:
+
+- when thinking about the `rotate` when calling `drawPage` on a `PDFPage`, remember that it pivotes around the natural "lower left" corner. That is placed where you specify w/ `x` & `y` and then it rotates around that point. 
+
+
+For the actual download zip file/logic itself, check out `files.js`
