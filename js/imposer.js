@@ -27,9 +27,18 @@ export const imposerMagic = {
         x += w;
         rotation_deg = 180;
         break;
+      case BOTTOM_TO_LEFT:
+        y += h
+        rotation_deg = -90;
+        break;
+      case BOTTOM_TO_RIGHT:
+        x += w;
+        rotation_deg = 90;
+        break;
     }
-    const xScale = w / embedded_page.width;
-    const yScale = h / embedded_page.height;
+    const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
+    const xScale = (isTipped) ? h / embedded_page.width  : w / embedded_page.width;
+    const yScale = (isTipped) ? w / embedded_page.height : h / embedded_page.height;
     // TODO : squish appropriately AND factor in all those paddings... 
     new_page.drawPage(embedded_page, { 
                           x: x,
@@ -105,15 +114,29 @@ export const imposerMagic = {
     })
   },
   _handleOctoThin: function(new_page, pageMap, folio_list, sheet_index, is_front) {
-    const renderPage = this._renderPage
-    const pW = new_page.getWidth()
-    const pH = new_page.getHeight()
-    const folioXOffsets = [0, 0, pW/2, pW/2]
-    const folioYOffsets = [pH/2, 0, 0, pH/2]
-    folio_list.forEach(function(f, i) {
-      renderPage(new_page, pageMap[f[0]], folioXOffsets[i], folioYOffsets[i])
-      renderPage(new_page, pageMap[f[3]], folioXOffsets[i] + pW/4, folioYOffsets[i])
-    })
+    const {pW, pH, renderPage, flip_short} = this._calcDimens(new_page)
+    const cell_w = pW/2;
+    const cell_h = pH/4;
+    // upper right, upper left, lower left, lower right
+    const i = (is_front) ? [[0, 0], [0,3], [1,1], [1,2], [2, 3], [2, 0], [3, 2], [3, 1]] 
+        : (flip_short) ? [[3,0], [3,3], [2,1], [2,2], [1,3], [1,0], [0,2], [0,1]]
+            : [[1,0], [1,3], [0,1], [0,2], [3,3], [3,0], [2,2], [2,1]]
+    if (i[0][0] < folio_list.length) {
+      renderPage(new_page, pageMap[folio_list[i[0][0]][i[0][1]]], pW/2, 3 * pH/4, cell_w, cell_h, BOTTOM_TO_RIGHT)
+      renderPage(new_page, pageMap[folio_list[i[1][0]][i[1][1]]], pW/2, 2 * pH/4, cell_w, cell_h, BOTTOM_TO_RIGHT)
+    }
+    if (i[2][0] < folio_list.length) {
+      renderPage(new_page, pageMap[folio_list[i[2][0]][i[2][1]]], 0, 3 * pH/4,    cell_w, cell_h, BOTTOM_TO_LEFT)
+      renderPage(new_page, pageMap[folio_list[i[3][0]][i[3][1]]], 0, 2 * pH/4,    cell_w, cell_h, BOTTOM_TO_LEFT)
+    }
+    if (i[4][0] < folio_list.length) {
+      renderPage(new_page, pageMap[folio_list[i[4][0]][i[4][1]]], 0, pH/4,        cell_w, cell_h, BOTTOM_TO_LEFT)
+      renderPage(new_page, pageMap[folio_list[i[5][0]][i[5][1]]], 0, 0,           cell_w, cell_h, BOTTOM_TO_LEFT)
+    }
+    if (i[6][0] < folio_list.length) {
+      renderPage(new_page, pageMap[folio_list[i[6][0]][i[6][1]]], pW/2,  pH/4,    cell_w, cell_h, BOTTOM_TO_RIGHT)
+      renderPage(new_page, pageMap[folio_list[i[7][0]][i[7][1]]], pW/2, 0,        cell_w, cell_h, BOTTOM_TO_RIGHT)
+    }
   },
   // FRONT : folio [0] & [3]            BACK : folio [1] & [2]
   imposePdf: function(new_page, pageMap, folio_list, sheet_index, is_front) {
