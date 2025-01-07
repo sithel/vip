@@ -63,8 +63,12 @@ Call `window.book.unified_source.processUpdate()` after base changes to re-calcu
 
 ## Physical (step 3)
 
+This really highlights the mangling of terms. Height = Long Side = `y`, Width = Short Side = `x`
+
 - `window.book.physical.display_unit` : either `metric`, `imperial`, or `points`
 - `window.book.physical.paper_size` : a 2 value list of the sheet's `[width, height]` in points
+- `window.book.physical.short_margin` : value to be mirrored on both sides of the paper (compressing total imposition)
+- `window.book.physical.long_margin` : value to be mirrored on both sides of the paper (compressing total imposition)
 
 ## Imposition (step 4)
 

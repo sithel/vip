@@ -12,7 +12,7 @@
       unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0 /* pdf: PDFLib.PDFDocument, pageCount: Int, maxWidth: Int, maxHeight: Int, _scale100px: Int,  */ }, 
       imposition: { /* name: String, canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>, cellCount_l:Int, cellCount_s:Int*/},
       imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, hasSplitSig: Boolean, requiresCutting: Boolean */ },
-      physical: { /* scaling: String, display_unit: String */},
+      physical: { short_margin: 0, long_margin: 0 /* scaling: String, display_unit: String */},
       page_orientation: null,
       display_unit: null, // what to show, ex: cm
       display_unit_scale: null, // what to multiple pts by, ex: 1/72
@@ -304,8 +304,9 @@
     }
     #footer {
       float: right;
-      margin-right: 50px;
-      margin-bottom: 50px;
+      text-align: right;
+      margin-right: 25px;
+      margin-bottom: 25px;
     }
     #pdf_download {
       div {
@@ -495,10 +496,10 @@
         <BR>
         Paper Margins 
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;short sides
-        <input type="number" id="paper_margin_short" name="paper_margin_short" placeholder="0" />
+        <input type="number" id="paper_margin_short" name="paper_margin_short" placeholder="0" oninput="vip.handlePaperMarginUpdate()" />
         <small class="units">cm</small>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; long sides
-        <input type="number" id="paper_margin_long" name="paper_margin_long" placeholder="0" />
+        <input type="number" id="paper_margin_long" name="paper_margin_long" placeholder="0" oninput="vip.handlePaperMarginUpdate()" />
         <small class="units">cm</small>
       </section>
 
@@ -604,9 +605,10 @@
         <details>
           <summary>Instructions/Details</summary>
           <p>
-            Omg as if I knew...
+            This is for cross-hairs, fold/cut lines, page numbers, spine marks, punch guides, etc
           </p>
         </details>
+        <kbd>Not Yet Implemented</kbd>
       </section>
 
       <section id="printed_page_adjustment">
@@ -620,7 +622,7 @@
         <kbd>Not Yet Implemented</kbd>
       </section>
 
-      <section id="pdf_preview" >
+      <section id="pdf_preview" class="disabled">
         <h2>8. Preview</h2>
           <button id="preview_pdf_btn" onclick="vip.refreshPreview()">Preview PDF</button>
           <label for="pdf_results_preview_mode">
@@ -632,7 +634,7 @@
           </center>
       </section>
 
-      <section id="pdf_download">
+      <section id="pdf_download" class="disabled">
         <h2>9 Download</h2>
         <div>
           Download: 
@@ -658,9 +660,10 @@
 <section id="footer">
 <small>
     PDF library by <a href="https://pdf-lib.js.org/" target="_blank">PDF-LIB</a><br>
-    Download libraries by<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/eligrey/FileSaver.js/tree/master" target="_blank">FileSaver.js</a> & <a href="http://stuartk.com/jszip" target="_blank">JSZip</a><br>
     CSS library by <a href="https://picocss.com/" target="_blank">pico</a><br>
-    based on <a href="https://momijizukamori.github.io/bookbinder-js/">Bookbinder-JS</a>
+    Download libraries by <a href="https://github.com/eligrey/FileSaver.js/tree/master" target="_blank">FileSaver.js</a> & <a href="http://stuartk.com/jszip" target="_blank">JSZip</a><br>
+    based on <a href="https://momijizukamori.github.io/bookbinder-js/" target="_blank">Bookbinder-JS</a><br>
+    part of the <a href="https://www.renegadeguild.org/" target="_blank">Renegade Bindery</a> <a href="https://www.renegadeguild.org/" target="_blank"><img width="25px" src="./img/renegade.png"></a>
 </small>
 </section>
 

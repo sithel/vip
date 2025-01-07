@@ -148,6 +148,7 @@ export const builder = {
     const new_page = new_pdf.addPage()
   },
   _buildFirstSigOnlySet: function() {
+    // TODO : this doesn't seem to be working any more -- fix/auit  Jan 7th 2025
     const result = new Set()
     for(let i = 0; i < window.book.imposed.sheets.length; ++i){
       let sheetSigOverlap = new Set(window.book.imposed.sheets[i]).intersection(new Set(window.book.imposed.sheets[0]))

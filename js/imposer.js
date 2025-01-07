@@ -12,9 +12,6 @@ export const imposerMagic = {
    * orientation - one of the RIGHT_SIDE_UP/UP_SIDE_DOWN/BOTTOM_TO_LEFT/BOTTOM_TO_RIGHT - how to render page in cell
    */
   _renderPage: function(new_page, embedded_page, x, y, w, h, orientation) {
-    console.log("New page ",new_page)
-    console.log("Embedded page ",embedded_page)
-    console.log(" x : "+x+" \t\t y : "+y)
     if (embedded_page == undefined) {
       return;
     }
@@ -41,8 +38,8 @@ export const imposerMagic = {
     const yScale = (isTipped) ? w / embedded_page.height : h / embedded_page.height;
     // TODO : squish appropriately AND factor in all those paddings... 
     new_page.drawPage(embedded_page, { 
-                          x: x,
-                          y: y,
+                          x: x + window.book.physical.short_margin,
+                          y: y + window.book.physical.long_margin,
                           xScale: xScale,
                           yScale: yScale,
                           opacity: 0.75,
@@ -52,8 +49,8 @@ export const imposerMagic = {
   _calcDimens: function(new_page) {
     // TODO : take into account printer margins here
     return {
-      pW : new_page.getWidth(),
-      pH : new_page.getHeight(),
+      pW : new_page.getWidth()  - window.book.physical.short_margin * 2,
+      pH : new_page.getHeight() - window.book.physical.long_margin  * 2,
       renderPage : this._renderPage,
       flip_short : document.getElementById("flip_paper_short").checked
     }
@@ -140,8 +137,6 @@ export const imposerMagic = {
   },
   // FRONT : folio [0] & [3]            BACK : folio [1] & [2]
   imposePdf: function(new_page, pageMap, folio_list, sheet_index, is_front) {
-    console.log("  >> pageMap is ",pageMap)
-    // 
     switch(window.book.imposition.name) {
       case 'single': this._handleSingle(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'folio': this._handleFolio(new_page, pageMap, folio_list, sheet_index, is_front); break;
@@ -150,6 +145,5 @@ export const imposerMagic = {
       case 'octavo_fat': this._handleOctoFat(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'octavo_thin': this._handleOctoThin(new_page, pageMap, folio_list, sheet_index, is_front); break;
     }
-    console.log("  >> page isFront ["+is_front+"] ",folio_list)
   }
 }

@@ -193,14 +193,16 @@ export const form = {
     s += "Given: " + counts.join(", ") +" folios per signature  "+suggestedCounts+"<br>"
     s += " ➥ Pages per signature: " + counts.map(x => x * 4).join(", ")+"<br>"
     s += "With "+folioPerSheet.reduce((acc, x) => acc + x, 0) + " folios per sheet<br>"
-    s += "And "+ pageCount + " pages ("+Math.ceil(pageCount/4)+" folios)<br>"
-    s += " ➥ "+window.book.imposed.sheets.length+" printed sheets<br>"
-    s += " ➥ "+window.book.imposed.signatures.length+" signatures<br>"
-    s += " ➥ "+window.book.imposed.signatures.map(x => x.length).reduce((acc, x) => acc + x, 0) * 4+" pages<br>"
-    if (window.book.imposed.requiresCutting)
-      s += " ✂️ Cutting required to seperate signatures<br>"
-    if (window.book.imposed.hasSplitSig)
-      s += "<mark> ✂️ Warning : Signatures split across sheets! Is this what you really wanted? If not, double check your folios-per-signature</mark><br>"
+    if (pageCount != undefined) {
+      s += "And "+ pageCount + " pages ("+Math.ceil(pageCount/4)+" folios)<br>"
+      s += " ➥ "+window.book.imposed.sheets.length+" printed sheets<br>"
+      s += " ➥ "+window.book.imposed.signatures.length+" signatures<br>"
+      s += " ➥ "+window.book.imposed.signatures.map(x => x.length).reduce((acc, x) => acc + x, 0) * 4+" pages<br>"
+      if (window.book.imposed.requiresCutting)
+        s += " ✂️ Cutting required to seperate signatures<br>"
+      if (window.book.imposed.hasSplitSig)
+        s += "<mark> ✂️ Warning : Signatures split across sheets! Is this what you really wanted? If not, double check your folios-per-signature</mark><br>"
+    }
     outputEl.innerHTML = s +"</small>"
   },
   updatePlacementPreview: function(){

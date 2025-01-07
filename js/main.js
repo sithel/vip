@@ -12,6 +12,23 @@ export const basic = {
 }
 
 export const vip = {
+  auditDisabledStates: function() {
+    console.log("[auditing disabled states]")
+    if (window.book.unified_source.hasValidPdf()) {
+      document.getElementById("page_manipulation").classList.remove("disabled");
+    } else {
+      document.getElementById("page_manipulation").classList.add("disabled")
+    }
+    if (window.book.unified_source.hasValidPdf() && window.book.imposition.name != undefined) {
+      document.getElementById("pdf_placement").classList.remove("disabled");
+      document.getElementById("pdf_preview").classList.remove("disabled");
+      document.getElementById("pdf_download").classList.remove("disabled");
+    } else {
+      document.getElementById("pdf_placement").classList.add("disabled");
+      document.getElementById("pdf_preview").classList.add("disabled");
+      document.getElementById("pdf_download").classList.add("disabled");
+    }
+  },
   addUploadBlock: function(e) { form.addUploadBlock(e.parentElement.parentElement, e.parentElement) },
   removeUploadBlock : function(e) { 
     let id = parseInt(e.getAttribute("data-upload-index"));
@@ -21,20 +38,22 @@ export const vip = {
   processUploads : function(btn, uploadSection, detailsEl) {
     console.log("== Processing Uploads...")
     document.getElementById("upload_blocks").setAttribute("style","pointer-events: none;opacity: 0.7;")
-    uploadSection.setAttribute("disabled", "")
     btn.setAttribute("aria-busy", "true")
 
     let callback = function(){
       document.getElementById("upload_blocks").removeAttribute("style")
-      uploadSection.removeAttribute("disabled")
       btn.removeAttribute("aria-busy")
       detailsEl.removeAttribute("style")
       detailsEl.setAttribute("open", "")
       console.log("=== Processing Uploads Complete ")
       if (window.book.unified_source.hasValidPdf()) {
         document.getElementById("page_manipulation").setAttribute("class","")
+        if (window.book.imposition.name != undefined) {
+          form.calImpositionInfo(window.book.unified_source.pageCount)
+        }
       }
       window.book.unified_source.processUpdate()
+      vip.auditDisabledStates()
     }
     utils.processUploadBlocks(callback);
   },
@@ -81,6 +100,7 @@ export const vip = {
     form.setSelectedImpositionInfo(imposition_options[i])
     form.calImpositionInfo(window.book.unified_source.pageCount)
     window.book.imposed.processUpdate();
+    this.auditDisabledStates();
   },
   handleFoliosPerSigUpdate: function() {
     form.calImpositionInfo(window.book.unified_source.pageCount)
@@ -146,6 +166,12 @@ export const vip = {
     el.setAttribute("aria-invalid", isNaN(w) || isNaN(h))
     document.getElementById("paper_size_options").value = "custom"
     window.book.imposed.processUpdate();
+  },
+  handlePaperMarginUpdate: function() {
+    const shortMargin = parseInt(document.getElementById("paper_margin_short").value)
+    const longMargin = parseInt(document.getElementById("paper_margin_long").value)
+    window.book.physical.short_margin = (isNaN(shortMargin)) ? 0 : shortMargin
+    window.book.physical.long_margin  = (isNaN(longMargin))  ? 0 : longMargin
   },
   handleUnitChange: function(e) {
     const roundIt = window.roundIt;
