@@ -10,7 +10,7 @@ There's a lot of features and a lot of work remaining--
 ### Functionality
 
 - all of PDF page placement
-  - handling both flip options
+  - [x] handling both flip options
   - rotation/padding/margin logic
 - file downloading (all options)
 - all of mark-up
@@ -23,7 +23,7 @@ There's a lot of features and a lot of work remaining--
 
 ### UI/UX:
 
-- enable/disable sections based on entered values
+- [x] enable/disable sections based on entered values
 - saving settings/URL params
 - correctly re-rendering values when changing Display Units
 - PDF placement preview

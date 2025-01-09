@@ -401,7 +401,7 @@
           <details>
           <summary>Explanation</summary>
           <p>
-            This is to alter the (pre-rotation) PDF dimensions - negative values cut into the PDF, positive values expand/pad the PDF. For pages that are smaller than the max page size, they are first centered and then padded out to match the max size before the margin modifiers are applied. 
+            This is to alter the (pre-rotation) PDF dimensions - negative values cut into the PDF (masked via white rectangles drawn, which could mix poorly with `original` scaled pages that overlap), positive values expand/pad the PDF with white space. For pages that are smaller than the max page size, they are first centered and then padded out to match the max size before the margin modifiers are applied. 
           </p>
         </details>
         <table id="pdf_marins_example" style="display:none;">

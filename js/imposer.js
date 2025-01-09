@@ -11,11 +11,12 @@ export const imposerMagic = {
    * w / h - the CELL SPACE AVAILABLE 
    * orientation - one of the RIGHT_SIDE_UP/UP_SIDE_DOWN/BOTTOM_TO_LEFT/BOTTOM_TO_RIGHT - how to render page in cell
    */
-  _renderPage: function(new_page, embedded_page, x, y, w, h, orientation) {
+  _renderPage: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation) {
     if (embedded_page == undefined) {
       return;
     }
-    let rotation_deg = 0
+    const {embedded_w, embedded_h} = this._calcEmbeddedDimens(embedded_page)
+    let [x, y, rotation_deg] = [corner_x, corner_y, 0]
     switch(orientation) {
       case RIGHT_SIDE_UP:
         break;
@@ -34,8 +35,8 @@ export const imposerMagic = {
         break;
     }
     const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
-    const xScale = (isTipped) ? h / embedded_page.width  : w / embedded_page.width;
-    const yScale = (isTipped) ? w / embedded_page.height : h / embedded_page.height;
+    const xScale = (isTipped) ? h / embedded_w  : w / embedded_w;
+    const yScale = (isTipped) ? w / embedded_h : h / embedded_h;
     // TODO : squish appropriately AND factor in all those paddings... 
     new_page.drawPage(embedded_page, { 
                           x: x + window.book.physical.short_margin,
@@ -45,13 +46,55 @@ export const imposerMagic = {
                           opacity: 0.75,
                           rotate: PDFLib.degrees(rotation_deg)
                         })
+    this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
+  },
+  _maskPage: function(new_page, embedded_page, x, y, w, h, orientation){
+    const [margin_top, margin_bottom, margin_right, margin_left] = [20, 30, 40, 50];
+    const lower = (orientation == RIGHT_SIDE_UP) ? margin_bottom : (orientation == UP_SIDE_DOWN) ? margin_top : (orientation == BOTTOM_TO_RIGHT) ? margin_left : margin_right
+    const upper = (orientation == RIGHT_SIDE_UP) ? margin_top : (orientation == UP_SIDE_DOWN) ? margin_bottom : (orientation == BOTTOM_TO_RIGHT) ? margin_right : margin_left
+    const left = (orientation == RIGHT_SIDE_UP) ? margin_left : (orientation == UP_SIDE_DOWN) ? margin_right : (orientation == BOTTOM_TO_RIGHT) ? margin_top : margin_bottom
+    const right = (orientation == RIGHT_SIDE_UP) ? margin_right : (orientation == UP_SIDE_DOWN) ? margin_left : (orientation == BOTTOM_TO_RIGHT) ? margin_bottom : margin_top
+    if (lower > 0) {
+      new_page.drawRectangle({
+                          width: w,
+                          height: lower,
+        x: x, y: y, borderWidth: 0, color: PDFLib.rgb(0,1,1)
+      });
+    }
+    if (upper > 0) {
+      new_page.drawRectangle({
+                          width: w,
+                          height: upper,
+        x: x, y: y + h - upper, borderWidth: 0, color: PDFLib.rgb(0,0,1)
+      });
+    }
+    if (left > 0) {
+      new_page.drawRectangle({
+                          width: left,
+                          height: h,
+        x: x, y: y, borderWidth: 0, color: PDFLib.rgb(0,1,0)
+      });
+    }
+    if (right > 0) {
+      new_page.drawRectangle({
+                          width: right,
+                          height: h,
+        x: x + w - right, y: y, borderWidth: 0, color: PDFLib.rgb(1,0,1)
+      });
+    }
+  },
+  _calcEmbeddedDimens: function(embedded_page) {
+    return {
+      embedded_w: embedded_page.width,
+      embedded_h: embedded_page.height
+    }
   },
   _calcDimens: function(new_page) {
     // TODO : take into account printer margins here
     return {
       pW : new_page.getWidth()  - window.book.physical.short_margin * 2,
       pH : new_page.getHeight() - window.book.physical.long_margin  * 2,
-      renderPage : this._renderPage,
+      renderPage : this._renderPage.bind(this),
       flip_short : document.getElementById("flip_paper_short").checked
     }
   },
@@ -104,7 +147,7 @@ export const imposerMagic = {
     renderPage(new_page, pageMap[folio_list[i[5][0]][i[5][1]]], pW/2, 0,    cell_w, cell_h, outerFlip)
   },
   _handleOctoFat: function(new_page, pageMap, folio_list, sheet_index, is_front) {
-    const renderPage = this._renderPage
+    const renderPage = this._renderPage.bind(this)
     folio_list.forEach(function(f, i) {
       renderPage(new_page, pageMap[f[0]], 0, 10*i)
       renderPage(new_page, pageMap[f[3]], 10, 10*i)
