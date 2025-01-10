@@ -10,12 +10,107 @@ export const imposerMagic = {
    * x / y - the LOWER LEFT position of that Imposition Cell on the SHEET
    * w / h - the CELL SPACE AVAILABLE 
    * orientation - one of the RIGHT_SIDE_UP/UP_SIDE_DOWN/BOTTOM_TO_LEFT/BOTTOM_TO_RIGHT - how to render page in cell
+   * is_odd - as viewed from page numbers in a book, starting w/ page 1.  Odd == right hand side of page, even == left hand side of page
    */
-  _renderPage: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation) {
+  _renderPage: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd) {
     if (embedded_page == undefined) {
       return;
     }
-    const {embedded_w, embedded_h} = this._calcEmbeddedDimens(embedded_page)
+    if (window.book.physical.scaling == 'original') {
+      this._renderPageOriginal(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd);
+    } else if (window.book.physical.scaling == 'fit') {
+      this._renderPageFit(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd);
+    } else if (window.book.physical.scaling == 'fill') {
+      this._renderPageFill(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd);
+    } else {
+      console.error("Invalid scaling option : ",window.book.physical.scaling)
+    }
+  },
+  _renderPageOriginal: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd) {
+    console.log("==[Render Original]")
+    const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
+    let [x, y, rotation_deg] = [corner_x, corner_y, 0]
+    switch(orientation) {
+      case RIGHT_SIDE_UP:
+        break;
+      case UP_SIDE_DOWN:
+        y += embedded_h;
+        x += embedded_w;
+        rotation_deg = 180;
+        break;
+      case BOTTOM_TO_LEFT:
+        y += embedded_h
+        rotation_deg = -90;
+        break;
+      case BOTTOM_TO_RIGHT:
+        x += embedded_w;
+        rotation_deg = 90;
+        break;
+    }
+    const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
+    const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, x, y, w, h, orientation, 1, is_odd, (isTipped) ? embedded_h : embedded_w, (isTipped) ? embedded_w : embedded_h)
+    new_page.drawPage(embedded_page, { 
+                          x: finalPlacement.x,
+                          y: finalPlacement.y,
+                          xScale: finalPlacement.scale,
+                          yScale: finalPlacement.scale,
+                          opacity: 0.75,
+                          rotate: PDFLib.degrees(rotation_deg)
+                        })
+    // this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
+  },
+  _calcPlacementOffsets: function(corner_x, corner_y, x, y, w, h, orientation, scale, is_odd, embedded_w, embedded_h) {
+    const p = window.book.physical.placement;
+    const outerXmin = x + window.book.physical.short_margin
+    const outerXmax = x + window.book.physical.short_margin + w
+    const xSpace = w - embedded_h
+    const ySpace = h - embedded_h
+    const yPaddingTop = (p == "center_top" || p == "snug_top") ? 0 : ySpace / 2;
+    const yPaddingBottom = (p == "center_top" || p == "snug_top") ? ySpace : ySpace / 2;
+    const xPaddingInner = (p == "snug_center" || p == "snug_top") ? 0 : xSpace / 2;
+    const xPaddingOuter = (p == "snug_center" || p == "snug_top") ? xSpace : xSpace / 2;
+    // const xPadding = (orientation == RIGHT_SIDE_UP) ? margin_bottom : (orientation == UP_SIDE_DOWN) ? margin_top : (orientation == BOTTOM_TO_RIGHT) ? margin_left : margin_right
+    return {
+      x: x + window.book.physical.short_margin,
+      y: y + window.book.physical.long_margin,
+      scale: scale
+    }
+  },
+  _renderPageFit: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd) {
+    console.log("==[Render Fit]")
+    const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
+    let [x, y, rotation_deg] = [corner_x, corner_y, 0]
+    switch(orientation) {
+      case RIGHT_SIDE_UP:
+        break;
+      case UP_SIDE_DOWN:
+        y += embedded_h;
+        x += embedded_w;
+        rotation_deg = 180;
+        break;
+      case BOTTOM_TO_LEFT:
+        y += embedded_h
+        rotation_deg = -90;
+        break;
+      case BOTTOM_TO_RIGHT:
+        x += embedded_w;
+        rotation_deg = 90;
+        break;
+    }
+    const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
+    new_page.drawPage(embedded_page, { 
+                          x: x + window.book.physical.short_margin,
+                          y: y + window.book.physical.long_margin,
+                          xScale: 1,
+                          yScale: 1,
+                          opacity: 0.75,
+                          rotate: PDFLib.degrees(rotation_deg)
+                        })
+    // this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
+  },
+  _renderPageFill: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd) {
+    console.log("==[Render Fill]")
+    const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
     let [x, y, rotation_deg] = [corner_x, corner_y, 0]
     switch(orientation) {
       case RIGHT_SIDE_UP:
@@ -58,39 +153,32 @@ export const imposerMagic = {
       new_page.drawRectangle({
                           width: w,
                           height: lower,
-        x: x, y: y, borderWidth: 0, color: PDFLib.rgb(0,1,1)
+        x: x, y: y, borderWidth: 0, color: PDFLib.rgb(0,1,1), opacity: 0.25
       });
     }
     if (upper > 0) {
       new_page.drawRectangle({
                           width: w,
                           height: upper,
-        x: x, y: y + h - upper, borderWidth: 0, color: PDFLib.rgb(0,0,1)
+        x: x, y: y + h - upper, borderWidth: 0, color: PDFLib.rgb(0,0,1), opacity: 0.25
       });
     }
     if (left > 0) {
       new_page.drawRectangle({
                           width: left,
                           height: h,
-        x: x, y: y, borderWidth: 0, color: PDFLib.rgb(0,1,0)
+        x: x, y: y, borderWidth: 0, color: PDFLib.rgb(0,1,0), opacity: 0.25
       });
     }
     if (right > 0) {
       new_page.drawRectangle({
                           width: right,
                           height: h,
-        x: x + w - right, y: y, borderWidth: 0, color: PDFLib.rgb(1,0,1)
+        x: x + w - right, y: y, borderWidth: 0, color: PDFLib.rgb(1,0,1), opacity: 0.25
       });
     }
   },
-  _calcEmbeddedDimens: function(embedded_page) {
-    return {
-      embedded_w: embedded_page.width,
-      embedded_h: embedded_page.height
-    }
-  },
   _calcDimens: function(new_page) {
-    // TODO : take into account printer margins here
     return {
       pW : new_page.getWidth()  - window.book.physical.short_margin * 2,
       pH : new_page.getHeight() - window.book.physical.long_margin  * 2,
@@ -102,10 +190,10 @@ export const imposerMagic = {
     this._renderPage(new_page, pageMap[folio_list[0]], 0, 0)
   },
   _handleFolio: function(new_page, pageMap, folio_list, sheet_index, is_front) {
-    const renderPage = this._renderPage
+    const {pW, pH, renderPage, flip_short} = this._calcDimens(new_page)
     folio_list.forEach(function(f, i) {
-      renderPage(new_page, pageMap[f[0]], 0, 10*i)
-      renderPage(new_page, pageMap[f[3]], 10, 10*i)
+      renderPage(new_page, pageMap[f[(is_front) ? 0 : (flip_short) ? 2 : 1]], 0, pH/2, (!is_front &&  !flip_short) ? BOTTOM_TO_LEFT : BOTTOM_TO_RIGHT)
+      renderPage(new_page, pageMap[f[(is_front) ? 3 : (flip_short) ? 1 : 2]], 0, 0, (!is_front &&  !flip_short) ? BOTTOM_TO_LEFT : BOTTOM_TO_RIGHT)
     })
   },
   _handleQuarto: function(new_page, pageMap, folio_list, sheet_index, is_front) {

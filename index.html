@@ -12,7 +12,7 @@
       unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0 /* pdf: PDFLib.PDFDocument, pageCount: Int, maxWidth: Int, maxHeight: Int, _scale100px: Int,  */ }, 
       imposition: { /* name: String, canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>, cellCount_l:Int, cellCount_s:Int*/},
       imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, hasSplitSig: Boolean, requiresCutting: Boolean */ },
-      physical: { short_margin: 0, long_margin: 0 /* scaling: String, display_unit: String */},
+      physical: { short_margin: 0, long_margin: 0, scaling: 'fit', placement: 'center' /* display_unit: String */},
       page_orientation: null,
       display_unit: null, // what to show, ex: cm
       display_unit_scale: null, // what to multiple pts by, ex: 1/72
@@ -570,7 +570,7 @@
           <label id="pdf_page_scaling_label" for="pdf_page_scaling">PDF Scaling</label>
           <select id="pdf_page_scaling" name="select" required onchange="vip.handlePdfPageScaling(this)">
             <option value="original" id="scaling_original">Original</option>
-            <option value="fit" id="scaling_fit">Fit - Proportional</option>
+            <option value="fit" id="scaling_fit" selected>Fit - Proportional</option>
             <option value="fill" id="scaling_fill">Fill - Stretch</option>
           </select>
         </div>
@@ -586,10 +586,10 @@
         </div>
         <div>
           <label id="pdf_white_space_placement_label" for="pdf_white_space_placement">PDF Positioning</label>
-          <select id="pdf_white_space_placement" name="select" required onchange="vip.handlePdfPageScaling(this)">
+          <select id="pdf_white_space_placement" name="select" required onchange="vip.handlePdfPagePlacement(this)">
             <option value="snug_center" id="placement_snug_center">snug against spine, centered vertically</option>
             <option value="snug_top" id="placement_snug_top">snug against spine, top aligned</option>
-            <option value="center" id="placement_center">centered horizontally, centered vertially</option>
+            <option value="center" id="placement_center" selected>centered horizontally, centered vertially</option>
             <option value="center_top" id="placement_center_top">centered horizontally, top aligned</option>
           </select>
         </div>

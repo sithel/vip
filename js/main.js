@@ -125,6 +125,10 @@ export const vip = {
     window.book.physical.scaling = document.getElementById("pdf_page_scaling").value;
     window.book.imposed.processUpdate();
   },
+  handlePdfPagePlacement: function() {
+    window.book.physical.placement = document.getElementById("pdf_white_space_placement").value;
+    window.book.imposed.processUpdate();
+  },
   handlePaperSizeDropdownChange: function(el) {
     console.log("We selected '"+el.value+"'")
     console.log(PAGE_SIZES[el.value])
