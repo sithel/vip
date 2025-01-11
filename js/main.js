@@ -123,6 +123,13 @@ export const vip = {
   },
   handlePdfPageScaling: function() {
     window.book.physical.scaling = document.getElementById("pdf_page_scaling").value;
+    if (window.book.physical.scaling == 'original') {
+      document.getElementById("pdf_padding_outer_label").style.visibility = "hidden"
+      document.getElementById("pdf_padding_bottom_label").style.visibility = "hidden"
+    } else {
+      document.getElementById("pdf_padding_outer_label").style.visibility = ""
+      document.getElementById("pdf_padding_bottom_label").style.visibility = ""
+    }
     window.book.imposed.processUpdate();
   },
   handlePdfPagePlacement: function() {

@@ -31,25 +31,21 @@ export const imposerMagic = {
   _renderPageOriginal: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd) {
     console.log("==[Render Original]")
     const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
-    let [x, y, rotation_deg] = [corner_x, corner_y, 0]
+    let rotation_deg = 0
     switch(orientation) {
       case RIGHT_SIDE_UP:
         break;
       case UP_SIDE_DOWN:
-        y += embedded_h;
-        x += embedded_w;
         rotation_deg = 180;
         break;
       case BOTTOM_TO_LEFT:
-        y += embedded_h
         rotation_deg = -90;
         break;
       case BOTTOM_TO_RIGHT:
-        x += embedded_w;
         rotation_deg = 90;
         break;
     }
-    const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, x, y, w, h, orientation, 1, is_odd, embedded_w, embedded_h)
+    const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, w, h, orientation, 1, is_odd, embedded_w, embedded_h)
     new_page.drawPage(embedded_page, { 
                           x: finalPlacement.x,
                           y: finalPlacement.y,
@@ -60,97 +56,37 @@ export const imposerMagic = {
                         })
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
   },
-  /*
-   * Remember: working from the lower-left corner of the cell
-   * embedded_w / embedded_h -- already flipped if needed so it aligns w/ the correct dimensions for xSpace / ySpace
-   */
-  _calcPlacementOffsets: function(corner_x, corner_y, x, y, w, h, orientation, scale, is_odd, embedded_w, embedded_h) {
-    const p = window.book.physical.placement;
-    const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
-    embedded_w = embedded_w * scale;
-    embedded_h = embedded_h * scale;
-    const xSpace = w - embedded_w;
-    const ySpace = h - embedded_h;
-    let xPadding = 0;//xSpace / 2;
-    let yPadding = 0;//ySpace / 2;
-    switch(orientation) {
-      case RIGHT_SIDE_UP:
-        if (p == "center" || p == "center_top") {
-          xPadding += (w - embedded_w)/2.0;
-        } else if (!is_odd) {
-          xPadding += (w - embedded_w);
-        }
-        if (p == "center" || p == "snug_center") {
-          yPadding += (h - embedded_h)/2.0;
-        } else {
-          yPadding += (h - embedded_h);
-        }
-      break;
-      case UP_SIDE_DOWN:
-        xPadding += embedded_w
-        yPadding += embedded_h
-        if (p == "center" || p == "center_top") {
-          xPadding += (w - embedded_w)/2.0;
-        } else if (is_odd) {
-          xPadding += (w - embedded_w);
-        }
-        if (p == "center" || p == "snug_center") {
-          yPadding += (h - embedded_h)/2.0;
-        }
-      break;
-      case BOTTOM_TO_RIGHT:
-        if (p == "snug_center" || p == "center") {
-          xPadding += (w - embedded_h)/2.0;
-        }
-        xPadding += embedded_h;
-        if (p == "center" || p == "center_top") {
-          yPadding += (h - embedded_w)/2.0;
-        } else if (!is_odd) {
-          yPadding += (h - embedded_w);
-        }
-      break;
-      case BOTTOM_TO_LEFT:
-        if (p == "snug_center" || p == "center") {
-          xPadding += (w - embedded_h)/2.0;
-        } else {
-          xPadding += (w - embedded_h);
-        }
-        if (p == "center" || p == "center_top") {
-          yPadding += (h - embedded_w)/2.0;
-        } else if (is_odd) {
-          yPadding += (h - embedded_w);
-        }
-        yPadding += embedded_w;
-      break;
-    }
+  _calcPadding: function() {
     return {
-      x: corner_x + window.book.physical.short_margin + xPadding,
-      y: corner_y + window.book.physical.long_margin + yPadding,
-      scale: scale
+      padding_i: Number(document.getElementById("pdf_padding_inner").value),
+      padding_o: Number(document.getElementById("pdf_padding_outer").value),
+      padding_t: Number(document.getElementById("pdf_padding_top").value),
+      padding_b: Number(document.getElementById("pdf_padding_bottom").value),
+      total_w: Number(document.getElementById("pdf_padding_inner").value) + Number(document.getElementById("pdf_padding_outer").value),
+      total_h: Number(document.getElementById("pdf_padding_top").value) + Number(document.getElementById("pdf_padding_bottom").value)
     }
   },
   _renderPageFit: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd) {
     console.log("==[Render Fit]")
+    const {total_w, total_h} = this._calcPadding();
     const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
-    let [x, y, rotation_deg] = [corner_x, corner_y, 0]
+    let rotation_deg = 0;
+    let [useW, useH] = (orientation == RIGHT_SIDE_UP || orientation == UP_SIDE_DOWN) ? [embedded_w + total_w, embedded_h + total_h] : [embedded_h + total_h, embedded_w + total_w];
     switch(orientation) {
       case RIGHT_SIDE_UP:
         break;
       case UP_SIDE_DOWN:
-        y += embedded_h;
-        x += embedded_w;
         rotation_deg = 180;
         break;
       case BOTTOM_TO_LEFT:
-        y += embedded_h
         rotation_deg = -90;
         break;
       case BOTTOM_TO_RIGHT:
-        x += embedded_w;
         rotation_deg = 90;
         break;
     }
-    const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, x, y, w, h, orientation, 2, is_odd, embedded_w, embedded_h)
+    const scale = Math.min(w/useW, h/useH);
+    const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, w, h, orientation, scale, is_odd, embedded_w, embedded_h)
     new_page.drawPage(embedded_page, { 
                           x: finalPlacement.x,
                           y: finalPlacement.y,
@@ -195,6 +131,77 @@ export const imposerMagic = {
                           rotate: PDFLib.degrees(rotation_deg)
                         })
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
+  },
+  /*
+   * Remember: working from the lower-left corner of the cell
+   * embedded_w / embedded_h -- already flipped if needed so it aligns w/ the correct dimensions for xSpace / ySpace
+   */
+  _calcPlacementOffsets: function(corner_x, corner_y, w, h, orientation, scale, is_odd, embedded_w, embedded_h) {
+    const p = window.book.physical.placement;
+    const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
+    const {padding_i, padding_o, padding_t, padding_b, total_w, total_h} = this._calcPadding();
+    embedded_w = (embedded_w) * scale;
+    embedded_h = (embedded_h) * scale;
+    const xSpace = w - embedded_w;
+    const ySpace = h - embedded_h;
+    let xPadding = 0;
+    let yPadding = 0;
+    switch(orientation) {
+      case RIGHT_SIDE_UP:
+        if (p == "center" || p == "center_top") {
+          xPadding += (w - embedded_w)/2.0;
+        } else if (!is_odd) {
+          xPadding += (w - embedded_w);
+        }
+        if (p == "center" || p == "snug_center") {
+          yPadding += (h - embedded_h)/2.0;
+        } else {
+          yPadding += (h - embedded_h);
+        }
+      break;
+      case UP_SIDE_DOWN:
+        xPadding += embedded_w
+        yPadding += embedded_h
+        if (p == "center" || p == "center_top") {
+          xPadding += (w - embedded_w)/2.0;
+        } else if (is_odd) {
+          xPadding += (w - embedded_w);
+        }
+        if (p == "center" || p == "snug_center") {
+          yPadding += (h - embedded_h)/2.0;
+        }
+      break;
+      case BOTTOM_TO_RIGHT:
+        if (p == "snug_center" || p == "center") {
+          xPadding += (w - embedded_h)/2.0;
+        }
+        xPadding += embedded_h + padding_t - padding_b;
+        if (p == "center" || p == "center_top") {
+          yPadding += (h - embedded_w)/2.0;
+        } else if (!is_odd) {
+          yPadding += (h - embedded_w);
+        }
+      break;
+      case BOTTOM_TO_LEFT:
+        if (p == "snug_center" || p == "center") {
+          xPadding += (w - embedded_h)/2.0;
+        } else {
+          xPadding += (w - embedded_h);
+        }
+        if (p == "center" || p == "center_top") {
+          yPadding += (h - embedded_w)/2.0;
+        } else if (is_odd) {
+          yPadding += (h - embedded_w);
+        }
+        yPadding += embedded_w;
+        xPadding += padding_b - padding_t;
+      break;
+    }
+    return {
+      x: corner_x + window.book.physical.short_margin + xPadding,
+      y: corner_y + window.book.physical.long_margin + yPadding,
+      scale: scale
+    }
   },
   _maskPage: function(new_page, embedded_page, x, y, w, h, orientation){
     const [margin_top, margin_bottom, margin_right, margin_left] = [20, 30, 40, 50];
