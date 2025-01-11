@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-  <!-- <script type="module" src="js/main.js"></script> -->
+<!--   <script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js" type="text/javascript"></script>
+       <script type="text/javascript">window.jQuery || document.write('<script type="text/javascript" src="/js/lib/jquery.js">\x3C/script>');</script> -->
+
   <script src="js/drawing.js"></script>
   <script src="lib/pdf-lib.js"></script>
   <script src="lib/jszip.js"></script>
@@ -301,6 +303,11 @@
         margin-left: 40px;
         margin-top: 10px;
       }
+      h4 {
+        margin-left: 40px;
+        margin-top: 10px;
+        color: red;
+      }
     }
     #footer {
       float: right;
@@ -327,6 +334,7 @@
           <summary>information & glossary</summary>
           <p>
             This is a tool written mostly for myself, made available for others.  It is focused on at-home, hobbiest printing for bookbinding (or pamphlets or zines)<br>
+            All the processing is done on the client side- that means your work is entirely private. I need to figure out some CORS stuff (Cross-Origin Resource Sharing) and then it should work saved to your computer/offline.<BR>
             Imposition is the process of arranging multiple pages of a PDF onto a printed sheet so that they appear in the correct order after folding (some cutting may be involved)<br><br>
             Relevant terms, as used by this tool:<br>
             <b>folio</b> - a piece of paper with a single fold down the middle. part of a signature. made up of 4 pages. made up of 2 leaves<br>
@@ -555,6 +563,7 @@
         <details>
           <summary>Instructions/Details</summary>
           <p>
+            For PDF scaling:
             <b>Original</b><br>
             Retains the original PDF sizing, which could potentially spill out and over onto other pages, resulting in overlapping the PDF content (there is no clipping)<br>
             Only the <code>top</code> and <code>inner</code> margins are considered. Positive values shift it down/away from the spine. Negative values shift it up/towards the spine.<BR>
@@ -629,6 +638,7 @@
             <input type="checkbox" role="switch" id="pdf_results_preview_mode" name="pdf_results_preview_mode">
             only preview first signature
           </label>
+          <h4 style="display: none;" id="preview_error_slot">There was an error</h4>
           <center>
             <iframe id="pdf_results_preview" style="display: none"></iframe>
           </center>

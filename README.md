@@ -41,6 +41,7 @@ There's a lot of features and a lot of work remaining--
 - night mode
 - more impositions
 - improve Imposition options UI/UX to be more compact (in listing options section)
+- figure out CORS stuff so it can be saved to someone's computer
 
 # Helper Functions & Code Structure
 
