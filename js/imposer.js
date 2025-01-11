@@ -49,8 +49,7 @@ export const imposerMagic = {
         rotation_deg = 90;
         break;
     }
-    const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
-    const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, x, y, w, h, orientation, 1, is_odd, (isTipped) ? embedded_h : embedded_w, (isTipped) ? embedded_w : embedded_h)
+    const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, x, y, w, h, orientation, 1, is_odd, embedded_w, embedded_h)
     new_page.drawPage(embedded_page, { 
                           x: finalPlacement.x,
                           y: finalPlacement.y,
@@ -67,27 +66,66 @@ export const imposerMagic = {
    */
   _calcPlacementOffsets: function(corner_x, corner_y, x, y, w, h, orientation, scale, is_odd, embedded_w, embedded_h) {
     const p = window.book.physical.placement;
-    const outerXmin = x + window.book.physical.short_margin
-    const outerXmax = x + window.book.physical.short_margin + w
     const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
-    const xSpace = (isTipped) ? h - embedded_h : w - embedded_w;
-    const ySpace = (isTipped) ? w - embedded_w : h - embedded_h;
-    const yPaddingTop = (p == "center_top" || p == "snug_top") ? 0 : ySpace / 2;
-    const yPaddingBottom = (p == "center_top" || p == "snug_top") ? ySpace : ySpace / 2;
-    const xPaddingInner = (p == "snug_center" || p == "snug_top") ? 0 : xSpace / 2;
-    const xPaddingOuter = (p == "snug_center" || p == "snug_top") ? xSpace : xSpace / 2;
-
-    const xPadding = (orientation == RIGHT_SIDE_UP) ? ( (is_odd) ? xPaddingInner : xPaddingOuter)
-     : (orientation == UP_SIDE_DOWN) ? ( (is_odd) ? xPaddingOuter : xPaddingInner)
-       : (orientation == BOTTOM_TO_RIGHT) ? yPaddingTop 
-         : yPaddingBottom
-    const yPadding = (orientation == RIGHT_SIDE_UP) ? yPaddingBottom
-     : (orientation == UP_SIDE_DOWN) ? yPaddingTop
-       : (orientation == BOTTOM_TO_RIGHT) ? ( (is_odd) ? xPaddingInner : xPaddingOuter) 
-         : (is_odd) ? xPaddingOuter : xPaddingInner
+    embedded_w = embedded_w * scale;
+    embedded_h = embedded_h * scale;
+    const xSpace = w - embedded_w;
+    const ySpace = h - embedded_h;
+    let xPadding = 0;//xSpace / 2;
+    let yPadding = 0;//ySpace / 2;
+    switch(orientation) {
+      case RIGHT_SIDE_UP:
+        if (p == "center" || p == "center_top") {
+          xPadding += (w - embedded_w)/2.0;
+        } else if (!is_odd) {
+          xPadding += (w - embedded_w);
+        }
+        if (p == "center" || p == "snug_center") {
+          yPadding += (h - embedded_h)/2.0;
+        } else {
+          yPadding += (h - embedded_h);
+        }
+      break;
+      case UP_SIDE_DOWN:
+        xPadding += embedded_w
+        yPadding += embedded_h
+        if (p == "center" || p == "center_top") {
+          xPadding += (w - embedded_w)/2.0;
+        } else if (is_odd) {
+          xPadding += (w - embedded_w);
+        }
+        if (p == "center" || p == "snug_center") {
+          yPadding += (h - embedded_h)/2.0;
+        }
+      break;
+      case BOTTOM_TO_RIGHT:
+        if (p == "snug_center" || p == "center") {
+          xPadding += (w - embedded_h)/2.0;
+        }
+        xPadding += embedded_h;
+        if (p == "center" || p == "center_top") {
+          yPadding += (h - embedded_w)/2.0;
+        } else if (!is_odd) {
+          yPadding += (h - embedded_w);
+        }
+      break;
+      case BOTTOM_TO_LEFT:
+        if (p == "snug_center" || p == "center") {
+          xPadding += (w - embedded_h)/2.0;
+        } else {
+          xPadding += (w - embedded_h);
+        }
+        if (p == "center" || p == "center_top") {
+          yPadding += (h - embedded_w)/2.0;
+        } else if (is_odd) {
+          yPadding += (h - embedded_w);
+        }
+        yPadding += embedded_w;
+      break;
+    }
     return {
-      x: x + window.book.physical.short_margin + xPadding,
-      y: y + window.book.physical.long_margin + yPadding,
+      x: corner_x + window.book.physical.short_margin + xPadding,
+      y: corner_y + window.book.physical.long_margin + yPadding,
       scale: scale
     }
   },
@@ -112,16 +150,16 @@ export const imposerMagic = {
         rotation_deg = 90;
         break;
     }
-    const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
+    const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, x, y, w, h, orientation, 2, is_odd, embedded_w, embedded_h)
     new_page.drawPage(embedded_page, { 
-                          x: x + window.book.physical.short_margin,
-                          y: y + window.book.physical.long_margin,
-                          xScale: 1,
-                          yScale: 1,
+                          x: finalPlacement.x,
+                          y: finalPlacement.y,
+                          xScale: finalPlacement.scale,
+                          yScale: finalPlacement.scale,
                           opacity: 0.75,
                           rotate: PDFLib.degrees(rotation_deg)
                         })
-    // this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
+    this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
   },
   _renderPageFill: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd) {
     console.log("==[Render Fill]")
