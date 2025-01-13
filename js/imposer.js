@@ -57,11 +57,12 @@ export const imposerMagic = {
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
   },
   _calcPadding: function() {
+    const isOriginal = window.book.physical.placement == 'original';
     return {
       padding_i: Number(document.getElementById("pdf_padding_inner").value),
-      padding_o: Number(document.getElementById("pdf_padding_outer").value),
+      padding_o: (isOriginal) ? 0 : Number(document.getElementById("pdf_padding_outer").value),
       padding_t: Number(document.getElementById("pdf_padding_top").value),
-      padding_b: Number(document.getElementById("pdf_padding_bottom").value),
+      padding_b: (isOriginal) ? 0 : Number(document.getElementById("pdf_padding_bottom").value),
       total_w: Number(document.getElementById("pdf_padding_inner").value) + Number(document.getElementById("pdf_padding_outer").value),
       total_h: Number(document.getElementById("pdf_padding_top").value) + Number(document.getElementById("pdf_padding_bottom").value)
     }
@@ -99,29 +100,33 @@ export const imposerMagic = {
   },
   _renderPageFill: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd) {
     console.log("==[Render Fill]")
+    const {padding_i, padding_o, padding_t, padding_b, total_w, total_h} = this._calcPadding();
     const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
     let [x, y, rotation_deg] = [corner_x, corner_y, 0]
     switch(orientation) {
       case RIGHT_SIDE_UP:
+        y += padding_b - padding_t;
+        x += (is_odd) ? padding_i - padding_o : padding_o - padding_i;
         break;
       case UP_SIDE_DOWN:
-        y += h;
+        y += h + padding_t - padding_b;
         x += w;
+        x += (is_odd) ? padding_i - padding_o : padding_o - padding_i;
         rotation_deg = 180;
         break;
       case BOTTOM_TO_LEFT:
         y += h
+        x += padding_b - padding_t;
         rotation_deg = -90;
         break;
       case BOTTOM_TO_RIGHT:
-        x += w;
+        x += w + padding_t - padding_b;
         rotation_deg = 90;
         break;
     }
     const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
-    const xScale = (isTipped) ? h / embedded_w  : w / embedded_w;
-    const yScale = (isTipped) ? w / embedded_h : h / embedded_h;
-    // TODO : squish appropriately AND factor in all those paddings... 
+    const xScale = (isTipped) ? h / (embedded_w + total_w) : w / (embedded_w + total_w);
+    const yScale = (isTipped) ? w / (embedded_h + total_h) : h / (embedded_h + total_h);
     new_page.drawPage(embedded_page, { 
                           x: x + window.book.physical.short_margin,
                           y: y + window.book.physical.long_margin,
