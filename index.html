@@ -214,7 +214,7 @@
     #imposition_layout tr:nth-child(odd) td:nth-child(even) {
       background-color: transparent;
     }
-    #printed_page_markup, #printed_page_adjustment {
+    #printed_page_adjustment {
       opacity: 0.5;
     }
     #pdf_signatures {
@@ -287,6 +287,30 @@
       }
       #pdf_page_scaling, #pdf_white_space_placement {
         width:auto;
+      }
+    }
+    #printed_page_markup {
+      label, #markup_sewing_stations {
+        width: auto;
+        display: inline;
+      }
+      .printed_page_markup_options {
+        margin-left: 40px;
+      }
+      #fold_line_weight, #cut_line_weight, #markup_crosshairs_weight, #markup_spine_order_weight, #markup_spine_bounds_weight {
+        width: 4em;
+        padding: 0px 4px;
+        margin-left: 10px;
+        margin-bottom: 4px;
+      }
+      #cut_line_weight {
+        margin-left: 15px;
+      }
+      #markup_sewing_count, #markup_sewing_dist_top, #markup_sewing_dist_bottom, #markup_sewing_station_dist, #markup_sewing_dot_size {
+        width: 4em;
+        padding: 0px 4px;
+        margin-bottom: 4px;
+        margin-left: 50px;
       }
     }
     #pdf_preview {
@@ -612,12 +636,35 @@
       <section id="printed_page_markup">
         <h2>6. Markup</h2>
         <details>
-          <summary>Instructions/Details</summary>
+          <summary>Details</summary>
           <p>
             This is for cross-hairs, fold/cut lines, page numbers, spine marks, punch guides, etc
           </p>
         </details>
-        <kbd>Not Yet Implemented</kbd>
+        <div class="printed_page_markup_options">
+            <input type="checkbox" id="markup_fold_lines" name="markup_fold_lines" value="fold"> <label for="markup_fold_lines"> fold lines</label> <Input type=number id="fold_line_weight" placeholder="2"/> <span id="fold_line_weight_label">line weight (pt)</span></br>
+            <input type="checkbox" id="markup_cut_lines" name="markup_cut_lines" value="cut"> <label for="markup_cut_lines"> cut lines</label> <Input type=number id="cut_line_weight" placeholder="2"/>  <span id="cut_line_weight_label">line weight (pt)</span></br>
+            <input type="checkbox" id="markup_crosshairs" name="markup_crosshairs" value="cross"> <label for="markup_crosshairs"> cross-hairs</label> <Input type=number id="markup_crosshairs_weight" placeholder="2"/>  <span id="markup_crosshairs_weight_label">line weight (pt)</span></br>
+            <input type="checkbox" id="markup_spine_order" name="markup_spine_order" value="order"> <label for="markup_spine_order"> spine marks: order</label> <Input type=number id="markup_spine_order_weight" placeholder="2"/>  <span id="markup_spine_order_weight_label">line weight (pt)</span></br>
+            <input type="checkbox" id="markup_spine_bounds" name="markup_spine_bounds" value="order"> <label for="markup_spine_bounds"> spine marks: bounds</label> <Input type=number id="markup_spine_bounds_weight" placeholder="2"/>  <span id="markup_spine_bounds_weight_label">line weight (pt)</span></br>
+            <div>
+              <input type="checkbox" id="markup_sewing" name="markup_sewing" value="sewing"> <label for="markup_sewing">sewing / punching guides</label>
+              <select id="markup_sewing_stations" name="markup_sewing_stations" onchange="vip.handleSewingChange(this)">
+                <option value="outer">spine only</option>
+                <option value="inner">inner folio only</option>
+                <option value="inner_outer">spine & inner folio</option>
+                <option value="all">all folios</option>
+              </select>
+              <br/>
+              <div>
+                <input type="number" id="markup_sewing_dist_top" name="markup_sewing_dist_top" value="sewing_count"> <label for="markup_sewing_dist_top"> distance from head to top hole (pt)</label> <br/>
+                <input type="number" id="markup_sewing_dist_bottom" name="markup_sewing_dist_bottom" value="sewing_count"> <label for="markup_sewing_dist_bottom"> distance from tail to bottom hole (pt)</label> <br/>
+                <input type="number" id="markup_sewing_count" name="markup_sewing_count" value="sewing_count"> <label for="markup_sewing_count"> count of sewing stations</label> <br/>
+                <input type="number" id="markup_sewing_station_dist" name="markup_sewing_station_dist" value="sewing_count"> <label for="markup_sewing_station_dist"> distance between points at each sewing station (pt)</label> <br/>
+                <input type="number" id="markup_sewing_dot_size" name="markup_sewing_dot_size" value="sewing_count"> <label for="markup_sewing_dot_size"> guideline dot size (pt)</label> 
+              </div>
+            </div>
+        </div>
       </section>
 
       <section id="printed_page_adjustment">
