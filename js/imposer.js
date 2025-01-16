@@ -243,7 +243,7 @@ export const imposerMagic = {
       });
     }
   },
-  _calcDimens: function(new_page) {
+  _calcDimens: function(new_page, x, y) {
     return {
       pW : new_page.getWidth()  - window.book.physical.short_margin * 2,
       pH : new_page.getHeight() - window.book.physical.long_margin  * 2,
@@ -251,15 +251,37 @@ export const imposerMagic = {
       flip_short : document.getElementById("flip_paper_short").checked
     }
   },
+  _collectValueOrPlaceholder: function(el) {
+    const v = parseFloat(el.value)
+    return (isNaN(v)) ? parseFloat(el.placeholder) : v
+  },
+  _renderCrossHair: function(new_page, x, y) {
+    if (!document.getElementById("markup_crosshairs").checked)
+      return;
+    const len = this._collectValueOrPlaceholder(document.getElementById("markup_crosshairs_length"))
+    const weight = this._collectValueOrPlaceholder(document.getElementById("markup_crosshairs_weight"))
+    const color = PDFLib.rgb(0.75, 0.2, 0.2);
+    new_page.drawLine({
+      start: { x: x - len, y: y },          end: { x: x + len, y: y },
+      thickness: weight,  color: color,   opacity: 0.75,
+    });
+    new_page.drawLine({
+      start: { x: x, y: y - len },          end: { x: x, y: y + len },
+      thickness: weight,  color: color,   opacity: 0.75,
+    });
+  },
   _handleSingle: function(new_page, pageMap, folio_list, sheet_index, is_front) {
     this._renderPage(new_page, pageMap[folio_list[0]], 0, 0)
   },
   _handleFolio: function(new_page, pageMap, folio_list, sheet_index, is_front) {
     const {pW, pH, renderPage, flip_short} = this._calcDimens(new_page)
+    const [cell_w, cell_h] = [pW, pH/2.0]
     folio_list.forEach(function(f, i) {
-      renderPage(new_page, pageMap, f[(is_front) ? 0 : (flip_short) ? 2 : 1], 0, pH/2, (!is_front &&  !flip_short) ? BOTTOM_TO_LEFT : BOTTOM_TO_RIGHT)
-      renderPage(new_page, pageMap, f[(is_front) ? 3 : (flip_short) ? 1 : 2], 0, 0, (!is_front &&  !flip_short) ? BOTTOM_TO_LEFT : BOTTOM_TO_RIGHT)
+      renderPage(new_page, pageMap, f[(is_front) ? 0 : (flip_short) ? 2 : 1], 0, pH/2, cell_w, cell_h, (!is_front &&  !flip_short) ? BOTTOM_TO_LEFT : BOTTOM_TO_RIGHT)
+      renderPage(new_page, pageMap, f[(is_front) ? 3 : (flip_short) ? 1 : 2], 0, 0,    cell_w, cell_h, (!is_front &&  !flip_short) ? BOTTOM_TO_LEFT : BOTTOM_TO_RIGHT)
     })
+    this._renderCrossHair(new_page, pW, pH/2.0);
+    this._renderCrossHair(new_page, 0,  pH/2.0);
   },
   _handleQuarto: function(new_page, pageMap, folio_list, sheet_index, is_front) {
     const {pW, pH, renderPage, flip_short} = this._calcDimens(new_page)
