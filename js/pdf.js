@@ -192,6 +192,8 @@ export const builder = {
     console.log(" > Sheet count ["+sheetCount+"] -> ",sheets)
 
     sheets.forEach((s,i) => {
+      if (s.length == 0)
+        return;
       if (side_coverage_mode == SIDE_COVERAGE_BOTH || side_coverage_mode == SIDE_COVERAGE_FRONT) {
         const new_page = new_pdf.addPage();
         imposerMagic.imposePdf(new_page, pageMap, s, i, true);

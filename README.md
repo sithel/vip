@@ -80,19 +80,30 @@ You can find the logic handling this over in `helper.js` `calImpositionInfo()`
 - `window.book.imposed.sheets` : List of lists. Each entry in the outer list is a sheet of paper (front and back), which contains a list of folios, which contains a list of 4 pages making up that folio. The order of the folios within a sheet is specific to the imposition. The order of the pages in the folio is front, inner left, inner right, back
 - `window.book.imposed.signatures` : List of lists. Each entry in the outer list is a signature, which contains a list of folios, which contains a list of 4 pages making up the folio. The order of signatures is start of book to end of book. The order of folios in the signature is outer-most first and ends with inner-most. The order of the pages in the folio is front, inner left, inner right, back
 
+## Markup (step 6)
+
+Part of the `imposer.js` code - tacked on AFTER the pages have been laid out and AFTER masking -- leverages functions such as `_renderCrosshair`, `_renderFoldLine`
+
 ## Preview (step 8) / Rendering
 
 Starts in `preview.js`'s `build` function, kicked off via `vip.refreshPreview()`. Has some initial corner case logic (first signature only?) and hard coded assumptions (always 'both sides') - but otherwise runs the same path as the Downloaded PDF (see next section)
 
 ## Download (step 9)
 
-When rendering/building the PDF, some settings are stored in `window.book` and referenced via hard-coded links. Some settings are passed in as parameters the further along the process you go. Some settings are checked at-time-of-evaluation via `document.getElementById`
+When rendering/building the PDF, some settings are stored in `window.book` and referenced via hard-coded links. Some settings are passed in as parameters the further along the process you go. Some settings are checked at-time-of-evaluation via `document.getElementById`. The poorly named `_calcDimens` collects functions and stats at the beginning of the page assembly. 
 
 - `document.getElementById("flip_paper_short").checked` : never stored, always evaluated when rendering
+- all of the mark-up values/settings
 
 Drawing on the canvas always confuses me. Some notes:
 
 - when thinking about the `rotate` when calling `drawPage` on a `PDFPage`, remember that it pivotes around the natural "lower left" corner. That is placed where you specify w/ `x` & `y` and then it rotates around that point. 
+- when looking at actual physical sheet, the side with the `1` on it is the front, and it's oriented like a normal sheet (long side vertical, short side horizontal) with the `1` on the top half of the page
 
+The general flow of rendering found in `imposer.s` goes:
+- start with `imposePdf` - branch based on which type of imposition
+- each imposition knows how to lay out it's folios (( this logic is hairy, not easy to read, and is meant to be a write-once sort of thing -- alter with care!))
+- `_renderPage` is called by each of the individual impositions to place an embedded page at a specific location. Depending on the scalling option, it calls a helper function to do th work (`_renderPageFill`/`_renderPageFit`/`_renderPageOriginal`) - it is those functions that call `_maskPage`
+- after it has placed all the pages, it renders markup
 
 For the actual download zip file/logic itself, check out `files.js`

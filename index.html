@@ -638,13 +638,18 @@
         <details>
           <summary>Details</summary>
           <p>
-            This is for cross-hairs, fold/cut lines, page numbers, spine marks, punch guides, etc
+            When entering line weigh values, be aware that you can use decimals/go lower than <code>1</code><BR>
+            Fold lines are for signature assembly - they will need to be cut at some point but it doesn't have to be right away (cut during textblock trimming)<BR>
+            Cut lines are for signature assembly - they need to be cut at time of fold up/sewing<Br>
+            Cut & Fold lines will only be marked on one side of the sheet. This is the "mountain" side of the fold - you should always be able to see the fold or cut line after the fold<BR>
+            Crosshairs are at every non-sheet-corner intersection and are meant to be very tiny visual guides to help with alignment/folding. They are on both sides of the sheet<BR>
+
           </p>
         </details>
         <div class="printed_page_markup_options">
-            <input type="checkbox" id="markup_fold_lines" name="markup_fold_lines" value="fold"> <label for="markup_fold_lines"> fold lines</label> <Input type=number id="fold_line_weight" placeholder="2"/> <span id="fold_line_weight_label">line weight (pt)</span></br>
-            <input type="checkbox" id="markup_cut_lines" name="markup_cut_lines" value="cut"> <label for="markup_cut_lines"> cut lines</label> <Input type=number id="cut_line_weight" placeholder="2"/>  <span id="cut_line_weight_label">line weight (pt)</span></br>
-            <input type="checkbox" id="markup_crosshairs" name="markup_crosshairs" value="cross"> <label for="markup_crosshairs"> cross-hairs</label> <Input type=number id="markup_crosshairs_weight" placeholder="2"/>  <span id="markup_crosshairs_weight_label">line weight (pt)</span> | <Input type=number id="markup_crosshairs_length" placeholder="15"/>  <span id="markup_crosshairs_length_label">cross-hair leg length (pt)</span></br>
+            <input type="checkbox" id="markup_fold_lines" name="markup_fold_lines" value="fold"> <label for="markup_fold_lines"> fold lines</label> <small><Input type=number id="fold_line_weight" placeholder="2"/> <span id="fold_line_weight_label">line weight (pt)</span></small></br>
+            <input type="checkbox" id="markup_cut_lines" name="markup_cut_lines" value="cut"> <label for="markup_cut_lines"> cut lines</label><small> <Input type=number id="cut_line_weight" placeholder="2"/>  <span id="cut_line_weight_label">line weight (pt)</span></small></br>
+            <input type="checkbox" id="markup_crosshairs" name="markup_crosshairs" value="cross"> <label for="markup_crosshairs"> cross-hairs</label> <small><Input type=number id="markup_crosshairs_weight" placeholder="2"/>  <span id="markup_crosshairs_weight_label">line weight (pt)</span> | <Input type=number id="markup_crosshairs_length" placeholder="15"/>  <span id="markup_crosshairs_length_label">cross-hair leg length (pt)</span></small></br>
             <input type="checkbox" id="markup_spine_order" name="markup_spine_order" value="order"> <label for="markup_spine_order"> spine marks: order</label> <Input type=number id="markup_spine_order_weight" placeholder="2"/>  <span id="markup_spine_order_weight_label">line weight (pt)</span></br>
             <input type="checkbox" id="markup_spine_bounds" name="markup_spine_bounds" value="order"> <label for="markup_spine_bounds"> spine marks: bounds</label> <Input type=number id="markup_spine_bounds_weight" placeholder="2"/>  <span id="markup_spine_bounds_weight_label">line weight (pt)</span></br>
             <div>
@@ -659,7 +664,7 @@
               <div>
                 <input type="number" id="markup_sewing_dist_top" name="markup_sewing_dist_top" placeholder="6"> <label for="markup_sewing_dist_top"> distance from head to top hole (pt)</label> <br/>
                 <input type="number" id="markup_sewing_dist_bottom" name="markup_sewing_dist_bottom" placeholder="5"> <label for="markup_sewing_dist_bottom"> distance from tail to bottom hole (pt)</label> <br/>
-                <input type="number" id="markup_sewing_count" name="markup_sewing_count" placeholder="4"> <label for="2"> count of sewing stations</label> <br/>
+                <input type="number" id="markup_sewing_count" name="markup_sewing_count" placeholder="4"> <label for="markup_sewing_count"> count of sewing stations</label> <br/>
                 <input type="number" id="markup_sewing_station_dist" name="markup_sewing_station_dist" placeholder="3"> <label for="markup_sewing_station_dist"> distance between points at each sewing station (pt)</label> <br/>
                 <input type="number" id="markup_sewing_dot_size" name="markup_sewing_dot_size" placeholder="2"> <label for="markup_sewing_dot_size"> guideline dot size (pt)</label> 
               </div>

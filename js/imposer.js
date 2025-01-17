@@ -29,7 +29,6 @@ export const imposerMagic = {
     }
   },
   _renderPageOriginal: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd) {
-    console.log("==[Render Original]")
     const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
     let rotation_deg = 0
     switch(orientation) {
@@ -51,7 +50,7 @@ export const imposerMagic = {
                           y: finalPlacement.y,
                           xScale: finalPlacement.scale,
                           yScale: finalPlacement.scale,
-                          opacity: 0.75,
+                          opacity: 0.15,
                           rotate: PDFLib.degrees(rotation_deg)
                         })
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
@@ -68,7 +67,6 @@ export const imposerMagic = {
     }
   },
   _renderPageFit: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd) {
-    console.log("==[Render Fit]")
     const {total_w, total_h} = this._calcPadding();
     const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
     let rotation_deg = 0;
@@ -99,7 +97,6 @@ export const imposerMagic = {
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
   },
   _renderPageFill: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd) {
-    console.log("==[Render Fill]")
     const {padding_i, padding_o, padding_t, padding_b, total_w, total_h} = this._calcPadding();
     const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
     let [x, y, rotation_deg] = [corner_x, corner_y, 0]
@@ -248,7 +245,8 @@ export const imposerMagic = {
       pW : new_page.getWidth()  - window.book.physical.short_margin * 2,
       pH : new_page.getHeight() - window.book.physical.long_margin  * 2,
       renderPage : this._renderPage.bind(this),
-      flip_short : document.getElementById("flip_paper_short").checked
+      flip_short : document.getElementById("flip_paper_short").checked,
+      renderCrosshair : this._renderCrossHair.bind(this)
     }
   },
   _collectValueOrPlaceholder: function(el) {
@@ -270,6 +268,16 @@ export const imposerMagic = {
       thickness: weight,  color: color,   opacity: 0.75,
     });
   },
+  _renderFoldLine: function(new_page, x_start, y_start, x_end, y_end) {
+    if (!document.getElementById("markup_fold_lines").checked)
+      return;
+    const weight = this._collectValueOrPlaceholder(document.getElementById("fold_line_weight"))
+    const color = PDFLib.rgb(0.2, 0.75, 0.2);
+    new_page.drawLine({
+      start: { x: x_start, y: y_start},          end: { x: x_end, y: y_end },
+      thickness: weight,  color: color,   opacity: 0.75,
+    });
+  },
   _handleSingle: function(new_page, pageMap, folio_list, sheet_index, is_front) {
     this._renderPage(new_page, pageMap[folio_list[0]], 0, 0)
   },
@@ -284,23 +292,27 @@ export const imposerMagic = {
     this._renderCrossHair(new_page, 0,  pH/2.0);
   },
   _handleQuarto: function(new_page, pageMap, folio_list, sheet_index, is_front) {
-    const {pW, pH, renderPage, flip_short} = this._calcDimens(new_page)
+    const {pW, pH, renderPage, flip_short, renderCrosshair} = this._calcDimens(new_page)
     const cell_w = pW/2;
     const cell_h = pH/2;
     const i = (is_front) ? [[0, 0], [0,3], [1,1], [1,2]] 
         : (flip_short) ? [[1, 0], [1,3], [0,1], [0, 2]] 
             : [[0, 2], [0,1], [1,3], [1,0]]
-    if (folio_list.length < 1)
-      return
-    renderPage(new_page, pageMap, folio_list[i[0][0]][i[0][1]], 0,    pH/2, cell_w, cell_h, UP_SIDE_DOWN)
-    renderPage(new_page, pageMap, folio_list[i[1][0]][i[1][1]], pW/2, pH/2, cell_w, cell_h, UP_SIDE_DOWN)
-    if (folio_list.length < 2)
-      return
-    renderPage(new_page, pageMap, folio_list[i[2][0]][i[2][1]], 0,    0,    cell_w, cell_h, RIGHT_SIDE_UP)
-    renderPage(new_page, pageMap, folio_list[i[3][0]][i[3][1]], pW/2, 0,    cell_w, cell_h, RIGHT_SIDE_UP)
+    if (i[0][0] < folio_list.length) {
+      renderPage(new_page, pageMap, folio_list[i[0][0]][i[0][1]], 0,    pH/2, cell_w, cell_h, UP_SIDE_DOWN)
+      renderPage(new_page, pageMap, folio_list[i[1][0]][i[1][1]], pW/2, pH/2, cell_w, cell_h, UP_SIDE_DOWN)
+    }
+    if (i[2][0] < folio_list.length) {
+      renderPage(new_page, pageMap, folio_list[i[2][0]][i[2][1]], 0,    0,    cell_w, cell_h, RIGHT_SIDE_UP)
+      renderPage(new_page, pageMap, folio_list[i[3][0]][i[3][1]], pW/2, 0,    cell_w, cell_h, RIGHT_SIDE_UP)
+    }
+    const targets = [ [cell_w, 0], [cell_w, pH/2], [cell_w, pH], [0, pH/2], [pW, pH/2] ];
+    targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
+    if (is_front)
+      this._renderFoldLine(new_page, 0, pH/2, pW, pH/2)
   },
   _handleSexto: function(new_page, pageMap, folio_list, sheet_index, is_front) {
-    const {pW, pH, renderPage, flip_short} = this._calcDimens(new_page)
+    const {pW, pH, renderPage, flip_short, renderCrosshair} = this._calcDimens(new_page)
     const cell_w = pW/2;
     const cell_h = pH/3;
     const i = (is_front) ? [[0, 0], [0,3], [1,1], [1,2], [2, 0], [2, 3]] 
@@ -308,18 +320,24 @@ export const imposerMagic = {
             : [[0, 2], [0,1], [1,3], [1,0], [2, 2], [2, 1]] 
     const outerFlip = (is_front) ? UP_SIDE_DOWN  : (flip_short) ? RIGHT_SIDE_UP : UP_SIDE_DOWN
     const innerFlip = (is_front) ? RIGHT_SIDE_UP : (flip_short) ? UP_SIDE_DOWN  : RIGHT_SIDE_UP
-    if (folio_list.length < 1)
-      return
-    renderPage(new_page, pageMap, folio_list[i[0][0]][i[0][1]], 0,    2 * pH/3, cell_w, cell_h, outerFlip)
-    renderPage(new_page, pageMap, folio_list[i[1][0]][i[1][1]], pW/2, 2 * pH/3, cell_w, cell_h, outerFlip)
-    if (folio_list.length < 2)
-      return
-    renderPage(new_page, pageMap, folio_list[i[2][0]][i[2][1]], 0,    pH/3,    cell_w, cell_h, innerFlip)
-    renderPage(new_page, pageMap, folio_list[i[3][0]][i[3][1]], pW/2, pH/3,    cell_w, cell_h, innerFlip)
-    if (folio_list.length < 3)
-      return
-    renderPage(new_page, pageMap, folio_list[i[4][0]][i[4][1]], 0,    0,    cell_w, cell_h, outerFlip)
-    renderPage(new_page, pageMap, folio_list[i[5][0]][i[5][1]], pW/2, 0,    cell_w, cell_h, outerFlip)
+    if (i[0][0] < folio_list.length) {
+      renderPage(new_page, pageMap, folio_list[i[0][0]][i[0][1]], 0,    2 * pH/3, cell_w, cell_h, outerFlip)
+      renderPage(new_page, pageMap, folio_list[i[1][0]][i[1][1]], pW/2, 2 * pH/3, cell_w, cell_h, outerFlip)
+    }
+    if (i[2][0] < folio_list.length) {
+      renderPage(new_page, pageMap, folio_list[i[2][0]][i[2][1]], 0,    pH/3,    cell_w, cell_h, innerFlip)
+      renderPage(new_page, pageMap, folio_list[i[3][0]][i[3][1]], pW/2, pH/3,    cell_w, cell_h, innerFlip)
+    }
+    if (i[4][0] < folio_list.length) {
+      renderPage(new_page, pageMap, folio_list[i[4][0]][i[4][1]], 0,    0,    cell_w, cell_h, outerFlip)
+      renderPage(new_page, pageMap, folio_list[i[5][0]][i[5][1]], pW/2, 0,    cell_w, cell_h, outerFlip)
+    }
+    const targets = [ [0, cell_h], [0, cell_h * 2], [cell_w, 0], [cell_w, cell_h], [cell_w, cell_h * 2], [cell_w, pH], [pW, cell_h], [pW, cell_h * 2]];
+    targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
+    if (is_front || (!is_front && flip_short))
+      this._renderFoldLine(new_page, 0, cell_h * 2, pW, cell_h * 2)
+    if (!is_front && !flip_short)
+      this._renderFoldLine(new_page, 0, cell_h, pW, cell_h)
   },
   _handleOctoFat: function(new_page, pageMap, folio_list, sheet_index, is_front) {
     const renderPage = this._renderPage.bind(this)
@@ -329,7 +347,7 @@ export const imposerMagic = {
     })
   },
   _handleOctoThin: function(new_page, pageMap, folio_list, sheet_index, is_front) {
-    const {pW, pH, renderPage, flip_short} = this._calcDimens(new_page)
+    const {pW, pH, renderPage, flip_short, renderCrosshair} = this._calcDimens(new_page)
     const cell_w = pW/2;
     const cell_h = pH/4;
     // upper right, upper left, lower left, lower right
@@ -352,6 +370,19 @@ export const imposerMagic = {
       renderPage(new_page, pageMap, folio_list[i[6][0]][i[6][1]], pW/2,  pH/4,    cell_w, cell_h, BOTTOM_TO_RIGHT)
       renderPage(new_page, pageMap, folio_list[i[7][0]][i[7][1]], pW/2, 0,        cell_w, cell_h, BOTTOM_TO_RIGHT)
     }
+    if (is_front) {
+      this._renderFoldLine(new_page, pW/2, 0, pW/2, pH)
+      this._renderFoldLine(new_page, pW/2, pH/2, pW, pH/2)
+    }
+    const targets = [];
+    for(let j = 0; j <= pH; j += cell_h) {
+      targets.push([cell_w, j])
+      if (j != 0 && j != pH) {
+        targets.push([0, j])
+        targets.push([pW, j])
+      }
+    }
+    targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
   },
   // FRONT : folio [0] & [3]            BACK : folio [1] & [2]
   imposePdf: function(new_page, pageMap, folio_list, sheet_index, is_front) {
