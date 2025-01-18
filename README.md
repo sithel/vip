@@ -11,15 +11,18 @@ There's a lot of features and a lot of work remaining--
 
 - all of PDF page placement
   - [x] handling both flip options
-  - rotation/padding/margin logic
+  - masking logic
+    - fix preview to reflect updated behavior
+  - padding/margin logic
 - file downloading (all options)
 - all of mark-up
   - PDF boundary spine marks
   - spine order marks
   - punching guidelines/marks (spine/interior)
-  - cut / fold lines
-  - corner cross-hairs
-- preview
+  - cut lines
+  - [x] fold lines
+  - [x] corner cross-hairs
+- [x] preview
 
 ### UI/UX:
 

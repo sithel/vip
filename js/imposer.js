@@ -276,6 +276,7 @@ export const imposerMagic = {
     new_page.drawLine({
       start: { x: x_start, y: y_start},          end: { x: x_end, y: y_end },
       thickness: weight,  color: color,   opacity: 0.75,
+      dashArray: [7, 5],
     });
   },
   _handleSingle: function(new_page, pageMap, folio_list, sheet_index, is_front) {

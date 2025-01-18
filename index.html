@@ -145,6 +145,11 @@
       fieldset {
         width: auto;
       }
+      #pdf_margin_label {
+        margin-left: 40px;
+        margin-bottom: 8px;
+        display: block;
+      }
       #page_orientation_1 {
         margin-left: 40px;
       }
@@ -433,7 +438,9 @@
           <details>
           <summary>Explanation</summary>
           <p>
-            This is to alter the (pre-rotation) PDF dimensions - negative values cut into the PDF (masked via white rectangles drawn, which could mix poorly with `original` scaled pages that overlap), positive values expand/pad the PDF with white space. For pages that are smaller than the max page size, they are first centered and then padded out to match the max size before the margin modifiers are applied. 
+            This is to alter the (pre-rotation) PDF dimensions - negative values are ignored while positive values cut into the PDF, treating it as a smaller page (the space is masked via white rectangles drawn, which could mix poorly with large pages that could potentially overlap). For padding/adding of buffer white space, use the PDF Placement section<br>            
+            This is a rough prototype - the PDF library itself does not really allow for masking/cropping of pages -- keep an eye out for bad behavior<br>
+            You may want to mask a PDF and export it as a <code>Single</code> imposition, then import/impose that result if you're masking a non-trivial amount of space
           </p>
         </details>
         <table id="pdf_marins_example" style="display:none;">
@@ -442,13 +449,13 @@
           <tr><td colspan="3" id="example_pdf_margin_bottom"></td></tr>
         </table>
         <div id="pdf_margins">
-          PDF Margins<br> &nbsp;&nbsp;&nbsp;
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="pdf_margin_left">left </label><input type=number size="2" id="pdf_margin_left" oninput="vip.handlePdfMarginUpdate()">
+          PDF Masking<br> &nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="pdf_margin_left">left </label><input type=number size="2" id="pdf_margin_left" min=0 oninput="vip.handlePdfMarginUpdate()">
               <div id="pdf_margins_center">
-                <label for="pdf_margin_top">top</label> <input type=number size="2" id="pdf_margin_top" oninput="vip.handlePdfMarginUpdate()"><br>
-                <label for="pdf_margin_bottom"> bottom </label><input type=number size="2" id="pdf_margin_bottom" oninput="vip.handlePdfMarginUpdate()">
+                <label for="pdf_margin_top">top</label> <input type=number size="2" id="pdf_margin_top" min=0 oninput="vip.handlePdfMarginUpdate()"><br>
+                <label for="pdf_margin_bottom"> bottom </label><input type=number size="2" id="pdf_margin_bottom" min=0 oninput="vip.handlePdfMarginUpdate()">
               </div>
-              <input type=number size="2" id="pdf_margin_right" oninput="vip.handlePdfMarginUpdate()"><label for="pdf_margin_right"> right</label>
+              <input type=number size="2" id="pdf_margin_right" min=0 oninput="vip.handlePdfMarginUpdate()"><label for="pdf_margin_right"> right</label>
         </div>
         <div id="example_pdf_orientation" style="visibility: hidden;">
           <div id="example_pdf_orientation_page_right" ></div><div id="example_pdf_orientation_spine" ></div><div id="example_pdf_orientation_page_left" ></div>
@@ -465,6 +472,8 @@
           </p>
         </details>
         <span>
+
+        <div id="pdf_margin_label">PDF Rotation</div>
         <fieldset>
           <div id="page_orientation_1"></div>
           <div id="page_orientation_2"></div>
@@ -639,8 +648,8 @@
           <summary>Details</summary>
           <p>
             When entering line weigh values, be aware that you can use decimals/go lower than <code>1</code><BR>
-            Fold lines are for signature assembly - they will need to be cut at some point but it doesn't have to be right away (cut during textblock trimming)<BR>
-            Cut lines are for signature assembly - they need to be cut at time of fold up/sewing<Br>
+            Fold lines (dashed) are for signature assembly - they will need to be cut at some point but it doesn't have to be right away (cut during textblock trimming)<BR>
+            Cut lines (solid) are for signature assembly - they need to be cut at time of fold up/sewing<Br>
             Cut & Fold lines will only be marked on one side of the sheet. This is the "mountain" side of the fold - you should always be able to see the fold or cut line after the fold<BR>
             Crosshairs are at every non-sheet-corner intersection and are meant to be very tiny visual guides to help with alignment/folding. They are on both sides of the sheet<BR>
 
