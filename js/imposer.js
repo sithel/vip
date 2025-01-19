@@ -11,8 +11,9 @@ export const imposerMagic = {
    * w / h - the CELL SPACE AVAILABLE 
    * orientation - one of the RIGHT_SIDE_UP/UP_SIDE_DOWN/BOTTOM_TO_LEFT/BOTTOM_TO_RIGHT - how to render page in cell
    * is_odd - as viewed from page numbers in a book, starting w/ page 1.  Odd == right hand side of page, even == left hand side of page
+   * center_info - emtpy list if not, [sig index, isOuter - ture outer / false inner]
    */
-  _renderPage: function(new_page, page_map, page_num, corner_x, corner_y, w, h, orientation) {
+  _renderPage: function(new_page, page_map, page_num, corner_x, corner_y, w, h, orientation, center_info) {
     const embedded_page = page_map[page_num];
     if (embedded_page == undefined) {
       return;
@@ -21,14 +22,14 @@ export const imposerMagic = {
     if (window.book.physical.scaling == 'original') {
       this._renderPageOriginal(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd);
     } else if (window.book.physical.scaling == 'fit') {
-      this._renderPageFit(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd);
+      this._renderPageFit(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info);
     } else if (window.book.physical.scaling == 'fill') {
       this._renderPageFill(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd);
     } else {
       throw new Error("Invalid scaling option : ",window.book.physical.scaling);
     }
   },
-  _renderPageOriginal: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd) {
+  _renderPageOriginal: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info) {
     const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
     let rotation_deg = 0
     switch(orientation) {
@@ -66,7 +67,33 @@ export const imposerMagic = {
       total_h: Number(document.getElementById("pdf_padding_top").value) + Number(document.getElementById("pdf_padding_bottom").value)
     }
   },
-  _renderPageFit: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd) {
+  /**
+   * @param spineHead / spineTail - two dimentional arrays, [x, y]
+   */
+  _renderSpineMarks: function(new_page, sig_num, spineHead, spineTail) {
+    const color = PDFLib.rgb(0.75, 0.2, 0.2);
+    new_page.drawLine({
+      start: { x: spineHead[0], y: spineHead[1] },          end: { x: spineTail[0], y: spineTail[1] },
+      thickness: 10,  color: color,   opacity: 0.75,
+    });
+  },
+  /**
+   * @param spineHead / spineTail - two dimentional arrays, [x, y]
+   */
+  _renderInnerMarks: function(new_page, spineHead, spineTail) {
+    const leg = 10
+    const color = PDFLib.rgb(0.75, 0.2, 0.2);
+    new_page.drawLine({
+      start: { x: spineHead[0] - leg, y: spineHead[1] },          end: { x: spineHead[0] + leg, y: spineHead[1] },
+      thickness: 10,  color: color,   opacity: 0.75,
+    });
+    new_page.drawLine({
+      start: { x: spineTail[0] - leg*2, y: spineTail[1] },          end: { x: spineTail[0] + leg*2, y: spineTail[1] },
+      thickness: 10,  color: color,   opacity: 0.75,
+    });
+
+  },
+  _renderPageFit: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info) {
     const {total_w, total_h} = this._calcPadding();
     const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
     let rotation_deg = 0;
@@ -95,8 +122,12 @@ export const imposerMagic = {
                           rotate: PDFLib.degrees(rotation_deg)
                         })
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
+    if (center_info.length > 0 && center_info[1])
+      this._renderSpineMarks(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
+    if (center_info.length > 0 && !center_info[1])
+      this._renderInnerMarks(new_page, finalPlacement.spineHead, finalPlacement.spineTail)
   },
-  _renderPageFill: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd) {
+  _renderPageFill: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info) {
     const {padding_i, padding_o, padding_t, padding_b, total_w, total_h} = this._calcPadding();
     const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
     let [x, y, rotation_deg] = [corner_x, corner_y, 0]
@@ -148,6 +179,8 @@ export const imposerMagic = {
     const ySpace = h - embedded_h;
     let xPadding = 0;
     let yPadding = 0;
+    let spineHead = [corner_x, corner_y]
+    let spineTail = [corner_x, corner_y]
     switch(orientation) {
       case RIGHT_SIDE_UP:
         if (p == "center" || p == "center_top") {
@@ -160,6 +193,11 @@ export const imposerMagic = {
         } else {
           yPadding += (h - embedded_h);
         }
+        spineHead = [corner_x, corner_y + h]
+        if (!is_odd) {
+          spineHead[0] += w;
+          spineTail[0] += w;
+        }
       break;
       case UP_SIDE_DOWN:
         xPadding += embedded_w
@@ -171,6 +209,11 @@ export const imposerMagic = {
         }
         if (p == "center" || p == "snug_center") {
           yPadding += (h - embedded_h)/2.0;
+        }
+        spineTail = [corner_x, corner_y + h]
+        if (is_odd) {
+          spineHead[0] += w;
+          spineTail[0] += w;
         }
       break;
       case BOTTOM_TO_RIGHT:
@@ -202,6 +245,8 @@ export const imposerMagic = {
     return {
       x: corner_x + window.book.physical.short_margin + xPadding,
       y: corner_y + window.book.physical.long_margin + yPadding,
+      spineHead: spineHead,
+      spineTail: spineTail,
       scale: scale
     }
   },
@@ -292,6 +337,27 @@ export const imposerMagic = {
     this._renderCrossHair(new_page, pW, pH/2.0);
     this._renderCrossHair(new_page, 0,  pH/2.0);
   },
+  /**
+   * @return [sig nummber, ture if outer / false if inner]    or empty list if neither
+   */
+  _calcCenterInfo(page) {
+    return window.book.imposed.signatures.reduce(function(acc, s, i){
+      console.log("looking at ",acc," : ",s, " : ",i)
+      if (acc.length > 0)
+        return acc
+      const outerSig = s[0]
+      const innerSig = s[s.length - 1]
+      if (innerSig[1] == page || innerSig[2] == page) {
+        console.log(" -- ["+page+"] see innner "+i+" ", innerSig)
+        return [i, false];
+      }
+      if (outerSig[0] == page || outerSig[3] == page) {
+        console.log(" -- ["+page+"] see outer "+i+" ",outerSig)
+        return [i, true];
+      }
+      return acc
+    }, []);
+  },
   _handleQuarto: function(new_page, pageMap, folio_list, sheet_index, is_front) {
     const {pW, pH, renderPage, flip_short, renderCrosshair} = this._calcDimens(new_page)
     const cell_w = pW/2;
@@ -300,12 +366,14 @@ export const imposerMagic = {
         : (flip_short) ? [[1, 0], [1,3], [0,1], [0, 2]] 
             : [[0, 2], [0,1], [1,3], [1,0]]
     if (i[0][0] < folio_list.length) {
-      renderPage(new_page, pageMap, folio_list[i[0][0]][i[0][1]], 0,    pH/2, cell_w, cell_h, UP_SIDE_DOWN)
-      renderPage(new_page, pageMap, folio_list[i[1][0]][i[1][1]], pW/2, pH/2, cell_w, cell_h, UP_SIDE_DOWN)
+      const center_info = this._calcCenterInfo(folio_list[i[0][0]][i[0][1]])
+      renderPage(new_page, pageMap, folio_list[i[0][0]][i[0][1]], 0,    pH/2, cell_w, cell_h, UP_SIDE_DOWN, center_info)
+      renderPage(new_page, pageMap, folio_list[i[1][0]][i[1][1]], pW/2, pH/2, cell_w, cell_h, UP_SIDE_DOWN, center_info)
     }
     if (i[2][0] < folio_list.length) {
-      renderPage(new_page, pageMap, folio_list[i[2][0]][i[2][1]], 0,    0,    cell_w, cell_h, RIGHT_SIDE_UP)
-      renderPage(new_page, pageMap, folio_list[i[3][0]][i[3][1]], pW/2, 0,    cell_w, cell_h, RIGHT_SIDE_UP)
+      const center_info = this._calcCenterInfo(folio_list[i[2][0]][i[2][1]])
+      renderPage(new_page, pageMap, folio_list[i[2][0]][i[2][1]], 0,    0,    cell_w, cell_h, RIGHT_SIDE_UP, center_info)
+      renderPage(new_page, pageMap, folio_list[i[3][0]][i[3][1]], pW/2, 0,    cell_w, cell_h, RIGHT_SIDE_UP, center_info)
     }
     const targets = [ [cell_w, 0], [cell_w, pH/2], [cell_w, pH], [0, pH/2], [pW, pH/2] ];
     targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
@@ -386,6 +454,7 @@ export const imposerMagic = {
     targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
   },
   // FRONT : folio [0] & [3]            BACK : folio [1] & [2]
+  // folio_list -- all the folios for that sheet
   imposePdf: function(new_page, pageMap, folio_list, sheet_index, is_front) {
     switch(window.book.imposition.name) {
       case 'single': this._handleSingle(new_page, pageMap, folio_list, sheet_index, is_front); break;
