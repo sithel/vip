@@ -58,13 +58,15 @@ export const imposerMagic = {
   },
   _calcPadding: function() {
     const isOriginal = window.book.physical.placement == 'original';
+    const bottom =  (isOriginal) ? 0 : Number(document.getElementById("pdf_padding_bottom").value)
+    const outer = (isOriginal) ? 0 : Number(document.getElementById("pdf_padding_outer").value)
     return {
       padding_i: Number(document.getElementById("pdf_padding_inner").value),
-      padding_o: (isOriginal) ? 0 : Number(document.getElementById("pdf_padding_outer").value),
+      padding_o: outer,
       padding_t: Number(document.getElementById("pdf_padding_top").value),
-      padding_b: (isOriginal) ? 0 : Number(document.getElementById("pdf_padding_bottom").value),
-      total_w: Number(document.getElementById("pdf_padding_inner").value) + Number(document.getElementById("pdf_padding_outer").value),
-      total_h: Number(document.getElementById("pdf_padding_top").value) + Number(document.getElementById("pdf_padding_bottom").value)
+      padding_b: bottom,
+      total_w: Number(document.getElementById("pdf_padding_inner").value) + outer,
+      total_h: Number(document.getElementById("pdf_padding_top").value) + bottom
     }
   },
   /**
@@ -97,7 +99,6 @@ export const imposerMagic = {
     const {total_w, total_h} = this._calcPadding();
     const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
     let rotation_deg = 0;
-    let [useW, useH] = (orientation == RIGHT_SIDE_UP || orientation == UP_SIDE_DOWN) ? [embedded_w + total_w, embedded_h + total_h] : [embedded_h + total_h, embedded_w + total_w];
     switch(orientation) {
       case RIGHT_SIDE_UP:
         break;
@@ -111,7 +112,11 @@ export const imposerMagic = {
         rotation_deg = 90;
         break;
     }
-    const scale = Math.min(w/useW, h/useH);
+
+    const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
+    const xScale = (isTipped) ? (h-total_w) / embedded_w : (w-total_w) / embedded_w;
+    const yScale = (isTipped) ? (w-total_h) / embedded_h : (h-total_h) / embedded_h;
+    const scale = Math.min(xScale, yScale);
     const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, w, h, orientation, scale, is_odd, embedded_w, embedded_h)
     new_page.drawPage(embedded_page, { 
                           x: finalPlacement.x,
@@ -153,8 +158,8 @@ export const imposerMagic = {
         break;
     }
     const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
-    const xScale = (isTipped) ? h / (embedded_w + total_w) : w / (embedded_w + total_w);
-    const yScale = (isTipped) ? w / (embedded_h + total_h) : h / (embedded_h + total_h);
+    const xScale = (isTipped) ? (h-total_w) / embedded_w : (w-total_w) / embedded_w;
+    const yScale = (isTipped) ? (w-total_h) / embedded_h : (h-total_h) / embedded_h;
     new_page.drawPage(embedded_page, { 
                           x: x + window.book.physical.short_margin,
                           y: y + window.book.physical.long_margin,
@@ -184,15 +189,16 @@ export const imposerMagic = {
     switch(orientation) {
       case RIGHT_SIDE_UP:
         if (p == "center" || p == "center_top") {
-          xPadding += (w - embedded_w)/2.0;
+          xPadding += (w - embedded_w - total_w)/2.0;
         } else if (!is_odd) {
-          xPadding += (w - embedded_w);
+          xPadding += (w - embedded_w - total_w);
         }
         if (p == "center" || p == "snug_center") {
-          yPadding += (h - embedded_h)/2.0;
+          yPadding += (h - embedded_h - total_h)/2.0;
         } else {
-          yPadding += (h - embedded_h);
+          yPadding += (h - embedded_h - total_h);
         }
+        yPadding += padding_b
         spineHead = [corner_x, corner_y + h]
         if (!is_odd) {
           spineHead[0] += w;
@@ -201,14 +207,14 @@ export const imposerMagic = {
       break;
       case UP_SIDE_DOWN:
         xPadding += embedded_w
-        yPadding += embedded_h
+        yPadding += embedded_h + padding_t
         if (p == "center" || p == "center_top") {
-          xPadding += (w - embedded_w)/2.0;
+          xPadding += (w - embedded_w - total_w)/2.0;
         } else if (is_odd) {
-          xPadding += (w - embedded_w);
+          xPadding += (w - embedded_w - total_w);
         }
         if (p == "center" || p == "snug_center") {
-          yPadding += (h - embedded_h)/2.0;
+          yPadding += (h - embedded_h - total_h)/2.0;
         }
         spineTail = [corner_x, corner_y + h]
         if (is_odd) {
@@ -218,28 +224,28 @@ export const imposerMagic = {
       break;
       case BOTTOM_TO_RIGHT:
         if (p == "snug_center" || p == "center") {
-          xPadding += (w - embedded_h)/2.0;
+          xPadding += (w - embedded_h - total_h)/2.0;
         }
-        xPadding += embedded_h + padding_t - padding_b;
+        xPadding += embedded_h + padding_t;
         if (p == "center" || p == "center_top") {
-          yPadding += (h - embedded_w)/2.0;
+          yPadding += (h - embedded_w - total_w)/2.0;
         } else if (!is_odd) {
-          yPadding += (h - embedded_w);
+          yPadding += (h - embedded_w - total_w);
         }
       break;
       case BOTTOM_TO_LEFT:
         if (p == "snug_center" || p == "center") {
-          xPadding += (w - embedded_h)/2.0;
+          xPadding += (w - embedded_h - total_h)/2.0;
         } else {
-          xPadding += (w - embedded_h);
+          xPadding += (w - embedded_h - total_h);
         }
         if (p == "center" || p == "center_top") {
-          yPadding += (h - embedded_w)/2.0;
+          yPadding += (h - embedded_w - total_w)/2.0;
         } else if (is_odd) {
-          yPadding += (h - embedded_w);
+          yPadding += (h - embedded_w - total_w);
         }
         yPadding += embedded_w;
-        xPadding += padding_b - padding_t;
+        xPadding += padding_b;
       break;
     }
     return {
