@@ -662,19 +662,18 @@
             <input type="checkbox" id="markup_spine_order" name="markup_spine_order" value="order"> <label for="markup_spine_order"> spine marks: order</label> <Input type=number id="markup_spine_order_weight" placeholder="2"/>  <span id="markup_spine_order_weight_label">line weight (pt)</span></br>
             <input type="checkbox" id="markup_spine_bounds" name="markup_spine_bounds" value="order"> <label for="markup_spine_bounds"> spine marks: bounds</label> <Input type=number id="markup_spine_bounds_weight" placeholder="2"/>  <span id="markup_spine_bounds_weight_label">line weight (pt)</span></br>
             <div>
-              <input type="checkbox" id="markup_sewing" name="markup_sewing" value="sewing"> <label for="markup_sewing">sewing / punching guides</label>
-              <select id="markup_sewing_stations" name="markup_sewing_stations" onchange="vip.handleSewingChange(this)">
+            <input type="checkbox" id="markup_sewing" name="markup_sewing" value="sewing" checked> <label for="markup_sewing">sewing / punching guides</label>
+              <select id="markup_sewing_stations" name="markup_sewing_stations">
                 <option value="outer">spine only</option>
                 <option value="inner">inner folio only</option>
-                <option value="inner_outer">spine & inner folio</option>
-                <option value="all">all folios</option>
+                <option value="inner_outer" selected>spine & inner folio</option>
               </select>
               <br/>
               <div>
-                <input type="number" id="markup_sewing_dist_top" name="markup_sewing_dist_top" placeholder="6"> <label for="markup_sewing_dist_top"> distance from head to top hole (pt)</label> <br/>
-                <input type="number" id="markup_sewing_dist_bottom" name="markup_sewing_dist_bottom" placeholder="5"> <label for="markup_sewing_dist_bottom"> distance from tail to bottom hole (pt)</label> <br/>
-                <input type="number" id="markup_sewing_count" name="markup_sewing_count" placeholder="4"> <label for="markup_sewing_count"> count of sewing stations</label> <br/>
-                <input type="number" id="markup_sewing_station_dist" name="markup_sewing_station_dist" placeholder="3"> <label for="markup_sewing_station_dist"> distance between points at each sewing station (pt)</label> <br/>
+                <input type="number" id="markup_sewing_dist_top" name="markup_sewing_dist_top" placeholder="36"> <label for="markup_sewing_dist_top"> distance from head to top hole (pt)</label> <br/>
+                <input type="number" id="markup_sewing_dist_bottom" name="markup_sewing_dist_bottom" placeholder="54"> <label for="markup_sewing_dist_bottom"> distance from tail to bottom hole (pt)</label> <br/>
+                <input type="number" id="markup_sewing_count" name="markup_sewing_count" placeholder="2"> <label for="markup_sewing_count"> count of sewing stations</label> <br/>
+                <input type="number" id="markup_sewing_station_dist" name="markup_sewing_station_dist" placeholder="36"> <label for="markup_sewing_station_dist"> distance between points at each sewing station (pt)</label> <br/>
                 <input type="number" id="markup_sewing_dot_size" name="markup_sewing_dot_size" placeholder="2"> <label for="markup_sewing_dot_size"> guideline dot size (pt)</label> 
               </div>
             </div>
