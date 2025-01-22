@@ -116,12 +116,12 @@ export const imposerMagic = {
         rotation_deg = 90;
         break;
     }
-    const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, w, h, orientation, 1, is_odd, embedded_w, embedded_h)
+    const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, w, h, orientation, 1, 1, is_odd, embedded_w, embedded_h)
     new_page.drawPage(embedded_page, { 
                           x: finalPlacement.x,
                           y: finalPlacement.y,
-                          xScale: finalPlacement.scale,
-                          yScale: finalPlacement.scale,
+                          xScale: finalPlacement.xScale,
+                          yScale: finalPlacement.yScale,
                           opacity: 0.15,
                           rotate: PDFLib.degrees(rotation_deg)
                         })
@@ -130,33 +130,18 @@ export const imposerMagic = {
   _renderPageFit: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info) {
     const {total_w, total_h} = this._calcPadding();
     const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
-    let rotation_deg = 0;
-    switch(orientation) {
-      case RIGHT_SIDE_UP:
-        break;
-      case UP_SIDE_DOWN:
-        rotation_deg = 180;
-        break;
-      case BOTTOM_TO_LEFT:
-        rotation_deg = -90;
-        break;
-      case BOTTOM_TO_RIGHT:
-        rotation_deg = 90;
-        break;
-    }
-
     const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
     const xScale = (isTipped) ? (h-total_w) / embedded_w : (w-total_w) / embedded_w;
     const yScale = (isTipped) ? (w-total_h) / embedded_h : (h-total_h) / embedded_h;
     const scale = Math.min(xScale, yScale);
-    const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, w, h, orientation, scale, is_odd, embedded_w, embedded_h)
+    const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, w, h, orientation, scale, scale, is_odd, embedded_w, embedded_h)
     new_page.drawPage(embedded_page, { 
                           x: finalPlacement.x,
                           y: finalPlacement.y,
-                          xScale: finalPlacement.scale,
-                          yScale: finalPlacement.scale,
+                          xScale: finalPlacement.xScale,
+                          yScale: finalPlacement.yScale,
                           opacity: 0.75,
-                          rotate: PDFLib.degrees(rotation_deg)
+                          rotate: PDFLib.degrees(finalPlacement.rotation_deg)
                         })
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
     if (center_info.length > 0 && center_info[1])
@@ -165,59 +150,40 @@ export const imposerMagic = {
       this._renderInnerMarks(new_page, finalPlacement.spineHead, finalPlacement.spineTail, orientation, center_info[1])
   },
   _renderPageFill: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info) {
-    const {padding_i, padding_o, padding_t, padding_b, total_w, total_h} = this._calcPadding();
+    const {total_w, total_h} = this._calcPadding();
     const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
     let [x, y, rotation_deg] = [corner_x, corner_y, 0]
-    switch(orientation) {
-      case RIGHT_SIDE_UP:
-        y += padding_b - padding_t;
-        x += (is_odd) ? padding_i - padding_o : padding_o - padding_i;
-        break;
-      case UP_SIDE_DOWN:
-        y += h + padding_t - padding_b;
-        x += w;
-        x += (is_odd) ? padding_i - padding_o : padding_o - padding_i;
-        rotation_deg = 180;
-        break;
-      case BOTTOM_TO_LEFT:
-        y += h
-        x += padding_b - padding_t;
-        rotation_deg = -90;
-        break;
-      case BOTTOM_TO_RIGHT:
-        x += w + padding_t - padding_b;
-        rotation_deg = 90;
-        break;
-    }
+
     const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
-    const xScale = (isTipped) ? (h-total_w) / embedded_w : (w-total_w) / embedded_w;
-    const yScale = (isTipped) ? (w-total_h) / embedded_h : (h-total_h) / embedded_h;
+    const xScale = (isTipped) ? (w-total_h) / embedded_h : (w-total_w) / embedded_w;
+    const yScale = (isTipped) ? (h-total_w) / embedded_w : (h-total_h) / embedded_h;
+    const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, w, h, orientation, xScale, yScale, is_odd, embedded_w, embedded_h)
     new_page.drawPage(embedded_page, { 
-                          x: x + window.book.physical.short_margin,
-                          y: y + window.book.physical.long_margin,
-                          xScale: xScale,
-                          yScale: yScale,
+                          x: finalPlacement.x,
+                          y: finalPlacement.y,
+                          xScale: (isTipped) ? finalPlacement.yScale : finalPlacement.xScale,
+                          yScale: (isTipped) ? finalPlacement.xScale : finalPlacement.yScale,
                           opacity: 0.75,
-                          rotate: PDFLib.degrees(rotation_deg)
+                          rotate: PDFLib.degrees(finalPlacement.rotation_deg)
                         })
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
   },
   /*
    * Remember: working from the lower-left corner of the cell
-   * embedded_w / embedded_h -- already flipped if needed so it aligns w/ the correct dimensions for xSpace / ySpace
+   * embedded_w & embedded_h are NOT flipped - relative to original page
+   * w & h are the CELL dimensions (relative to sheet)
    */
-  _calcPlacementOffsets: function(corner_x, corner_y, w, h, orientation, scale, is_odd, embedded_w, embedded_h) {
+  _calcPlacementOffsets: function(corner_x, corner_y, w, h, orientation, xScale, yScale, is_odd, embedded_w, embedded_h) {
     const p = window.book.physical.placement;
     const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
     const {padding_i, padding_o, padding_t, padding_b, total_w, total_h} = this._calcPadding();
-    embedded_w = (embedded_w) * scale;
-    embedded_h = (embedded_h) * scale;
-    const xSpace = w - embedded_w;
-    const ySpace = h - embedded_h;
+    embedded_w = (isTipped) ? embedded_w * yScale : embedded_w * xScale;
+    embedded_h = (isTipped) ? embedded_h * xScale : embedded_h * yScale;
     let xPadding = 0;
     let yPadding = 0;
-    let spineHead = [corner_x, corner_y]
-    let spineTail = [corner_x, corner_y]
+    let spineHead = [corner_x, corner_y];
+    let spineTail = [corner_x, corner_y];
+    let rotation_deg = 0;
     switch(orientation) {
       case RIGHT_SIDE_UP:
         if (p == "center" || p == "center_top") {
@@ -230,7 +196,8 @@ export const imposerMagic = {
         } else {
           yPadding += (h - embedded_h - total_h);
         }
-        yPadding += padding_b
+        yPadding += padding_b;
+        xPadding += (is_odd) ? padding_i : padding_o;
         spineHead = [corner_x, corner_y + h]
         if (!is_odd) {
           spineHead[0] += w;
@@ -238,8 +205,9 @@ export const imposerMagic = {
         }
       break;
       case UP_SIDE_DOWN:
-        xPadding += embedded_w
-        yPadding += embedded_h + padding_t
+        rotation_deg = 180;
+        xPadding += embedded_w;
+        yPadding += embedded_h;
         if (p == "center" || p == "center_top") {
           xPadding += (w - embedded_w - total_w)/2.0;
         } else if (is_odd) {
@@ -248,22 +216,31 @@ export const imposerMagic = {
         if (p == "center" || p == "snug_center") {
           yPadding += (h - embedded_h - total_h)/2.0;
         }
+        yPadding += padding_t;
+        xPadding += (is_odd)? padding_o : padding_i;
         spineTail = [corner_x, corner_y + h]
         if (is_odd) {
           spineHead[0] += w;
           spineTail[0] += w;
         }
       break;
+
+
+
+      // is tipped
       case BOTTOM_TO_RIGHT:
+        rotation_deg = 90;
+        xPadding += embedded_h;
         if (p == "snug_center" || p == "center") {
           xPadding += (w - embedded_h - total_h)/2.0;
         }
-        xPadding += embedded_h + padding_t;
         if (p == "center" || p == "center_top") {
           yPadding += (h - embedded_w - total_w)/2.0;
         } else if (!is_odd) {
           yPadding += (h - embedded_w - total_w);
         }
+        yPadding += (is_odd) ? padding_i : padding_o;
+        xPadding += padding_t;
         spineTail = [corner_x + w, corner_y]
         if (!is_odd) {
           spineHead[1] += h;
@@ -271,6 +248,8 @@ export const imposerMagic = {
         }
       break;
       case BOTTOM_TO_LEFT:
+        rotation_deg = -90;
+        yPadding += embedded_w;
         if (p == "snug_center" || p == "center") {
           xPadding += (w - embedded_h - total_h)/2.0;
         } else {
@@ -281,13 +260,13 @@ export const imposerMagic = {
         } else if (is_odd) {
           yPadding += (h - embedded_w - total_w);
         }
+        yPadding += (is_odd) ? padding_o : padding_i;
+        xPadding += padding_b;
         spineHead = [corner_x + w, corner_y];
         if (is_odd) {
           spineHead[1] += h;
           spineTail[1] += h;
         }
-        yPadding += embedded_w;
-        xPadding += padding_b;
       break;
     }
     return {
@@ -295,7 +274,9 @@ export const imposerMagic = {
       y: corner_y + window.book.physical.long_margin + yPadding,
       spineHead: spineHead,
       spineTail: spineTail,
-      scale: scale
+      xScale: xScale,
+      yScale: yScale,
+      rotation_deg: rotation_deg
     }
   },
   _maskPage: function(new_page, embedded_page, x, y, w, h, orientation){
