@@ -204,6 +204,16 @@ export const vip = {
     dropDownEl.value = selectedDropDown
     window.book.imposed.processUpdate();
   },
+  handleMarkupDetailsChange: function(e, detailsId) {
+    const display = e.checked
+    document.getElementById(detailsId).style.display = (display) ? '' : 'none';
+  },
+  handleSewingStationChange: function(e) {
+    const display = e.checked
+    document.getElementById("markup_sewing_stations").style.display = (display) ? '' : 'none';
+    document.getElementById("markup_sewing_stations_details").style.display = (display) ? '' : 'none';
+
+  },
   refreshPreview: async function() {
     if (window.book.unified_source.hasValidPdf()) {
       console.log("Starting Preview build...")
