@@ -21,11 +21,11 @@ export const imposerMagic = {
     }
     const is_odd = page_num % 2 == 0 // YES this looks backwards - because page_map is 0 indexed, but the idea of a book is 1 indexed
     if (window.book.physical.scaling == 'original') {
-      this._renderPageOriginal(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd);
+      this._renderPageOriginal(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info);
     } else if (window.book.physical.scaling == 'fit') {
       this._renderPageFit(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info);
     } else if (window.book.physical.scaling == 'fill') {
-      this._renderPageFill(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd);
+      this._renderPageFill(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info);
     } else {
       throw new Error("Invalid scaling option : ",window.book.physical.scaling);
     }
@@ -101,31 +101,21 @@ export const imposerMagic = {
     }
   },
   _renderPageOriginal: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info) {
-    const {padding_i, padding_t} = this._calcPadding();
-    let rotation_deg = 0
-    switch(orientation) {
-      case RIGHT_SIDE_UP:
-        break;
-      case UP_SIDE_DOWN:
-        rotation_deg = 180;
-        break;
-      case BOTTOM_TO_LEFT:
-        rotation_deg = -90;
-        break;
-      case BOTTOM_TO_RIGHT:
-        rotation_deg = 90;
-        break;
-    }
+    const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
     const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, w, h, orientation, 1, 1, is_odd, embedded_w, embedded_h)
     new_page.drawPage(embedded_page, { 
                           x: finalPlacement.x,
                           y: finalPlacement.y,
                           xScale: finalPlacement.xScale,
                           yScale: finalPlacement.yScale,
-                          opacity: 0.15,
-                          rotate: PDFLib.degrees(rotation_deg)
+                          opacity: 0.75,
+                          rotate: PDFLib.degrees(finalPlacement.rotation_deg)
                         })
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
+    if (center_info.length > 0 && center_info[1])
+      this._renderSpineMarks(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
+    if (center_info.length > 0)
+      this._renderInnerMarks(new_page, finalPlacement.spineHead, finalPlacement.spineTail, orientation, center_info[1])
   },
   _renderPageFit: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info) {
     const {total_w, total_h} = this._calcPadding();
@@ -167,6 +157,10 @@ export const imposerMagic = {
                           rotate: PDFLib.degrees(finalPlacement.rotation_deg)
                         })
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
+    if (center_info.length > 0 && center_info[1])
+      this._renderSpineMarks(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
+    if (center_info.length > 0)
+      this._renderInnerMarks(new_page, finalPlacement.spineHead, finalPlacement.spineTail, orientation, center_info[1])
   },
   /*
    * Remember: working from the lower-left corner of the cell
