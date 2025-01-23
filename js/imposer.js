@@ -43,20 +43,68 @@ export const imposerMagic = {
       total_h: Number(document.getElementById("pdf_padding_top").value) + bottom
     }
   },
-  /**
-   * @param spineHead / spineTail - two dimentional arrays, [x, y]
-   */
-  _renderSpineMarks: function(new_page, sig_num, spineHead, spineTail) {
-    const color = PDFLib.rgb(0.75, 0.0, 0.0);
+  _renderSpinePdfBounds: function(new_page, finalPlacement, embedded_w, embedded_h, orientation) {
+    let spineHead = [finalPlacement.x, finalPlacement.y]
+    let spineTail = [finalPlacement.x, finalPlacement.y]
+    const [w, h] = [embedded_w * finalPlacement.xScale, embedded_h * finalPlacement.yScale]
+    switch(orientation) {
+      case RIGHT_SIDE_UP:
+        spineHead = [finalPlacement.spineHead[0], finalPlacement.y + h];
+        spineTail = [finalPlacement.spineTail[0], finalPlacement.y];
+      break;
+      case UP_SIDE_DOWN:
+        spineHead = [finalPlacement.spineHead[0], finalPlacement.y - h];
+        spineTail = [finalPlacement.spineTail[0], finalPlacement.y];
+      break;
+      case BOTTOM_TO_RIGHT:
+        spineHead = [finalPlacement.x - h, finalPlacement.spineHead[1]];
+        spineTail = [finalPlacement.x, finalPlacement.spineTail[1]];
+      break;
+      case BOTTOM_TO_LEFT:
+        spineHead = [finalPlacement.x + h, finalPlacement.spineHead[1]];
+        spineTail = [finalPlacement.x, finalPlacement.spineTail[1]];
+      break;
+    }
+    const weight = this._collectValueOrPlaceholder(document.getElementById('markup_spine_bounds_weight'));
+    const color = this._collectValueOrPlaceholder(document.getElementById('markup_spine_bounds_color'));
+    const len = this._collectValueOrPlaceholder(document.getElementById('markup_spine_bounds_length'));;
+    const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
+    const delta = (isTipped) ? [0, len] : [len, 0]// : [0, len]
     new_page.drawLine({
-      start: { x: spineHead[0], y: spineHead[1] },          end: { x: spineTail[0], y: spineTail[1] },
-      thickness: 10,  color: color,   opacity: 0.15,
+      start: { x: (spineHead[0] + delta[0]), y: spineHead[1] + delta[1] },        end: { x: spineHead[0] - delta[0], y: spineHead[1] - delta[1] },
+      thickness: weight,  color: color,   opacity: 1,
+    });
+    new_page.drawLine({
+      start: { x: spineTail[0] + delta[0], y: spineTail[1] + delta[1] },          end: { x: spineTail[0] - delta[0], y: spineTail[1] - delta[1] },
+      thickness: weight,  color: color,   opacity: 1,
     });
   },
   /**
    * @param spineHead / spineTail - two dimentional arrays, [x, y]
    */
-  _renderInnerMarks: function(new_page, spineHead, spineTail, orientation, isSpine) {
+  _renderSpineSigOrder: function(new_page, sig_num, spineHead, spineTail) {
+    const color = this._collectValueOrPlaceholder(document.getElementById('markup_spine_order_color'));
+    const weight = this._collectValueOrPlaceholder(document.getElementById('markup_spine_order_weight'));
+    const sig_count = window.book.imposed.signatures.length;
+    const segs = sig_count + 3
+    const spineDelta = [(spineTail[0] - spineHead[0]) / segs, (spineTail[1] - spineHead[1]) / segs]
+    const widthDelta = [ ( (spineDelta[0] == 0)? weight : 0 ),  ( (spineDelta[1] == 0)? weight : 0 )]
+    new_page.drawRectangle({
+      x: spineHead[0] + spineDelta[0] + spineDelta[0] * sig_num - widthDelta[0]/2,
+      y: spineHead[1] + spineDelta[1] + spineDelta[1] * sig_num - widthDelta[1]/2,
+      width:  (widthDelta[0] == 0) ? spineDelta[0] : widthDelta[0],
+      height: (widthDelta[1] == 0) ? spineDelta[1] : widthDelta[1],
+      borderWidth: 0.5,
+      borderColor: PDFLib.rgb(1, 1, 1),
+      color: color,
+      opacity: 1,
+      borderOpacity: 1,
+    })
+  },
+  /**
+   * @param spineHead / spineTail - two dimentional arrays, [x, y]
+   */
+  _renderSewingStations: function(new_page, spineHead, spineTail, orientation, isSpine) {
     const enabled_sewing_marks = document.getElementById('markup_sewing').checked
     const mark_location = document.getElementById('markup_sewing_stations').value
     if (!enabled_sewing_marks)
@@ -65,8 +113,8 @@ export const imposerMagic = {
       return
     if (!isSpine && mark_location == "outer")
       return
-    const color = PDFLib.rgb(0.0, 0.0, 0.75);
-    const borderColor = PDFLib.grayscale(0.0);
+    const color = this._collectValueOrPlaceholder(document.getElementById('markup_sewing_stations_color'));
+    const borderColor = PDFLib.rgb(1, 1, 1);
     const header_gap = this._collectValueOrPlaceholder(document.getElementById('markup_sewing_dist_top'))
     const footer_gap = this._collectValueOrPlaceholder(document.getElementById('markup_sewing_dist_bottom'))
     const dot_gap = this._collectValueOrPlaceholder(document.getElementById('markup_sewing_station_dist'))/2
@@ -74,8 +122,8 @@ export const imposerMagic = {
     const endDelta = (orientation == RIGHT_SIDE_UP) ? [0, -1 * footer_gap] : (orientation == UP_SIDE_DOWN) ? [0, footer_gap] : (orientation == BOTTOM_TO_RIGHT) ? [footer_gap, 0] : [-1 * footer_gap, 0];
     const gapDelta = (orientation == RIGHT_SIDE_UP) ? [0, -1 * dot_gap] : (orientation == UP_SIDE_DOWN) ? [0, dot_gap] : (orientation == BOTTOM_TO_RIGHT) ? [dot_gap, 0] : [-1 * dot_gap, 0];
     const [xDelta, yDelta] = [ spineTail[0] - spineHead[0] - endDelta[0] - startDelta[0],    spineTail[1] - spineHead[1] - endDelta[1] - startDelta[1]]
-    const station_count = this._collectValueOrPlaceholder(document.getElementById('markup_sewing_count')) + 2
-    const dot_size = this._collectValueOrPlaceholder(document.getElementById('markup_sewing_dot_size'))
+    const station_count = this._collectValueOrPlaceholder(document.getElementById('markup_sewing_count')) + 2;
+    const dot_size = this._collectValueOrPlaceholder(document.getElementById('markup_sewing_dot_size'));
     for(let i = 0; i < station_count; ++i) {
       const useGapDelta = (i == 0 || i == station_count - 1) ? [0, 0] :  gapDelta
       new_page.drawCircle({
@@ -85,7 +133,7 @@ export const imposerMagic = {
         borderWidth: 0.5,
         color: color,
         borderColor: borderColor,
-        opacity: 0.05,
+        opacity: 1,
         borderOpacity: 1,
       });
       new_page.drawCircle({
@@ -95,7 +143,7 @@ export const imposerMagic = {
         borderWidth: 0.5,
         color: color,
         borderColor: borderColor,
-        opacity: 0.05,
+        opacity: 1,
         borderOpacity: 1,
       });
     }
@@ -112,10 +160,13 @@ export const imposerMagic = {
                           rotate: PDFLib.degrees(finalPlacement.rotation_deg)
                         })
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
-    if (center_info.length > 0 && center_info[1])
-      this._renderSpineMarks(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
+
+    this._renderSpinePdfBounds(new_page, finalPlacement, embedded_w, embedded_h, orientation)
+    if (center_info.length > 0 && center_info[1]) {
+      this._renderSpineSigOrder(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
+    }
     if (center_info.length > 0)
-      this._renderInnerMarks(new_page, finalPlacement.spineHead, finalPlacement.spineTail, orientation, center_info[1])
+      this._renderSewingStations(new_page, finalPlacement.spineHead, finalPlacement.spineTail, orientation, center_info[1])
   },
   _renderPageFit: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info) {
     const {total_w, total_h} = this._calcPadding();
@@ -134,10 +185,12 @@ export const imposerMagic = {
                           rotate: PDFLib.degrees(finalPlacement.rotation_deg)
                         })
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
-    if (center_info.length > 0 && center_info[1])
-      this._renderSpineMarks(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
+    this._renderSpinePdfBounds(new_page, finalPlacement, embedded_w, embedded_h, orientation)
+    if (center_info.length > 0 && center_info[1]) {
+      this._renderSpineSigOrder(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
+    }
     if (center_info.length > 0)
-      this._renderInnerMarks(new_page, finalPlacement.spineHead, finalPlacement.spineTail, orientation, center_info[1])
+      this._renderSewingStations(new_page, finalPlacement.spineHead, finalPlacement.spineTail, orientation, center_info[1])
   },
   _renderPageFill: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info) {
     const {total_w, total_h} = this._calcPadding();
@@ -157,10 +210,12 @@ export const imposerMagic = {
                           rotate: PDFLib.degrees(finalPlacement.rotation_deg)
                         })
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
-    if (center_info.length > 0 && center_info[1])
-      this._renderSpineMarks(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
+    this._renderSpinePdfBounds(new_page, finalPlacement, embedded_w, embedded_h, orientation)
+    if (center_info.length > 0 && center_info[1]) {
+      this._renderSpineSigOrder(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
+    }
     if (center_info.length > 0)
-      this._renderInnerMarks(new_page, finalPlacement.spineHead, finalPlacement.spineTail, orientation, center_info[1])
+      this._renderSewingStations(new_page, finalPlacement.spineHead, finalPlacement.spineTail, orientation, center_info[1])
   },
   /*
    * Remember: working from the lower-left corner of the cell
@@ -318,7 +373,19 @@ export const imposerMagic = {
       calcCenterInfo : this._calcCenterInfo.bind(this)
     }
   },
+  _hexToRgb: function(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  },
   _collectValueOrPlaceholder: function(el) {
+    if (el.type == 'color') {
+      const c = this._hexToRgb(el.value)
+      return PDFLib.rgb(c.r / 255.0, c.g / 255.0, c.b / 255.0);
+    }
     const v = parseFloat(el.value)
     return (isNaN(v)) ? parseFloat(el.placeholder) : v
   },
@@ -327,7 +394,7 @@ export const imposerMagic = {
       return;
     const len = this._collectValueOrPlaceholder(document.getElementById("markup_crosshairs_length"))
     const weight = this._collectValueOrPlaceholder(document.getElementById("markup_crosshairs_weight"))
-    const color = PDFLib.rgb(0.75, 0.2, 0.2);
+    const color = this._collectValueOrPlaceholder(document.getElementById("markup_crosshairs_color"))
     new_page.drawLine({
       start: { x: x - len, y: y },          end: { x: x + len, y: y },
       thickness: weight,  color: color,   opacity: 0.75,
@@ -341,7 +408,7 @@ export const imposerMagic = {
     if (!document.getElementById("markup_fold_lines").checked)
       return;
     const weight = this._collectValueOrPlaceholder(document.getElementById("fold_line_weight"))
-    const color = PDFLib.rgb(0.2, 0.75, 0.2);
+    const color = this._collectValueOrPlaceholder(document.getElementById("markup_fold_lines_color"))
     new_page.drawLine({
       start: { x: x_start, y: y_start},          end: { x: x_end, y: y_end },
       thickness: weight,  color: color,   opacity: 0.75,

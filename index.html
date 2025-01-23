@@ -302,7 +302,7 @@
       .printed_page_markup_options {
         margin-left: 40px;
       }
-      #fold_line_weight, #cut_line_weight, #markup_crosshairs_weight, #markup_spine_order_weight, #markup_spine_bounds_weight, #markup_crosshairs_length {
+      #fold_line_weight, #cut_line_weight, #markup_crosshairs_weight, #markup_spine_order_weight, #markup_spine_bounds_weight, #markup_crosshairs_length, #markup_spine_bounds_length {
         width: 4em;
         padding: 0px 4px;
         margin-left: 10px;
@@ -317,7 +317,8 @@
         margin-bottom: 4px;
         margin-left: 50px;
       }
-      #markup_sewing_dist_top_color, #markup_sewing_dist_bottom_color {
+      #markup_cut_lines_color, #markup_fold_lines_color, #markup_crosshairs_color, #markup_spine_order_color, 
+        #markup_spine_bounds_color,#markup_sewing_stations_color {
         display: inline;
         width: 30px;
         padding: 0px;
@@ -663,11 +664,11 @@
           </p>
         </details>
         <div class="printed_page_markup_options">
-            <input type="checkbox" id="markup_fold_lines" name="markup_fold_lines" value="fold" onchange="vip.handleMarkupDetailsChange(this, 'markup_fold_lines_details')" checked> <label for="markup_fold_lines"> fold lines</label> <span id="markup_fold_lines_details"><small><Input type=number id="fold_line_weight" placeholder="2"/> <span id="fold_line_weight_label">line weight (pt)</span></small></span></br>
-            <input type="checkbox" id="markup_cut_lines" name="markup_cut_lines" value="cut"> <label for="markup_cut_lines"> cut lines</label><small> <Input type=number id="cut_line_weight" placeholder="2"/>  <span id="cut_line_weight_label">line weight (pt)</span></small></br>
-            <input type="checkbox" id="markup_crosshairs" name="markup_crosshairs" value="cross" onchange="vip.handleMarkupDetailsChange(this, 'markup_crosshairs_details')" checked> <label for="markup_crosshairs"> cross-hairs</label> <span id="markup_crosshairs_details"><small><Input type=number id="markup_crosshairs_weight" placeholder="2"/>  <span id="markup_crosshairs_weight_label">line weight (pt)</span> | <Input type=number id="markup_crosshairs_length" placeholder="15"/>  <span id="markup_crosshairs_length_label">cross-hair leg length (pt)</span></small></span></br>
-            <input type="checkbox" id="markup_spine_order" name="markup_spine_order" value="order"> <label for="markup_spine_order"> spine marks: order</label> <Input type=number id="markup_spine_order_weight" placeholder="2"/>  <span id="markup_spine_order_weight_label">line weight (pt)</span></br>
-            <input type="checkbox" id="markup_spine_bounds" name="markup_spine_bounds" value="order"> <label for="markup_spine_bounds"> spine marks: bounds</label> <Input type=number id="markup_spine_bounds_weight" placeholder="2"/>  <span id="markup_spine_bounds_weight_label">line weight (pt)</span></br>
+            <input type="checkbox" id="markup_fold_lines" name="markup_fold_lines" value="fold" onchange="vip.handleMarkupDetailsChange(this, 'markup_fold_lines_details')" checked> <label for="markup_fold_lines"> fold lines</label> <span id="markup_fold_lines_details"><small><Input type=number id="fold_line_weight" placeholder="2"/> <span id="fold_line_weight_label">line weight (pt)</span></small><input type="color" id="markup_fold_lines_color" value="#aaaaaa" /> </span></br>
+            <input type="checkbox" id="markup_cut_lines" name="markup_cut_lines" value="cut" onchange="vip.handleMarkupDetailsChange(this, 'markup_cut_lines_details')" checked> <label for="markup_cut_lines"> cut lines</label><span id="markup_cut_lines_details"><small> <Input type=number id="cut_line_weight" placeholder="2"/>  <span id="cut_line_weight_label">line weight (pt)</span></small><input type="color" id="markup_cut_lines_color" value="#666666" /> </span></br>
+            <input type="checkbox" id="markup_crosshairs" name="markup_crosshairs" value="cross" onchange="vip.handleMarkupDetailsChange(this, 'markup_crosshairs_details')" checked> <label for="markup_crosshairs"> cross-hairs</label> <span id="markup_crosshairs_details"><small><Input type=number id="markup_crosshairs_weight" placeholder="1"/>  <span id="markup_crosshairs_weight_label">line weight (pt)</span> | <Input type=number id="markup_crosshairs_length" placeholder="15"/>  <span id="markup_crosshairs_length_label">cross-hair leg length (pt)</span></small><input type="color" id="markup_crosshairs_color" value="#000000" /></span> </br>
+            <input type="checkbox" id="markup_spine_order" name="markup_spine_order" value="order" onchange="vip.handleMarkupDetailsChange(this, 'markup_spine_order_details')" checked> <label for="markup_spine_order"> spine marks: order</label><span id="markup_spine_order_details"> <Input type=number id="markup_spine_order_weight" placeholder="5"/>  <span id="markup_spine_order_weight_label">line weight (pt)</span><input type="color" id="markup_spine_order_color" value="#000000" /> </span></br>
+            <input type="checkbox" id="markup_spine_bounds" name="markup_spine_bounds" value="order" onchange="vip.handleMarkupDetailsChange(this, 'markup_spine_bounds_details')" checked> <label for="markup_spine_bounds"> spine marks: bounds</label> <span id="markup_spine_bounds_details"><small> <Input type=number id="markup_spine_bounds_weight" placeholder="2"/>  <span id="markup_spine_bounds_weight_label">line weight (pt)</span> | <Input type=number id="markup_spine_bounds_length" placeholder="10"/>  <span id="markup_spine_bounds_length_label"> length (pt)</span><input type="color" id="markup_spine_bounds_color" value="#757575" /></small> </span></br>
             <div>
             <input type="checkbox" id="markup_sewing" name="markup_sewing" value="sewing" checked onchange="vip.handleSewingStationChange(this)"> <label for="markup_sewing">sewing / punching guides</label>
               <select id="markup_sewing_stations" name="markup_sewing_stations">
@@ -675,11 +676,12 @@
                 <option value="inner">inner folio only</option>
                 <option value="inner_outer" selected>spine & inner folio</option>
               </select>
+              <input type="color" id="markup_sewing_stations_color" value="#4b4b4b" />
               <div id="markup_sewing_stations_details">
-                <input type="number" id="markup_sewing_dist_top" name="markup_sewing_dist_top" placeholder="36"> <label for="markup_sewing_dist_top"> distance from head to top hole (pt)</label><input type="color" id="markup_sewing_dist_top_color" value="#ff0000" /> <br/>
-                <input type="number" id="markup_sewing_dist_bottom" name="markup_sewing_dist_bottom" placeholder="54"> <label for="markup_sewing_dist_bottom"> distance from tail to bottom hole (pt)</label> <input type="color" id="markup_sewing_dist_bottom_color" value="#ff0000" /> <br/>
+                <input type="number" id="markup_sewing_dist_top" name="markup_sewing_dist_top" placeholder="36"> <label for="markup_sewing_dist_top"> distance from head to top hole (pt)</label><br/>
+                <input type="number" id="markup_sewing_dist_bottom" name="markup_sewing_dist_bottom" placeholder="54"> <label for="markup_sewing_dist_bottom"> distance from tail to bottom hole (pt)</label><br/>
                 <input type="number" id="markup_sewing_count" name="markup_sewing_count" placeholder="2"> <label for="markup_sewing_count"> count of sewing stations</label> <br/>
-                <input type="number" id="markup_sewing_station_dist" name="markup_sewing_station_dist" placeholder="36"> <label for="markup_sewing_station_dist"> distance between points at each sewing station (pt)</label> <br/>
+                <input type="number" id="markup_sewing_station_dist" name="markup_sewing_station_dist" placeholder="36"> <label for="markup_sewing_station_dist"> distance between points at each sewing station (pt)</label><br/>
                 <input type="number" id="markup_sewing_dot_size" name="markup_sewing_dot_size" placeholder="2"> <label for="markup_sewing_dot_size"> guideline dot size (pt)</label> 
               </div>
             </div>

@@ -211,6 +211,7 @@ export const vip = {
   handleSewingStationChange: function(e) {
     const display = e.checked
     document.getElementById("markup_sewing_stations").style.display = (display) ? '' : 'none';
+    document.getElementById("markup_sewing_stations_color").style.display = (display) ? '' : 'none';
     document.getElementById("markup_sewing_stations_details").style.display = (display) ? '' : 'none';
 
   },
