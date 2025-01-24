@@ -2,6 +2,7 @@ import { form, PAGE_SIZES } from './helper.js';
 import { utils } from './pdf.js';
 import { fileHandler } from './files.js';
 import { previewer } from './preview.js';
+import { builder, SIDE_COVERAGE_BOTH } from './pdf.js';
 
 export const basic = {
   txt : "sharks sharksss sharks",
@@ -229,10 +230,11 @@ export const vip = {
       console.log("No valid PDF to work with")
     }
   },
-  downloadFile: function(fileName, defaultFileName) {
+  downloadFile: async function(fileName, defaultFileName) {
     const nameToUse = (fileName == "") ? defaultFileName : fileName
+    const savePdf = await builder.generatePreview(false, SIDE_COVERAGE_BOTH)
     console.log("Downloading file ["+fileName+"/"+defaultFileName+"] -> ["+nameToUse+"]")
-    console.log("gettin' ", fileHandler.makeTheZip(window.book.unified_source.pdf, nameToUse))
+    console.log("gettin' ", fileHandler.makeTheZip(savePdf, nameToUse))
   }
 }
 

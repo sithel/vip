@@ -443,7 +443,7 @@
 
       <section id="page_manipulation" class="disabled">
         <h2>2. PDF Manipulation</h2>
-          <details>
+          <details class="disabled">
           <summary>Explanation</summary>
           <p>
             This is to alter the (pre-rotation) PDF dimensions - negative values are ignored while positive values cut into the PDF, treating it as a smaller page (the space is masked via white rectangles drawn, which could mix poorly with large pages that could potentially overlap). For padding/adding of buffer white space, use the PDF Placement section<br>            
@@ -456,7 +456,8 @@
           <tr><td id="example_pdf_margin_left"></td><td id="example_pdf_margin_block"></td><td id="example_pdf_margin_right"></td></tr>
           <tr><td colspan="3" id="example_pdf_margin_bottom"></td></tr>
         </table>
-        <div id="pdf_margins">
+        <div id="pdf_margins" class="disabled">
+          <kbd>not implemented yet</kbd><BR>
           PDF Masking<br> &nbsp;&nbsp;&nbsp;
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="pdf_margin_left">left </label><input type=number size="2" id="pdf_margin_left" min=0 oninput="vip.handlePdfMarginUpdate()">
               <div id="pdf_margins_center">
@@ -516,12 +517,14 @@
             The paper margins are to add white space on the edges of the printed page in case you do not have a full-bleed printer. They are mirrored on either side - so a <code>10 pt</code> margin on the Long Sides will put a <code>10 pt</code> on both sides for a total of <code>20 pt</code>
           </p>
         </details>
-        <label for="unit_selector">Display Units</label>
-        <select id="unit_selector" name="unit_selector" required onchange="vip.handleUnitChange(this)">
-          <option value="metric" id="unit_metric" data-display="cm" data-convert-from-pt=1/28.346 selected>Metric (cm)</option>
-          <option value="imperial" id="unit_imperial" data-display="in" data-convert-from-pt=1/72>Imperial</option>
-          <option value="points" id="unit_points"  data-display="pt" data-convert-from-pt=1>Points</option>
-        </select>
+        <span class="disabled"><label for="unit_selector">Display Units</label>
+          <select id="unit_selector" name="unit_selector" required onchange="vip.handleUnitChange(this)">
+            <option value="metric" id="unit_metric" data-display="cm" data-convert-from-pt=1/28.346 selected>Metric (cm)</option>
+            <option value="imperial" id="unit_imperial" data-display="in" data-convert-from-pt=1/72>Imperial</option>
+            <option value="points" id="unit_points"  data-display="pt" data-convert-from-pt=1>Points</option>
+          </select>
+          <kbd>not implemented yet</kbd>
+        </span>
         <BR>
         <fieldset  role="group">
           Paper Size&nbsp;
@@ -702,9 +705,10 @@
       <section id="pdf_preview" class="disabled">
         <h2>8. Preview</h2>
           <button id="preview_pdf_btn" onclick="vip.refreshPreview()">Preview PDF</button>
-          <label for="pdf_results_preview_mode">
-            <input type="checkbox" role="switch" id="pdf_results_preview_mode" name="pdf_results_preview_mode">
+          <label for="pdf_results_preview_mode" class="disabled">
+            <input type="checkbox" role="switch" id="pdf_results_preview_mode" name="pdf_results_preview_mode" class="disabled">
             only preview first signature
+            <kbd>not implemented yet</kbd>
           </label>
           <h4 style="display: none;" id="preview_error_slot">There was an error</h4>
           <center>
@@ -715,17 +719,18 @@
       <section id="pdf_download" class="disabled">
         <h2>9 Download</h2>
         <div>
-          Download: 
+          Download: <br>
+          <kbd>not all export options implemented yet</kbd><br>
           <label for="download-aggregate">
             <input type="checkbox" id="download-aggregate" name="download-aggregate" checked="">
             aggregate file (all signatures)
           </label>
-          <label for="download-signatures">
-            <input type="checkbox" id="download-signatures" name="download-signatures" >
+          <label for="download-signatures" class="disabled">
+            <input type="checkbox" id="download-signatures" name="download-signatures"  class="disabled">
             each signature as separate file
           </label>
-          <label for="download-front-back">
-            <input type="checkbox" id="download-front-back" name="download-front-back" >
+          <label for="download-front-back" class="disabled">
+            <input type="checkbox" id="download-front-back" name="download-front-back"  class="disabled">
             front / back of sheets as separate files
           </label>
           <BR>
