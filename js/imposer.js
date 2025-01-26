@@ -186,7 +186,7 @@ export const imposerMagic = {
                           yScale: finalPlacement.yScale,
                           opacity: 0.75,
                           rotate: PDFLib.degrees(finalPlacement.rotation_deg)
-                        })
+                        });
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
     if (center_info.length > 0 && center_info[1]) 
       this._renderSpineSigOrder(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
@@ -566,5 +566,6 @@ export const imposerMagic = {
       case 'octavo_fat': this._handleOctoFat(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'octavo_thin': this._handleOctoThin(new_page, pageMap, folio_list, sheet_index, is_front); break;
     }
+    
   }
 }

@@ -178,6 +178,7 @@ export const builder = {
       if (typeof origPage === "number") {
         continue;
       }
+      origPage.drawText(` `, {x: 125, y: 100, size: 24, },  )   // hack to prevent exception due to embedding a blank page!
       const newPage = await new_pdf.embedPage(origPage)
       pageMap[page] = newPage;
     }
@@ -186,6 +187,7 @@ export const builder = {
   generatePreview: async function(firstSigOnly, side_coverage_mode) {
     console.log("[Generating Preview : start")
     const new_pdf = await PDFLib.PDFDocument.create();
+
     const pageMap = await this._buildAndEmbedPageMap(firstSigOnly, side_coverage_mode, new_pdf)
     const sheetCount = (firstSigOnly) ? this._buildFirstSigOnlySet()[1] : window.book.imposed.sheets.length
     const sheets = window.book.imposed.sheets.slice(0, sheetCount)
