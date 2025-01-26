@@ -162,7 +162,6 @@ export const imposerMagic = {
                           y: finalPlacement.y,
                           xScale: finalPlacement.xScale,
                           yScale: finalPlacement.yScale,
-                          opacity: 0.75,
                           rotate: PDFLib.degrees(finalPlacement.rotation_deg)
                         })
     this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
