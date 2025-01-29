@@ -50,8 +50,7 @@ export const utils = {
   },
   _calcPdfDimensions: async function() {
     let unified_source = window.book.unified_source;
-    let new_pdf = await PDFLib.PDFDocument.create();
-    unified_source.pdf = new_pdf;
+    unified_source.pdf_is_valid = false
     let blocks = window.book.upload_blocks
       .filter(block => { return block.pdfDoc != null })
     if (blocks.length == 0) {
@@ -60,6 +59,7 @@ export const utils = {
     }
     let maxHeight = 0;
     let maxWidth = 0;
+    let fileSize = 0;
     for (let i = 0; i < blocks.length; ++i) {
       let original_pdf = blocks[i].pdfDoc;
       let selectedPages = blocks[i].pageSelection;
@@ -70,7 +70,6 @@ export const utils = {
         this._appendPdfSourceError("Invalid page list: <code>"+selectedPages+"</code> for PDF <code>"+window.book.upload_blocks[0].file.name+"</code>")
         continue;
       }
-      // pagesList = pagesList.map(n => n[0])
       blocks[i]._pagesList = pagesList.flat()
       for(let j = 0; j < blocks[i].precedingBlanks; ++j) {
         pagesList.unshift(-1)
@@ -82,21 +81,24 @@ export const utils = {
         if (pageNumber == -1)
           continue;
         let sourcePdfPage = pages[pageNumber - 1];
-        await new_pdf.embedPage(sourcePdfPage);
-        new_pdf.addPage([sourcePdfPage.getWidth(),sourcePdfPage.getHeight()]);
         maxHeight = Math.max(maxHeight, sourcePdfPage.getHeight());
         maxWidth = Math.max(maxWidth, sourcePdfPage.getWidth());
       }
+      fileSize += blocks[i].file.size
     }
     let scale = Math.min(100/maxWidth, 100/maxHeight)
     unified_source.pageCount = window.book.upload_blocks.filter(x => x.pdfDoc != null).reduce( (acc, cur) => acc + cur._pagesList.length, 0)
     unified_source.maxWidth = maxWidth
     unified_source.maxHeight = maxHeight
     unified_source._scale100px = scale
+    unified_source.pdf_is_valid = true
     document.getElementById("insert_pdf_source_details_here").innerHTML = `
             <div id="example_pdf_upload_page" style="width:`+maxWidth*scale+`px;height:`+maxHeight*scale+`px;"></div>
             There are <code>`+ unified_source.pageCount+`</code> pages<br>
-            The working size is <code>`+ maxWidth+`</code> x <code>`+ maxHeight +`</code>
+            The working size is <code>`+ maxWidth+`</code> x <code>`+ maxHeight +`</code><br>
+            <small>(working with `+(fileSize * 0.000001).toFixed(2)+` MB in memory
+            `+ ((fileSize > 20_000_000) ? `[⚠️ large file size detected, be sure to only preview first signature]` : ``) +`
+            )</small>
     `
   },
   _ingestPdfFile: async function(file) {
@@ -171,16 +173,26 @@ export const builder = {
   _buildAndEmbedPageMap: async function(firstSigOnly, side_coverage_mode, new_pdf) {
     const [pageSet, sheetCount] = (firstSigOnly) ? this._buildFirstSigOnlySet() : [this._buildPageSetBasedOnSideCoverageMode(side_coverage_mode), window.book.imposed.sheets.length]
     const pageMap = {}
+    const origPageMap = window.book.upload_blocks.map(b => { return {} });
+    console.log("Given page pageSet : ["+ [...pageSet].join(", ")+"]")
     for (const page of pageSet) {
       if (page == -1)
         continue;
-      const origPage =  window.book.unified_source.getPdfPageForPageNumber(page);
-      if (typeof origPage === "number") {
-        continue;
+      const pageFetchResults =  window.book.unified_source.getPdfPageForPageNumber(page);
+
+      if (typeof pageFetchResults === "number") {
+        continue;   // this is for pages at the end of the book that overflow the original PDF(s) but pad out final signature
       }
+      const [block_i, origPage] = pageFetchResults;
+      console.log("Embedding page "+page)
       origPage.drawText(` `, {x: 125, y: 100, size: 24, },  )   // hack to prevent exception due to embedding a blank page!
-      const newPage = await new_pdf.embedPage(origPage)
-      pageMap[page] = newPage;
+      origPageMap[block_i][page] = origPage;
+    }
+    for(const subPageMap of origPageMap) {
+      console.log("look @ block o pages "+ Object.keys(subPageMap).join(", "))
+      const pageNumList = Object.keys(subPageMap)
+      const embeddedPages = await new_pdf.embedPages(pageNumList.map(k => subPageMap[k]))
+      embeddedPages.forEach((p,i) => pageMap[pageNumList[i]] = p)
     }
     return pageMap
   },

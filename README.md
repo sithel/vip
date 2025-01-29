@@ -63,7 +63,7 @@ Call `window.book.unified_source.processUpdate()` after base changes to re-calcu
 - `window.book.unified_source.isTurned()` : returns true if it's -90 or 90 degree rotation (post step 2)
 - `window.book.unified_source.pdf_w` / `window.book.unified_source.pdf_h` : takes into account PDF margins and rotation. (post step 2)
 - `window.book.unified_source.pageCount` : calculated total pages across multiple PDFs and accounting for blanks
-- `window.book.unified_source.getPdfPageForPageNumber(pageNum)` : given page `N` in the result PDF, looks up in the `window.book.upload_blocks` to fetch the corresponding `PDFLib.PDFPage`
+- `window.book.unified_source.getPdfPageForPageNumber(pageNum)` : given page `N` in the result PDF, looks up in the `window.book.upload_blocks` to fetch the corresponding `PDFLib.PDFPage` -- returns `[upload_block_index, PDFPage]`
 
 ## Physical (step 3)
 

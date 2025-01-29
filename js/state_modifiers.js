@@ -31,17 +31,14 @@ export const unified_source_modifier = {
       isTurned: isTurned
     }
   },
-  _hookUpMinorHelpers: function() {
-    window.book.unified_source.pdfHeight = function() { return }
-  },
   _hasValidPdf: function() {
-    return this.pdf != undefined && this.pdf.getPageCount() > 0
+    return this.pdf_is_valid && this.pageCount > 0
   },
   _getPdfPageForPageNumber: function shark(pageNum) {
     const isNumber = function(value) {
       return typeof value === "number" && isFinite(value);
     }
-    const lookForPage = function(acc, curBlock) {
+    const lookForPage = function(acc, curBlock, block_i) {
       if (!isNumber(acc)) {
         return acc
       }
@@ -53,7 +50,7 @@ export const unified_source_modifier = {
           return "b"
         }
         const page = curBlock.pdfDoc.getPage(pageListEntry - 1) // page numbers foolishly indexed at 1
-        return page
+        return [block_i, page]
       } else {
         return acc + curBlock._pagesList.length
       }
@@ -69,7 +66,6 @@ export const unified_source_modifier = {
     window.book.unified_source.calcRotationPreviewRenderInfo = this._calcRotationPreviewRenderInfo
     window.book.unified_source.hasValidPdf = this._hasValidPdf
     window.book.unified_source.getPdfPageForPageNumber = this._getPdfPageForPageNumber
-    this._hookUpMinorHelpers()
     window.book.unified_source.processUpdate = function() {
       if (window.book.unified_source.maxHeight == undefined || window.book.unified_source.maxHeight == undefined) {
         return
