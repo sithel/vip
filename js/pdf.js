@@ -209,11 +209,11 @@ export const builder = {
       if (s.length == 0)
         return;
       if (side_coverage_mode == SIDE_COVERAGE_BOTH || side_coverage_mode == SIDE_COVERAGE_FRONT) {
-        const new_page = new_pdf.addPage();
+        const new_page = new_pdf.addPage(window.book.physical.paper_size);
         imposerMagic.imposePdf(new_page, pageMap, s, i, true);
       }
       if (side_coverage_mode == SIDE_COVERAGE_BOTH || side_coverage_mode == SIDE_COVERAGE_FRONT) {
-        const new_page = new_pdf.addPage();
+        const new_page = new_pdf.addPage(window.book.physical.paper_size);
         imposerMagic.imposePdf(new_page, pageMap, s, i, false);
       }
     });

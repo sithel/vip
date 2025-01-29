@@ -143,7 +143,7 @@ export const vip = {
     window.book.selected_paper_size = el.value
     const customDimens = function() {
       const customEl = document.getElementById("paper_size_custom")
-      PAGE_SIZES['custom'] = [customEl.getAttribute("data-width-pt"),customEl.getAttribute("data-height-pt")]
+      PAGE_SIZES['custom'] = [parseFloat(customEl.getAttribute("data-width-pt")),parseFloat(customEl.getAttribute("data-height-pt"))]
       return PAGE_SIZES['custom']
     }
     const dimens = (el.value == "custom") ? customDimens() : PAGE_SIZES[el.value]
