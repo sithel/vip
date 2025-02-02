@@ -150,16 +150,20 @@ export const builder = {
     const new_page = new_pdf.addPage()
   },
   _buildFirstSigOnlySet: function() {
-    // TODO : this doesn't seem to be working any more -- fix/auit  Jan 7th 2025
+    const required = new Set(window.book.imposed.signatures[0])
+    const flatSetFun = function(s) {
+      return new Set([...s].flat())
+    }
+    console.log("Looking at _buildFirstSigOnlySet -- required : ",required)
     const result = new Set()
     for(let i = 0; i < window.book.imposed.sheets.length; ++i){
-      let sheetSigOverlap = new Set(window.book.imposed.sheets[i]).intersection(new Set(window.book.imposed.sheets[0]))
+      let sheetSigOverlap = new Set(window.book.imposed.sheets[i]).intersection(required)
       if (sheetSigOverlap.size == 0) {
-        return [result, i - 1]
+        return [flatSetFun(result), i]
       }
       window.book.imposed.sheets[i].forEach(item => result.add(item))
     }
-    return [result, window.book.imposed.sheets.length]
+    return [flatSetFun(result), window.book.imposed.sheets.length]
   },
   _buildPageSetBasedOnSideCoverageMode: function(side_coverage_mode) {
     if (side_coverage_mode == SIDE_COVERAGE_FRONT) {
@@ -172,6 +176,7 @@ export const builder = {
   },
   _buildAndEmbedPageMap: async function(firstSigOnly, side_coverage_mode, new_pdf) {
     const [pageSet, sheetCount] = (firstSigOnly) ? this._buildFirstSigOnlySet() : [this._buildPageSetBasedOnSideCoverageMode(side_coverage_mode), window.book.imposed.sheets.length]
+    console.log("Done w/ that pageSet now -- we have "+sheetCount+" sheets & ",pageSet)
     const pageMap = {}
     const origPageMap = window.book.upload_blocks.map(b => { return {} });
     console.log("Given page pageSet : ["+ [...pageSet].join(", ")+"]")

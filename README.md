@@ -110,3 +110,7 @@ The general flow of rendering found in `imposer.s` goes:
 - after it has placed all the pages, it renders markup
 
 For the actual download zip file/logic itself, check out `files.js`
+
+# Notes to Self
+
+- don't forget, use `python3 -m http.server 8000` to launch local server
