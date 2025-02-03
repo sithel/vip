@@ -11,7 +11,7 @@
   <script language="javascript">
     window.book = {
       upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument } */],
-      unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0, pageCount: 0, pdf_is_valid: false, maxWidth: 0,  maxHeight: 0 /* _scale100px: Int,  */ }, 
+      unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0, pageCount: 0, pdf_is_valid: false, maxWidth: 0,  maxHeight: 0, is_large_file: false /* _scale100px: Int,  */ }, 
       imposition: { /* name: String, canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>, cellCount_l:Int, cellCount_s:Int*/},
       imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, hasSplitSig: Boolean, requiresCutting: Boolean */ },
       physical: { short_margin: 0, long_margin: 0, scaling: 'fit', placement: 'center' /* display_unit: String */},
@@ -327,6 +327,12 @@
       }
     }
     #pdf_preview {
+      #pdf_preview_size_warning {
+        margin-left: 40px;
+        display: block;
+        text-align: center;
+        width: 500px;
+      }
       button {
         margin-left: 40px;
       }
@@ -339,6 +345,7 @@
         height: 600px;
         margin-left: 40px;
         margin-top: 10px;
+        border: solid black 1px;
       }
       h4 {
         margin-left: 40px;
@@ -704,6 +711,10 @@
 
       <section id="pdf_preview" class="disabled">
         <h2>8. Preview</h2>
+          <div id="pdf_preview_size_warning" style="display: none;">
+            <kbd>&#9888;&#65039; dealing with large file(s) &#9888;&#65039;</kbd>
+            <b><code>'preview first signature'</code> strongly recommened</b> <br> Downloading should still work even if Preview doesn't
+          </div><br>
           <button id="preview_pdf_btn" onclick="vip.refreshPreview()">Preview PDF</button>
           <label for="pdf_results_preview_mode">
             <input type="checkbox" role="switch" id="pdf_results_preview_mode" name="pdf_results_preview_mode" class="disabled">
@@ -711,7 +722,7 @@
           </label>
           <h4 style="display: none;" id="preview_error_slot">There was an error</h4>
           <center>
-            <iframe id="pdf_results_preview" style="display: none"></iframe>
+            <iframe id="pdf_results_preview" type="application/pdf" style="display: none"></iframe>
           </center>
       </section>
 

@@ -92,12 +92,17 @@ export const utils = {
     unified_source.maxHeight = maxHeight
     unified_source._scale100px = scale
     unified_source.pdf_is_valid = true
+    unified_source.is_large_file = fileSize > 5_000_000  // TODO : vet that file size limit - totes made up ATM
+    if (unified_source.is_large_file) {
+      document.getElementById("pdf_results_preview_mode").checked = true
+    }
+    document.getElementById("pdf_preview_size_warning").style.display = (unified_source.is_large_file) ? '' : 'none';
     document.getElementById("insert_pdf_source_details_here").innerHTML = `
             <div id="example_pdf_upload_page" style="width:`+maxWidth*scale+`px;height:`+maxHeight*scale+`px;"></div>
             There are <code>`+ unified_source.pageCount+`</code> pages<br>
             The working size is <code>`+ maxWidth+`</code> x <code>`+ maxHeight +`</code><br>
             <small>(working with `+(fileSize * 0.000001).toFixed(2)+` MB in memory
-            `+ ((fileSize > 20_000_000) ? `[⚠️ large file size detected, be sure to only preview first signature]` : ``) +`
+            `+ ((unified_source.is_large_file) ? `[⚠️ large file size detected, be sure to only preview first signature]` : ``) +`
             )</small>
     `
   },
