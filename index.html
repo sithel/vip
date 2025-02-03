@@ -333,6 +333,11 @@
         text-align: center;
         width: 500px;
       }
+      #preview_status_slot {
+        margin-left: 80px;
+        font-family: monospace;
+        margin-top: 8px;
+      }
       button {
         margin-left: 40px;
       }
@@ -653,7 +658,7 @@
             <option value="center_top" id="placement_center_top">centered horizontally, top aligned</option>
           </select>
         </div>
-        <svg height="150" width="150" id="pdf_placement_svg">
+        <svg height="150" width="150" id="pdf_placement_svg" style="display: none;">
         </svg>
         <script language="javascript">
           drawing.renderPreviewSvg(document.getElementById("pdf_placement_svg"))
@@ -713,13 +718,14 @@
         <h2>8. Preview</h2>
           <div id="pdf_preview_size_warning" style="display: none;">
             <kbd>&#9888;&#65039; dealing with large file(s) &#9888;&#65039;</kbd>
-            <b><code>'preview first signature'</code> strongly recommened</b> <br> Downloading should still work even if Preview doesn't
+            <code>'preview first signature'</code> recommened <br> <small>downloading PDF should still work even if preview doesn't</small>
           </div><br>
           <button id="preview_pdf_btn" onclick="vip.refreshPreview()">Preview PDF</button>
           <label for="pdf_results_preview_mode">
             <input type="checkbox" role="switch" id="pdf_results_preview_mode" name="pdf_results_preview_mode" class="disabled">
             only preview first signature
           </label>
+          <div style="display: none;" id="preview_status_slot">status one 123</div>
           <h4 style="display: none;" id="preview_error_slot">There was an error</h4>
           <center>
             <iframe id="pdf_results_preview" type="application/pdf" style="display: none"></iframe>

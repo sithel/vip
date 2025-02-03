@@ -1,7 +1,7 @@
 # vip
 Villainous Imposer Program
 
-Targeting launch early February 2025
+Targeting launch February 4th 2025
 
 # TODOs
 
@@ -9,42 +9,32 @@ There's a lot of features and a lot of work remaining--
 
 ### Functionality
 
-- all of PDF page placement
-  - [x] handling both flip options
-  - masking logic
-    - fix preview to reflect updated behavior
-  - padding/margin logic
-- file downloading (all options)
-- all of mark-up
-  - PDF boundary spine marks
-  - spine order marks
-  - punching guidelines/marks (spine/interior)
-  - cut lines
-  - [x] fold lines
-  - [x] corner cross-hairs
-- [x] preview
+- file downloading
+  - per signature files
+  - front/back files
+- cut lines
+- remaining Impositions
 
 ### UI/UX:
 
-- [x] enable/disable sections based on entered values
 - saving settings/URL params
 - correctly re-rendering values when changing Display Units
 - PDF placement preview
 - debug info / error states / progress bars
 - folding information / animations for impositions
-- disable outer/bottom for PDF Placement if `Original` scaling
 - warn in PDF Placement if known exceeding of bounds (and by how much)
 - dynamic button name change for Download from `get that file!` to `get those files!`
 
 ### Stretch/Long Term
 
-- creep
-- PDF skew correction
+- figure out CORS stuff so it can be saved to someone's computer
+- masking logic
 - page numbers in the margins
-- night mode
+- printer creep
+- printer/PDF skew correction
+- UI night mode colors
 - more impositions
 - improve Imposition options UI/UX to be more compact (in listing options section)
-- figure out CORS stuff so it can be saved to someone's computer
 
 # Helper Functions & Code Structure
 

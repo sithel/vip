@@ -92,7 +92,7 @@ export const utils = {
     unified_source.maxHeight = maxHeight
     unified_source._scale100px = scale
     unified_source.pdf_is_valid = true
-    unified_source.is_large_file = fileSize > 5_000_000  // TODO : vet that file size limit - totes made up ATM
+    unified_source.is_large_file = fileSize > 20_000_000  // TODO : vet that file size limit - totes made up ATM
     if (unified_source.is_large_file) {
       document.getElementById("pdf_results_preview_mode").checked = true
     }
