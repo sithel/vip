@@ -722,7 +722,7 @@
           </div><br>
           <button id="preview_pdf_btn" onclick="vip.refreshPreview()">Preview PDF</button>
           <label for="pdf_results_preview_mode">
-            <input type="checkbox" role="switch" id="pdf_results_preview_mode" name="pdf_results_preview_mode" class="disabled">
+            <input type="checkbox" role="switch" id="pdf_results_preview_mode" name="pdf_results_preview_mode">
             only preview first signature
           </label>
           <div style="display: none;" id="preview_status_slot">status one 123</div>
@@ -736,17 +736,16 @@
         <h2>9 Download</h2>
         <div>
           Download: <br>
-          <kbd>not all export options implemented yet</kbd><br>
           <label for="download-aggregate">
             <input type="checkbox" id="download-aggregate" name="download-aggregate" checked="">
             aggregate file (all signatures)
           </label>
-          <label for="download-signatures" class="disabled">
-            <input type="checkbox" id="download-signatures" name="download-signatures"  class="disabled">
+          <label for="download-signatures">
+            <input type="checkbox" id="download-signatures" name="download-signatures">
             each signature as separate file
           </label>
-          <label for="download-front-back" class="disabled">
-            <input type="checkbox" id="download-front-back" name="download-front-back"  class="disabled">
+          <label for="download-front-back">
+            <input type="checkbox" role="switch" id="download-front-back" name="download-front-back">
             front / back of sheets as separate files
           </label>
           <BR>

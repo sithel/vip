@@ -1,4 +1,4 @@
-import { builder, SIDE_COVERAGE_BOTH } from './pdf.js';
+import { builder, SIDE_COVERAGE_BOTH, SIDE_COVERAGE_FRONT } from './pdf.js';
 
 export const previewer = {
   build: async function(firstSigOnly) {
@@ -10,7 +10,7 @@ export const previewer = {
       statusEl.style.display = '';
       statusEl.innerHTML = "generating preview pdf...  [1/4]"
       console.log("beginning PDF preview!")
-      const previewPdf = await builder.generatePreview(firstSigOnly, SIDE_COVERAGE_BOTH)
+      const previewPdf = await builder.generatePreview(firstSigOnly, SIDE_COVERAGE_FRONT)
       statusEl.innerHTML = "saving preview pdf...  [2/4]"
       const previewFrame = document.getElementById('pdf_results_preview');
       const pdfBytes = await previewPdf.save();

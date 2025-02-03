@@ -171,10 +171,16 @@ export const builder = {
     return [flatSetFun(result), window.book.imposed.sheets.length]
   },
   _buildPageSetBasedOnSideCoverageMode: function(side_coverage_mode) {
+    const outer = function(f) {
+      return [f[0], f[3]]
+    }
+    const inner = function(f) {
+      return [f[1], f[2]]
+    }
     if (side_coverage_mode == SIDE_COVERAGE_FRONT) {
-      return new Set(window.book.imposed.sheets.map(s => s.map(f => [f[0], f[3]])).flat().flat())
+      return new Set(window.book.imposed.sheets.map(s => s.map((f, i) =>  (i % 2 == 0) ? outer(f) : inner(f)  )).flat().flat())
     } else if (side_coverage_mode == SIDE_COVERAGE_BACK) {
-      return new Set(window.book.imposed.sheets.map(s => s.map(f => [f[1], f[2]])).flat().flat())
+      return new Set(window.book.imposed.sheets.map(s => s.map((f, i) =>  (i % 2 == 0) ? inner(f) : outer(f)  )).flat().flat())
     } else {
       return new Set(window.book.imposed.sheets.flat().flat())
     }
@@ -222,7 +228,7 @@ export const builder = {
         const new_page = new_pdf.addPage(window.book.physical.paper_size);
         imposerMagic.imposePdf(new_page, pageMap, s, i, true);
       }
-      if (side_coverage_mode == SIDE_COVERAGE_BOTH || side_coverage_mode == SIDE_COVERAGE_FRONT) {
+      if (side_coverage_mode == SIDE_COVERAGE_BOTH || side_coverage_mode == SIDE_COVERAGE_BACK) {
         const new_page = new_pdf.addPage(window.book.physical.paper_size);
         imposerMagic.imposePdf(new_page, pageMap, s, i, false);
       }

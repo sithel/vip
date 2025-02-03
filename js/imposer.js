@@ -436,7 +436,6 @@ export const imposerMagic = {
    */
   _calcCenterInfo(page) {
     return window.book.imposed.signatures.reduce(function(acc, s, i){
-      console.log("looking at ",acc," : ",s, " : ",i)
       if (acc.length > 0)
         return acc
       const outerSig = s[0]
