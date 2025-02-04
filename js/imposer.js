@@ -877,6 +877,44 @@ export const imposerMagic = {
     }
     targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
   },
+
+  _handle8PageZine: function(new_page, pageMap, folio_list, sheet_index, is_front) {
+    if (!is_front)
+      return
+
+    const {pW, pH, renderPage, flip_short, renderCrosshair, calcCenterInfo} = this._calcDimens(new_page)
+    const cell_w = pW/2.0;
+    const cell_h = pH/4.0;
+    const drawPair = function(pageDeets, start_x, start_y, delta_x, delta_y, orientation) {
+      const [f, a, b] = pageDeets
+      console.log("looking at f "+f+" out of "+folio_list.length)
+      if (f >= folio_list.length)
+        return
+      const pageNum1 = folio_list[f][a]
+      const pageNum2 = folio_list[f][b]
+      renderPage(new_page, pageMap, pageNum1, start_x, start_y, cell_w, cell_h, orientation, [])
+      renderPage(new_page, pageMap, pageNum2, start_x + delta_x, start_y + delta_y, cell_w, cell_h, orientation, [])
+    }
+
+    drawPair([0,3,0],   cell_w, cell_h * 2,   0, cell_h,  BOTTOM_TO_RIGHT)
+    drawPair([1,3,0],   0,      cell_h * 2,   0, cell_h,  BOTTOM_TO_LEFT)
+
+    drawPair([3,0,3],   cell_w, 0,   0, cell_h,  BOTTOM_TO_RIGHT)
+    drawPair([2,3,0],   0,      0,   0, cell_h,  BOTTOM_TO_LEFT)
+
+    this._renderFoldLine(new_page, 0, cell_h * 2, pW, cell_h * 2)
+    this._renderFoldLine(new_page, cell_w, 0, cell_w, pH)
+
+    const targets = [];
+    for(let j = 0; j <= pH; j += cell_h) {
+      for (let k = 0; k <= pW; k += cell_w) {
+        if ( (k == 0 && j == 0) || (k == 0 && j == pH) || (k == pW && j == 0) || (k == pW && j == pH))
+          continue;
+        targets.push([k, j]);
+      }
+    }
+    targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
+  },
   // FRONT : folio [0] & [3]            BACK : folio [1] & [2]
   // folio_list -- all the folios for that sheet
   imposePdf: function(new_page, pageMap, folio_list, sheet_index, is_front) {
@@ -887,6 +925,7 @@ export const imposerMagic = {
       case '6_side': this._handleSexto(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'octavo_fat': this._handleOctoFat(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'octavo_thin': this._handleOctoThin(new_page, pageMap, folio_list, sheet_index, is_front); break;
+      case '8_zine': this._handle8PageZine(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'sextodecimo_thin': this._handleSextodecimoThin(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'sextodecimo_fat': this._handleSextodecimoFat(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'small_3_by_3': this._handleThreeByThree(new_page, pageMap, folio_list, sheet_index, is_front); break;

@@ -151,7 +151,6 @@ export const form = {
     }
   },
   _customImposeSingle: function(pageCount) {
-    // TODO : populate sheets and signatures!!
     window.book.imposed.sheets = [];
     window.book.imposed.signatures = [];
     window.book.imposed.hasSplitSig = false;
@@ -166,7 +165,10 @@ export const form = {
     outputEl.innerHTML = "<small>Given "+pageCount+" PDF pages<br> ➥ "+ Math.ceil(pageCount/2)+" sheets</small>"
   },
   _customImposeZine: function(pageCount) {
-    // TODO : populate sheets and signatures!!
+    window.book.imposed.sheets = [[[0,0,7,7],[1,1,2,2],[3,3,4,4],[5,5,6,6,]]];
+    window.book.imposed.signatures = [[[0,0,7,7],[1,1,2,2],[3,3,4,4],[5,5,6,6,]]];
+    window.book.imposed.hasSplitSig = false;
+    window.book.imposed.requiresCutting = false;
     const outputEl = document.getElementById("imposition_folio_calculations")
     outputEl.removeAttribute("style")
     outputEl.innerHTML = "<small>Given "+pageCount+" PDF pages<br> ➥ "+ Math.ceil(pageCount/8)+" sheets</small>"
