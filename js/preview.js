@@ -10,7 +10,8 @@ export const previewer = {
       statusEl.style.display = '';
       statusEl.innerHTML = "generating preview pdf...  [1/4]"
       console.log("beginning PDF preview!")
-      const previewPdf = await builder.generatePreview(firstSigOnly, SIDE_COVERAGE_FRONT)
+      const signature_index = (firstSigOnly) ? 3 : -1
+      const previewPdf = await builder.buildPdf(signature_index, SIDE_COVERAGE_FRONT)
       statusEl.innerHTML = "saving preview pdf...  [2/4]"
       const previewFrame = document.getElementById('pdf_results_preview');
       const pdfBytes = await previewPdf.save();

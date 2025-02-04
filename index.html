@@ -734,11 +734,17 @@
 
       <section id="pdf_download" class="disabled">
         <h2>9 Download</h2>
+        <details>
+          <summary>Details</summary>
+          <p>
+            Note that <code>each signature as separate file</code> outputs full sheets -- if the imposition configuration has signatures that do not fill up entire sheets, the files downloaded will be full sheets and thus could contain extra folios
+          </p>
+        </details>
         <div>
           Download: <br>
           <label for="download-aggregate">
             <input type="checkbox" id="download-aggregate" name="download-aggregate" checked="">
-            aggregate file (all signatures)
+            aggregate file (all signatures in one file)
           </label>
           <label for="download-signatures">
             <input type="checkbox" id="download-signatures" name="download-signatures">

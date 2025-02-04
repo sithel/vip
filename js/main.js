@@ -232,13 +232,10 @@ export const vip = {
   },
   downloadFile: async function(fileName, defaultFileName) {
     const nameToUse = (fileName == "") ? defaultFileName : fileName
-    const savePdf = await builder.generatePreview(false, SIDE_COVERAGE_BOTH)
     const downloadAggregate = document.getElementById("download-aggregate").checked
     const frontAndBackSeparate = document.getElementById("download-front-back").checked
     const signatureFiles = document.getElementById("download-signatures").checked
     fileHandler.handleDownloadOptions(fileName, downloadAggregate, frontAndBackSeparate, signatureFiles);
-    // console.log("Downloading file ["+fileName+"/"+defaultFileName+"] -> ["+nameToUse+"]")
-    // console.log("gettin' ", fileHandler.makeTheZip(savePdf, nameToUse))
   }
 }
 

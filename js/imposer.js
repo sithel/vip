@@ -441,11 +441,9 @@ export const imposerMagic = {
       const outerSig = s[0]
       const innerSig = s[s.length - 1]
       if (innerSig[1] == page || innerSig[2] == page) {
-        console.log(" -- ["+page+"] see innner "+i+" ", innerSig)
         return [i, false];
       }
       if (outerSig[0] == page || outerSig[3] == page) {
-        console.log(" -- ["+page+"] see outer "+i+" ",outerSig)
         return [i, true];
       }
       return acc

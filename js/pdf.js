@@ -154,21 +154,23 @@ export const builder = {
     console.log("  >> pageMap is ",pageMap)
     const new_page = new_pdf.addPage()
   },
-  _buildFirstSigOnlySet: function() {
-    const required = new Set(window.book.imposed.signatures[0])
+  _buildSingleSigOnlySet: function(signature_index) {
+    const required = new Set(window.book.imposed.signatures[signature_index])
     const flatSetFun = function(s) {
       return new Set([...s].flat())
     }
-    console.log("Looking at _buildFirstSigOnlySet -- required : ",required)
+    console.log("Looking at _buildSingleSigOnlySet for signature "+signature_index+" -- required : ",required)
     const result = new Set()
+    let sheetCount = 0
     for(let i = 0; i < window.book.imposed.sheets.length; ++i){
       let sheetSigOverlap = new Set(window.book.imposed.sheets[i]).intersection(required)
       if (sheetSigOverlap.size == 0) {
-        return [flatSetFun(result), i]
+        continue;
       }
+      ++sheetCount;
       window.book.imposed.sheets[i].forEach(item => result.add(item))
     }
-    return [flatSetFun(result), window.book.imposed.sheets.length]
+    return [flatSetFun(result), sheetCount]
   },
   _buildPageSetBasedOnSideCoverageMode: function(side_coverage_mode) {
     const outer = function(f) {
@@ -185,12 +187,11 @@ export const builder = {
       return new Set(window.book.imposed.sheets.flat().flat())
     }
   },
-  _buildAndEmbedPageMap: async function(firstSigOnly, side_coverage_mode, new_pdf) {
-    const [pageSet, sheetCount] = (firstSigOnly) ? this._buildFirstSigOnlySet() : [this._buildPageSetBasedOnSideCoverageMode(side_coverage_mode), window.book.imposed.sheets.length]
+  _buildAndEmbedPageMap: async function(signature_index, side_coverage_mode, new_pdf) {
+    const [pageSet, sheetCount] = (signature_index > -1) ? this._buildSingleSigOnlySet(signature_index) : [this._buildPageSetBasedOnSideCoverageMode(side_coverage_mode), window.book.imposed.sheets.length]
     console.log("Done w/ that pageSet now -- we have "+sheetCount+" sheets & ",pageSet)
     const pageMap = {}
     const origPageMap = window.book.upload_blocks.map(b => { return {} });
-    console.log("Given page pageSet : ["+ [...pageSet].join(", ")+"]")
     for (const page of pageSet) {
       if (page == -1)
         continue;
@@ -200,24 +201,25 @@ export const builder = {
         continue;   // this is for pages at the end of the book that overflow the original PDF(s) but pad out final signature
       }
       const [block_i, origPage] = pageFetchResults;
-      console.log("Embedding page "+page)
       origPage.drawText(` `, {x: 125, y: 100, size: 24, },  )   // hack to prevent exception due to embedding a blank page!
       origPageMap[block_i][page] = origPage;
     }
     for(const subPageMap of origPageMap) {
-      console.log("look @ block o pages "+ Object.keys(subPageMap).join(", "))
       const pageNumList = Object.keys(subPageMap)
       const embeddedPages = await new_pdf.embedPages(pageNumList.map(k => subPageMap[k]))
       embeddedPages.forEach((p,i) => pageMap[pageNumList[i]] = p)
     }
     return pageMap
   },
-  generatePreview: async function(firstSigOnly, side_coverage_mode) {
-    console.log("[Generating Preview : start")
+  /**
+   * @param signature_index - the signature to export as a file (printed as a full sheet) or -1 to print all of them
+   */
+  buildPdf: async function(signature_index, side_coverage_mode) {
+    console.log("Building PDF -- signature_index ["+signature_index+"] / side_coverage_mode ["+side_coverage_mode+"]")
     const new_pdf = await PDFLib.PDFDocument.create();
 
-    const pageMap = await this._buildAndEmbedPageMap(firstSigOnly, side_coverage_mode, new_pdf)
-    const sheetCount = (firstSigOnly) ? this._buildFirstSigOnlySet()[1] : window.book.imposed.sheets.length
+    const pageMap = await this._buildAndEmbedPageMap(signature_index, side_coverage_mode, new_pdf)
+    const sheetCount = (signature_index > -1) ? this._buildSingleSigOnlySet(signature_index)[1] : window.book.imposed.sheets.length
     const sheets = window.book.imposed.sheets.slice(0, sheetCount)
     console.log(" > Sheet count ["+sheetCount+"] -> ",sheets)
 
