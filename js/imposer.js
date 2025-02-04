@@ -130,6 +130,7 @@ export const imposerMagic = {
     const [xDelta, yDelta] = [ spineTail[0] - spineHead[0] - endDelta[0] - startDelta[0],    spineTail[1] - spineHead[1] - endDelta[1] - startDelta[1]]
     const station_count = this._collectValueOrPlaceholder(document.getElementById('markup_sewing_count')) + 2;
     const dot_size = this._collectValueOrPlaceholder(document.getElementById('markup_sewing_dot_size'));
+
     for(let i = 0; i < station_count; ++i) {
       const useGapDelta = (i == 0 || i == station_count - 1) ? [0, 0] :  gapDelta
       new_page.drawCircle({
@@ -319,6 +320,11 @@ export const imposerMagic = {
         }
       break;
     }
+    spineHead[0] += window.book.physical.short_margin
+    spineHead[1] += window.book.physical.long_margin
+    
+    spineTail[0] += window.book.physical.short_margin
+    spineTail[1] += window.book.physical.long_margin
     return {
       x: corner_x + window.book.physical.short_margin + xPadding,
       y: corner_y + window.book.physical.long_margin + yPadding,
@@ -397,6 +403,8 @@ export const imposerMagic = {
     const len = this._collectValueOrPlaceholder(document.getElementById("markup_crosshairs_length"))
     const weight = this._collectValueOrPlaceholder(document.getElementById("markup_crosshairs_weight"))
     const color = this._collectValueOrPlaceholder(document.getElementById("markup_crosshairs_color"))
+    x += window.book.physical.short_margin
+    y += window.book.physical.long_margin
     new_page.drawLine({
       start: { x: x - len, y: y },          end: { x: x + len, y: y },
       thickness: weight,  color: color,   opacity: 0.75,
@@ -411,6 +419,10 @@ export const imposerMagic = {
       return;
     const weight = this._collectValueOrPlaceholder(document.getElementById("fold_line_weight"))
     const color = this._collectValueOrPlaceholder(document.getElementById("markup_fold_lines_color"))
+    x_start += window.book.physical.short_margin
+    y_start += window.book.physical.long_margin
+    x_end += window.book.physical.short_margin
+    y_end += window.book.physical.long_margin
     new_page.drawLine({
       start: { x: x_start, y: y_start},          end: { x: x_end, y: y_end },
       thickness: weight,  color: color,   opacity: 0.75,

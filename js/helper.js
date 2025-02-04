@@ -171,7 +171,7 @@ export const form = {
     window.book.imposed.requiresCutting = false;
     const outputEl = document.getElementById("imposition_folio_calculations")
     outputEl.removeAttribute("style")
-    outputEl.innerHTML = "<small>Given "+pageCount+" PDF pages<br> ➥ "+ Math.ceil(pageCount/8)+" sheets</small>"
+    outputEl.innerHTML = "<small>Given "+pageCount+" PDF pages<br> ➥ 1 sheet</small>"
   },
   calImpositionInfo: function(pageCount) {
     const defaultCount = window.book.imposition["defaultFolioCounts"]
