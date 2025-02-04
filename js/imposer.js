@@ -503,12 +503,46 @@ export const imposerMagic = {
       this._renderFoldLine(new_page, 0, cell_h, pW, cell_h)
   },
   _handleOctoFat: function(new_page, pageMap, folio_list, sheet_index, is_front) {
-    const renderPage = this._renderPage.bind(this)
-    folio_list.forEach(function(f, i) {
-      const center_info = this._calcCenterInfo()
-      renderPage(new_page, pageMap, f[0], 0, 10*i, center_info)
-      renderPage(new_page, pageMap, f[3], 10, 10*i, center_info)
-    })
+    const {pW, pH, renderPage, flip_short, renderCrosshair} = this._calcDimens(new_page)
+    const cell_w = pW/2.0;
+    const cell_h = pH/4.0;
+    // upper right, upper left, lower left, lower right
+    const i = (is_front) ? [[3, 2], [3, 1], [0, 3], [0,0], [1,1], [1,2], [2, 0], [2, 3]] 
+        : (flip_short) ? [[2, 2], [2, 1], [1, 3], [1,0], [0, 1], [0, 2], [3, 0], [3, 3]]
+            : [[0, 2], [0, 1], [3, 3], [3, 0], [2, 1], [2, 2], [1, 0], [1, 3]]
+    if (i[0][0] < folio_list.length) {
+      const center_info = this._calcCenterInfo(folio_list[i[0][0]][i[0][1]])
+      renderPage(new_page, pageMap, folio_list[i[0][0]][i[0][1]], pW/2.0, 3 * pH/4.0, cell_w, cell_h, BOTTOM_TO_RIGHT, center_info)
+      renderPage(new_page, pageMap, folio_list[i[1][0]][i[1][1]], pW/2.0, 2 * pH/4.0, cell_w, cell_h, BOTTOM_TO_RIGHT, center_info)
+    }
+    if (i[2][0] < folio_list.length) {
+      const center_info = this._calcCenterInfo(folio_list[i[2][0]][i[2][1]])
+      renderPage(new_page, pageMap, folio_list[i[2][0]][i[2][1]], 0, 3 * pH/4.0,    cell_w, cell_h, BOTTOM_TO_LEFT, center_info)
+      renderPage(new_page, pageMap, folio_list[i[3][0]][i[3][1]], 0, 2 * pH/4.0,    cell_w, cell_h, BOTTOM_TO_LEFT, center_info)
+    }
+    if (i[4][0] < folio_list.length) {
+      const center_info = this._calcCenterInfo(folio_list[i[4][0]][i[4][1]])
+      renderPage(new_page, pageMap, folio_list[i[4][0]][i[4][1]], 0, pH/4.0,        cell_w, cell_h, BOTTOM_TO_LEFT, center_info)
+      renderPage(new_page, pageMap, folio_list[i[5][0]][i[5][1]], 0, 0,             cell_w, cell_h, BOTTOM_TO_LEFT, center_info)
+    }  
+    if (i[6][0] < folio_list.length) {
+      const center_info = this._calcCenterInfo(folio_list[i[6][0]][i[6][1]])
+      renderPage(new_page, pageMap, folio_list[i[6][0]][i[6][1]], pW/2.0,  pH/4.0,    cell_w, cell_h, BOTTOM_TO_RIGHT, center_info)
+      renderPage(new_page, pageMap, folio_list[i[7][0]][i[7][1]], pW/2.0, 0,          cell_w, cell_h, BOTTOM_TO_RIGHT, center_info)
+    }
+    if (is_front) {
+      this._renderFoldLine(new_page, pW/2.0, 0, pW/2.0, pH)
+      this._renderFoldLine(new_page, 0, pH/2.0, pW, pH/2.0)
+    }
+    const targets = [];
+    for(let j = 0; j <= pH; j += cell_h) {
+      targets.push([cell_w, j])
+      if (j != 0 && j != pH) {
+        targets.push([0, j])
+        targets.push([pW, j])
+      }
+    }
+    targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
   },
   _handleOctoThin: function(new_page, pageMap, folio_list, sheet_index, is_front) {
     const {pW, pH, renderPage, flip_short, renderCrosshair} = this._calcDimens(new_page)

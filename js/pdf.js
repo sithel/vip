@@ -154,6 +154,10 @@ export const builder = {
     console.log("  >> pageMap is ",pageMap)
     const new_page = new_pdf.addPage()
   },
+  /**
+   * @param signature_index - 0 based index into signature list for which one you want
+   * @return [ set of final page numbers that make up the signature (and bonus folios on sheet), sublist of sheets the signature spans ]
+   */
   _buildSingleSigOnlySet: function(signature_index) {
     const required = new Set(window.book.imposed.signatures[signature_index])
     const flatSetFun = function(s) {
@@ -161,16 +165,16 @@ export const builder = {
     }
     console.log("Looking at _buildSingleSigOnlySet for signature "+signature_index+" -- required : ",required)
     const result = new Set()
-    let sheetCount = 0
+    const sheets = []
     for(let i = 0; i < window.book.imposed.sheets.length; ++i){
       let sheetSigOverlap = new Set(window.book.imposed.sheets[i]).intersection(required)
       if (sheetSigOverlap.size == 0) {
         continue;
       }
-      ++sheetCount;
+      sheets.push(window.book.imposed.sheets[i])
       window.book.imposed.sheets[i].forEach(item => result.add(item))
     }
-    return [flatSetFun(result), sheetCount]
+    return [flatSetFun(result), sheets]
   },
   _buildPageSetBasedOnSideCoverageMode: function(side_coverage_mode) {
     const outer = function(f) {
@@ -187,9 +191,12 @@ export const builder = {
       return new Set(window.book.imposed.sheets.flat().flat())
     }
   },
+  /**
+   * @return [map of result page num -> embedded PDF page, imposed sheets covered]
+   */
   _buildAndEmbedPageMap: async function(signature_index, side_coverage_mode, new_pdf) {
-    const [pageSet, sheetCount] = (signature_index > -1) ? this._buildSingleSigOnlySet(signature_index) : [this._buildPageSetBasedOnSideCoverageMode(side_coverage_mode), window.book.imposed.sheets.length]
-    console.log("Done w/ that pageSet now -- we have "+sheetCount+" sheets & ",pageSet)
+    const [pageSet, sheets] = (signature_index > -1) ? this._buildSingleSigOnlySet(signature_index) : [this._buildPageSetBasedOnSideCoverageMode(side_coverage_mode), window.book.imposed.sheets]
+    console.log("Done w/ that pageSet now -- we have "+sheets.length+" sheets & ",pageSet)
     const pageMap = {}
     const origPageMap = window.book.upload_blocks.map(b => { return {} });
     for (const page of pageSet) {
@@ -209,7 +216,7 @@ export const builder = {
       const embeddedPages = await new_pdf.embedPages(pageNumList.map(k => subPageMap[k]))
       embeddedPages.forEach((p,i) => pageMap[pageNumList[i]] = p)
     }
-    return pageMap
+    return [pageMap, sheets]
   },
   /**
    * @param signature_index - the signature to export as a file (printed as a full sheet) or -1 to print all of them
@@ -218,10 +225,10 @@ export const builder = {
     console.log("Building PDF -- signature_index ["+signature_index+"] / side_coverage_mode ["+side_coverage_mode+"]")
     const new_pdf = await PDFLib.PDFDocument.create();
 
-    const pageMap = await this._buildAndEmbedPageMap(signature_index, side_coverage_mode, new_pdf)
-    const sheetCount = (signature_index > -1) ? this._buildSingleSigOnlySet(signature_index)[1] : window.book.imposed.sheets.length
-    const sheets = window.book.imposed.sheets.slice(0, sheetCount)
-    console.log(" > Sheet count ["+sheetCount+"] -> ",sheets)
+    const [pageMap, sheets] = await this._buildAndEmbedPageMap(signature_index, side_coverage_mode, new_pdf)
+    // const sheetCount = (signature_index > -1) ? this._buildSingleSigOnlySet(signature_index)[1] : window.book.imposed.sheets.length
+    // const sheets = window.book.imposed.sheets.slice(0, sheetCount)
+    console.log(" > Sheet count ["+sheets.length+"] -> ",sheets)
 
     sheets.forEach((s,i) => {
       if (s.length == 0)
