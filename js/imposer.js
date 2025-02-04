@@ -418,7 +418,8 @@ export const imposerMagic = {
     });
   },
   _handleSingle: function(new_page, pageMap, folio_list, sheet_index, is_front) {
-    this._renderPage(new_page, pageMap[folio_list[0]], 0, 0)
+    const {pW, pH, renderPage, flip_short, calcCenterInfo} = this._calcDimens(new_page)
+    renderPage(new_page, pageMap, folio_list[(is_front) ? 0 : 1], 0, 0, pW, pH, (!is_front && flip_short) ? UP_SIDE_DOWN : RIGHT_SIDE_UP, [])
   },
   _handleFolio: function(new_page, pageMap, folio_list, sheet_index, is_front) {
     const {pW, pH, renderPage, flip_short, calcCenterInfo} = this._calcDimens(new_page)

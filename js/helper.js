@@ -151,6 +151,15 @@ export const form = {
   },
   _customImposeSingle: function(pageCount) {
     // TODO : populate sheets and signatures!!
+    window.book.imposed.sheets = [];
+    window.book.imposed.signatures = [];
+    window.book.imposed.hasSplitSig = false;
+    window.book.imposed.requiresCutting = false;
+    for(let i = 0; i < window.book.unified_source.pageCount/2; ++i){
+      const p = i * 2;
+      window.book.imposed.signatures.push([p, p+1, p+1, p]);
+      window.book.imposed.sheets.push([p, p+1, p+1, p]);
+    }
     const outputEl = document.getElementById("imposition_folio_calculations")
     outputEl.removeAttribute("style")
     outputEl.innerHTML = "<small>Given "+pageCount+" PDF pages<br> ➥ "+ Math.ceil(pageCount/2)+" sheets</small>"
