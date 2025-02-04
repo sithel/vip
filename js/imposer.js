@@ -818,6 +818,65 @@ export const imposerMagic = {
     }
     targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
   },
+  _handleLittle334: function(new_page, pageMap, folio_list, sheet_index, is_front) {
+    const {pW, pH, renderPage, flip_short, renderCrosshair, calcCenterInfo} = this._calcDimens(new_page)
+    const cell_w = pW/4.0;
+    const cell_h = pH/5.0;
+    const drawPair = function(pageDeets, start_x, start_y, delta_x, delta_y, orientation) {
+      const [f, a, b] = pageDeets
+      console.log("looking at f "+f+" out of "+folio_list.length)
+      if (f >= folio_list.length)
+        return
+      const pageNum1 = folio_list[f][a]
+      const pageNum2 = folio_list[f][b]
+      const center_info = calcCenterInfo(pageNum1)
+      renderPage(new_page, pageMap, pageNum1, start_x, start_y, cell_w, cell_h, orientation, center_info)
+      renderPage(new_page, pageMap, pageNum2, start_x + delta_x, start_y + delta_y, cell_w, cell_h, orientation, center_info)
+    }
+    const pageDeets = (is_front) ?
+    [[0,0,3], [1,1,2], [2,0,3],  [3,0,3], [4,1,2], [5,0,3],  [6,2,1], [7,3,0], [9,0,3], [8,1,2]]
+    : (flip_short) ?  [[2,1,2], [1,0,3], [0,1,2],  [5,1,2], [4,0,3], [3,1,2],  [7,2,1], [6,3,0], [8,0,3], [9,1,2]]
+     :  [[3,2,1], [4,3,0], [5,2,1],  [0,2,1], [1,3,0], [2,2,1],  [9,2,1], [8,3,0], [6,0,3], [7,1,2]]
+    const offset3s = (is_front || !flip_short) ? 0 : (cell_h * -2)
+    const offset4 = (is_front || !flip_short) ? 0 : (cell_h * 3)
+    const orientation3sOuter = (is_front || !flip_short) ? UP_SIDE_DOWN : RIGHT_SIDE_UP
+    const orientation3sInner = (is_front || !flip_short) ? RIGHT_SIDE_UP : UP_SIDE_DOWN
+
+    drawPair(pageDeets[0],   0, cell_h * 4 + offset3s,   cell_w, 0,  orientation3sOuter)
+    drawPair(pageDeets[1],   0, cell_h * 3 + offset3s,   cell_w, 0,  orientation3sInner)
+    drawPair(pageDeets[2],   0, cell_h * 2 + offset3s,   cell_w, 0,  orientation3sOuter)
+
+    drawPair(pageDeets[3],   cell_w * 2, cell_h * 4 + offset3s,   cell_w, 0,  orientation3sOuter)
+    drawPair(pageDeets[4],   cell_w * 2, cell_h * 3 + offset3s,   cell_w, 0,  orientation3sInner)
+    drawPair(pageDeets[5],   cell_w * 2, cell_h * 2 + offset3s,   cell_w, 0,  orientation3sOuter)
+
+    drawPair(pageDeets[6],   0, cell_h + offset4,   cell_w, 0,  UP_SIDE_DOWN)
+    drawPair(pageDeets[7],   0, offset4,            cell_w, 0,  RIGHT_SIDE_UP)
+
+    drawPair(pageDeets[8],   cell_w * 2, cell_h + offset4,   cell_w, 0,  UP_SIDE_DOWN)
+    drawPair(pageDeets[9],   cell_w * 2, offset4,            cell_w, 0,  RIGHT_SIDE_UP)
+
+    if (is_front) {
+      this._renderFoldLine(new_page, cell_w * 2, cell_h * 2,   cell_w * 2, cell_h)
+    }
+    if (is_front || (!is_front && flip_short)) {
+      this._renderFoldLine(new_page, 0, cell_h * 2,   pW, cell_h * 2)
+      this._renderFoldLine(new_page, 0, cell_h * 4,   pW, cell_h * 4)
+    } else if (!is_front && !flip_short) {
+      this._renderFoldLine(new_page, 0, cell_h,   pW, cell_h)
+      this._renderFoldLine(new_page, 0, cell_h * 3,   pW, cell_h * 3)
+      // this._renderFoldLine(new_page, 0, cell_h * 4,   pW, cell_h * 4)
+    }
+    const targets = [];
+    for(let j = 0; j <= pH; j += cell_h) {
+      for (let k = 0; k <= pW; k += cell_w) {
+        if ( (k == 0 && j == 0) || (k == 0 && j == pH) || (k == pW && j == 0) || (k == pW && j == pH))
+          continue;
+        targets.push([k, j]);
+      }
+    }
+    targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
+  },
   // FRONT : folio [0] & [3]            BACK : folio [1] & [2]
   // folio_list -- all the folios for that sheet
   imposePdf: function(new_page, pageMap, folio_list, sheet_index, is_front) {
@@ -831,6 +890,7 @@ export const imposerMagic = {
       case 'sextodecimo_thin': this._handleSextodecimoThin(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'sextodecimo_fat': this._handleSextodecimoFat(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'small_3_by_3': this._handleThreeByThree(new_page, pageMap, folio_list, sheet_index, is_front); break;
+      case 'little_3_3_4': this._handleLittle334(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'tiny_4_by_4': this._handleFourByFour(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'mini': this._handleMini(new_page, pageMap, folio_list, sheet_index, is_front); break;
     }

@@ -142,7 +142,8 @@ export const form = {
       const adjustedEnd = Math.ceil((max_page_num - next_page_num) / 4);
       signature_size = (calculatedEnd > max_page_num) ? adjustedEnd : signature_size;
       [next_page_num, sheet_i, folio_i, new_sig] = populate_signature(next_page_num, sheet_i, folio_i, signature_size);
-      window.book.imposed.signatures.push(new_sig);
+      if (new_sig.length > 0)
+        window.book.imposed.signatures.push(new_sig);
       return next_page_num;
     }
     while (sig_start < max_page_num) {

@@ -14,6 +14,7 @@ export const fileHandler = {
   },
   handleDownloadOptions: async function(fileName, downloadAggregate, frontAndBackSeparate, signatureFiles) {
     console.log("Exporting PDF under file name ["+fileName+"] -- downloadAggregate ["+downloadAggregate+"] / frontAndBackSeparate ["+frontAndBackSeparate+"] / signatureFiles["+signatureFiles+"]")
+    fileName += "_" + window.book.imposition.name + "_"
     try {
       const zip = new JSZip();
       const addToZip = this._addToZip.bind(this)
