@@ -681,6 +681,52 @@ export const imposerMagic = {
     }
     targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
   },
+  _handleMini: function(new_page, pageMap, folio_list, sheet_index, is_front) {
+    const {pW, pH, renderPage, flip_short, renderCrosshair, calcCenterInfo} = this._calcDimens(new_page)
+    const cell_w = pW/6.0;
+    const cell_h = pH/10.0;
+    const drawPair = function(row, pageDeets, start_x, start_y, delta_x, delta_y, orientation) {
+      const [f, a, b] = pageDeets
+      const fOffset = f + (5*row)
+      if (fOffset >= folio_list.length)
+        return
+      const pageNum1 = folio_list[fOffset][a]
+      const pageNum2 = folio_list[fOffset][b]
+      const center_info = calcCenterInfo(pageNum1)
+      renderPage(new_page, pageMap, pageNum1, start_x, start_y, cell_w, cell_h, orientation, center_info)
+      renderPage(new_page, pageMap, pageNum2, start_x + delta_x, start_y + delta_y, cell_w, cell_h, orientation, center_info)
+    }
+    const pageDeets = (is_front) ?
+    [[4,1,2], [3,3,0], [0,3,0], [1,1,2], [2,3,0]]
+    : (flip_short) ?  [[2,1,2], [1,3,0], [0,1,2], [3,1,2], [4,3,0]]
+     :  [[4,0,3], [3,2,1], [0,2,1], [1,0,3], [2,2,1]]
+    const side = (!is_front && !flip_short) ? BOTTOM_TO_LEFT : BOTTOM_TO_RIGHT;
+    for(let row = 0; row < 6; ++row) {
+      const start = (!is_front && !flip_short) ? (cell_w * (5-row)) : cell_w * row;
+      drawPair(row, pageDeets[0],   start, cell_h * 0,   0, cell_h,  side)
+      drawPair(row, pageDeets[1],   start, cell_h * 2,   0, cell_h,  side)
+      drawPair(row, pageDeets[2],   start, cell_h * 4,   0, cell_h,  side)
+      drawPair(row, pageDeets[3],   start, cell_h * 6,   0, cell_h,  side)
+      drawPair(row, pageDeets[4],   start, cell_h * 8,   0, cell_h,  side)
+    }
+
+    if (is_front || (!is_front && flip_short)) {
+      this._renderFoldLine(new_page, 0, cell_h * 2,   pW, cell_h * 2)
+      this._renderFoldLine(new_page, 0, cell_h * 6,   pW, cell_h * 6)
+    } else if(!is_front && !flip_short) {
+      this._renderFoldLine(new_page, 0, cell_h * 4,   pW, cell_h * 4)
+      this._renderFoldLine(new_page, 0, cell_h * 8,   pW, cell_h * 8)
+    }
+    const targets = [];
+    for(let j = 0; j <= pH; j += cell_h) {
+      for (let k = 0; k <= pW; k += cell_w) {
+        if ( (k == 0 && j == 0) || (k == 0 && j == pH) || (k == pW && j == 0) || (k == pW && j == pH))
+          continue;
+        targets.push([k, j]);
+      }
+    }
+    targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
+  },
   // FRONT : folio [0] & [3]            BACK : folio [1] & [2]
   // folio_list -- all the folios for that sheet
   imposePdf: function(new_page, pageMap, folio_list, sheet_index, is_front) {
@@ -693,6 +739,7 @@ export const imposerMagic = {
       case 'octavo_thin': this._handleOctoThin(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'sextodecimo_thin': this._handleSextodecimoThin(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'sextodecimo_fat': this._handleSextodecimoFat(new_page, pageMap, folio_list, sheet_index, is_front); break;
+      case 'mini': this._handleMini(new_page, pageMap, folio_list, sheet_index, is_front); break;
     }
     
   }
