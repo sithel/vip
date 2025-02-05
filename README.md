@@ -1,7 +1,18 @@
 # vip
 Villainous Imposer Program
 
-Targeting launch February 4th 2025
+Launch February 4th 2025 
+
+## Versions
+
+- v0.0.2 - fix typo, fix octavo fat fold line
+- v0.0.1 - disable rotation UI as it doesn't work yet
+- v0.0.0 - launch!
+
+
+## Help Wanted
+
+- https://github.com/sithel/vip/issues/4 #4 - origiami simulator and the `.fold` file format
 
 # TODOs
 
@@ -9,11 +20,13 @@ There's a lot of features and a lot of work remaining--
 
 ### Functionality
 
-- file downloading
-  - per signature files
-  - front/back files
 - cut lines
-- remaining Impositions
+- rotations
+- masking
+- interweaving 2 PDF source (even/odds)
+- export settings via .txt file
+- persist/export/import imposer configurations
+- export imposer debug information
 
 ### UI/UX:
 
