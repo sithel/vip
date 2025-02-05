@@ -544,7 +544,7 @@ export const imposerMagic = {
       renderPage(new_page, pageMap, folio_list[i[7][0]][i[7][1]], pW/2.0, 0,          cell_w, cell_h, BOTTOM_TO_RIGHT, center_info)
     }
     if (is_front) {
-      this._renderFoldLine(new_page, pW/2.0, 0, pW/2.0, pH)
+      this._renderFoldLine(new_page, pW/2.0, pH/2.0, pW/2.0, pH)
       this._renderFoldLine(new_page, 0, pH/2.0, pW, pH/2.0)
     }
     const targets = [];
