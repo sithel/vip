@@ -13,7 +13,7 @@
       upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument } */],
       unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0, pageCount: 0, pdf_is_valid: false, maxWidth: 0,  maxHeight: 0, is_large_file: false /* _scale100px: Int,  */ }, 
       imposition: { /* name: String, canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>, cellCount_l:Int, cellCount_s:Int*/},
-      imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, hasSplitSig: Boolean, requiresCutting: Boolean */ },
+      imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, pageCount: Int, blanks: Int, hasSplitSig: Boolean, requiresCutting: Boolean */ },
       physical: { short_margin: 0, long_margin: 0, scaling: 'fit', placement: 'center' /* display_unit: String */},
       page_orientation: null,
       display_unit: null, // what to show, ex: cm
@@ -113,6 +113,9 @@
       }
     }
     #page_manipulation {
+      #pdf_reverse_order_label {
+        margin-left: 40px;
+      }
       #pdf_marins_example{
         float:right;
         width: auto;
@@ -383,7 +386,7 @@
   <body>
     <main class="container">
       <section id="title">
-        <h1>Villainous Imposer<BR><small id="version_info">v0.0.2</small>[VI]</h1>
+        <h1>Villainous Imposer<BR><small id="version_info">v0.0.3</small>[VI]</h1>
         <details>
           <summary>information & glossary</summary>
           <p>
@@ -480,10 +483,10 @@
           <div id="example_pdf_orientation_page_right" ></div><div id="example_pdf_orientation_spine" ></div><div id="example_pdf_orientation_page_left" ></div>
         </div>
         <br style="float:clear;">
-        <details class="disabled">
+        <details>
           <summary>Explanation</summary>
           <p>
-            This is about how the PDF pages are oriented relative to the spine.<BR>
+            Rotation is about how the PDF pages are oriented relative to the spine.<BR>
             Page <code>A</code> is the 1st page of the completed, closed textblock while <code>B</code> &amp; <code>C</code> are a sample spread (spine in the middle)<BR>
             The rotation of the letters indicate how the pages would be oriented.<BR>
             <mark>In most cases the 1st option is what is desired/expected</mark>, but there are reasons why you might want the others<BR>
@@ -513,6 +516,7 @@
           </script>
         </fieldset>
         </span>
+        <div><label id="pdf_reverse_order_label" for="pdf_reverse_order"><input type="checkbox" role="switch" id="pdf_reverse_order" name="pdf_reverse_order"> reverse PDF order</label></div>
         <br>&nbsp;
       </section>
 

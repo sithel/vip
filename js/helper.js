@@ -160,6 +160,8 @@ export const form = {
       window.book.imposed.signatures.push([p, p+1, p+1, p]);
       window.book.imposed.sheets.push([p, p+1, p+1, p]);
     }
+    window.book.imposed.pageCount = pageCount + (pageCount % 2)
+    window.book.imposed.blanks = pageCount % 2
     const outputEl = document.getElementById("imposition_folio_calculations")
     outputEl.removeAttribute("style")
     outputEl.innerHTML = "<small>Given "+pageCount+" PDF pages<br> ➥ "+ Math.ceil(pageCount/2)+" sheets</small>"
@@ -169,6 +171,8 @@ export const form = {
     window.book.imposed.signatures = [[[0,0,7,7],[1,1,2,2],[3,3,4,4],[5,5,6,6,]]];
     window.book.imposed.hasSplitSig = false;
     window.book.imposed.requiresCutting = false;
+    window.book.imposed.pageCount = 8
+    window.book.imposed.blanks = 8 - Math.max(8,pageCount)
     const outputEl = document.getElementById("imposition_folio_calculations")
     outputEl.removeAttribute("style")
     outputEl.innerHTML = "<small>Given "+pageCount+" PDF pages<br> ➥ 1 sheet</small>"
@@ -199,6 +203,8 @@ export const form = {
       return;
     }
     this._populateSheets(counts)
+    window.book.imposed.pageCount = window.book.imposed.signatures.map(s => s.length).reduce((a,v) => a+v,0) * 4;
+    window.book.imposed.blanks = window.book.imposed.pageCount - pageCount;
     let s = "<small>"
     const isSuggestion = counts.length == suggested.length && counts.every((x,i) => x == suggested[i])
     const suggestedCounts = (canCustomize && !isSuggestion) ? "<sub>suggested "+suggested.join(", ")+"</sub>" : ""
@@ -209,7 +215,8 @@ export const form = {
       s += "And "+ pageCount + " pages ("+Math.ceil(pageCount/4)+" folios)<br>"
       s += " ➥ "+window.book.imposed.sheets.length+" printed sheets<br>"
       s += " ➥ "+window.book.imposed.signatures.length+" signatures<br>"
-      s += " ➥ "+window.book.imposed.signatures.map(x => x.length).reduce((acc, x) => acc + x, 0) * 4+" pages<br>"
+      s += " ➥ "+window.book.imposed.pageCount+" pages<br>"
+      s += " ➥ "+window.book.imposed.blanks+" blanks @ the end<br>"
       if (window.book.imposed.requiresCutting)
         s += " ✂️ Cutting required to seperate signatures<br>"
       if (window.book.imposed.hasSplitSig)

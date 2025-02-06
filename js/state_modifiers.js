@@ -38,6 +38,15 @@ export const unified_source_modifier = {
     const isNumber = function(value) {
       return typeof value === "number" && isFinite(value);
     }
+    const origPageNum = pageNum
+    let reversePageNum = (document.getElementById("pdf_reverse_order").checked) ? window.book.imposed.pageCount - pageNum - 1 : pageNum
+    if (window.book.imposed.blanks > 0) {
+      reversePageNum -= window.book.imposed.blanks
+      if (reversePageNum < 0) {
+        reversePageNum = origPageNum
+      }
+    }
+    pageNum = reversePageNum
     const lookForPage = function(acc, curBlock, block_i) {
       if (!isNumber(acc)) {
         return acc
