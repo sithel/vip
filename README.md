@@ -5,7 +5,7 @@ Launch February 4th 2025
 
 ## Versions
 
-- v0.0.2 - fix typo, fix octavo fat fold line
+- v0.0.2 - fix typo, fix octavo fat fold line, turned on rotation functionality
 - v0.0.1 - disable rotation UI as it doesn't work yet
 - v0.0.0 - launch!
 
@@ -21,7 +21,6 @@ There's a lot of features and a lot of work remaining--
 ### Functionality
 
 - cut lines
-- rotations
 - masking
 - interweaving 2 PDF source (even/odds)
 - export settings via .txt file

@@ -31,9 +31,7 @@ export const imposerMagic = {
     }
   },
   _getEmbeddedWidthHeight: function(embedded_page) {
-    // winter
     if (window.book.unified_source.leftRotDeg == -90 || window.book.unified_source.leftRotDeg == 90) {
-      console.log("Source PDF rotated - flipping dimensions now")
       return [embedded_page.height, embedded_page.width]
     }
     return [embedded_page.width, embedded_page.height]
@@ -356,7 +354,6 @@ export const imposerMagic = {
       const deltas = pdfRotationCorrection(rotOrig, rotation_deg)
       xPadding += deltas[0];
       yPadding += deltas[1];
-      console.log("PDF rotation manip [degrees:  "+rotOrig+" --> "+rotation_deg+" ] [delta : "+deltas[0]+" / "+deltas[1]+"] [ x: "+xOrig+" --> "+xPadding+"] [ y: "+yOrig+" --> "+yPadding+"] [dimensions : "+embedded_w+" / "+embedded_h+"  || true dimen : "+trueEmbedW+" / "+trueEmbedH+"]")
     }
     if (window.book.unified_source.rightRotDeg != 0 && is_odd) {
       const rotOrig = rotation_deg
