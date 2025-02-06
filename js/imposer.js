@@ -30,6 +30,14 @@ export const imposerMagic = {
       throw new Error("Invalid scaling option : ",window.book.physical.scaling);
     }
   },
+  _getEmbeddedWidthHeight: function(embedded_page) {
+    // winter
+    if (window.book.unified_source.leftRotDeg == -90 || window.book.unified_source.leftRotDeg == 90) {
+      console.log("Source PDF rotated - flipping dimensions now")
+      return [embedded_page.height, embedded_page.width]
+    }
+    return [embedded_page.width, embedded_page.height]
+  },
   _calcPadding: function() {
     const isOriginal = window.book.physical.placement == 'original';
     const bottom =  (isOriginal) ? 0 : Number(document.getElementById("pdf_padding_bottom").value)
@@ -156,7 +164,7 @@ export const imposerMagic = {
     }
   },
   _renderPageOriginal: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info) {
-    const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
+    const [embedded_w, embedded_h] = this._getEmbeddedWidthHeight(embedded_page)
     const finalPlacement = this._calcPlacementOffsets(corner_x, corner_y, w, h, orientation, 1, 1, is_odd, embedded_w, embedded_h)
     new_page.drawPage(embedded_page, { 
                           x: finalPlacement.x,
@@ -174,7 +182,7 @@ export const imposerMagic = {
   },
   _renderPageFit: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info) {
     const {total_w, total_h} = this._calcPadding();
-    const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
+    const [embedded_w, embedded_h] = this._getEmbeddedWidthHeight(embedded_page)
     const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
     const xScale = (isTipped) ? (h-total_w) / embedded_w : (w-total_w) / embedded_w;
     const yScale = (isTipped) ? (w-total_h) / embedded_h : (h-total_h) / embedded_h;
@@ -197,7 +205,7 @@ export const imposerMagic = {
   },
   _renderPageFill: function(new_page, embedded_page, corner_x, corner_y, w, h, orientation, is_odd, center_info) {
     const {total_w, total_h} = this._calcPadding();
-    const [embedded_w, embedded_h] = [embedded_page.width, embedded_page.height]
+    const [embedded_w, embedded_h] = this._getEmbeddedWidthHeight(embedded_page)
     let [x, y, rotation_deg] = [corner_x, corner_y, 0]
 
     const isTipped = orientation == BOTTOM_TO_LEFT || orientation == BOTTOM_TO_RIGHT;
@@ -319,6 +327,46 @@ export const imposerMagic = {
           spineTail[1] += h;
         }
       break;
+    }
+    const trueEmbedW = (window.book.unified_source.leftRotDeg == 0 || window.book.unified_source.leftRotDeg == 180) ? embedded_w : embedded_h
+    const trueEmbedH = (window.book.unified_source.leftRotDeg == 0 || window.book.unified_source.leftRotDeg == 180) ? embedded_h : embedded_w
+    const pdfRotationCorrection = function(origDegrees, finalDegrees) {
+      const pair = [origDegrees, finalDegrees];
+      switch (pair.toString()) {
+        case [0, -90].toString(): return [0, trueEmbedW]; break;
+        case [0, 90].toString(): return [trueEmbedH, 0]; break;
+        case [0, 180].toString():   return [trueEmbedW, trueEmbedH]; break;
+        case [180, 360].toString(): return [trueEmbedW * -1, -1 * trueEmbedH]; break;
+        case [180, 270].toString(): return [-1 * trueEmbedH,0]; break;
+        case [180, 90].toString(): return [0,-1 * trueEmbedW]; break;
+        case [90, 270].toString(): return [trueEmbedH * -1, trueEmbedW]; break;
+        case [90, 180].toString(): return [0, trueEmbedH]; break;
+        case [90, 0].toString(): return [trueEmbedW * -1, 0]; break;
+        case [-90, -180].toString(): return [trueEmbedW,0]; break;
+        case [-90, 0].toString(): return [0, -1 * trueEmbedH]; break;
+        case [-90, 90].toString(): return [trueEmbedH, -1 * trueEmbedW]; break;
+      }
+      return [0,0]
+    }
+    if (window.book.unified_source.leftRotDeg != 0 && !is_odd) {
+      const rotOrig = rotation_deg
+      const xOrig = xPadding
+      const yOrig = yPadding
+      rotation_deg += window.book.unified_source.leftRotDeg
+      const deltas = pdfRotationCorrection(rotOrig, rotation_deg)
+      xPadding += deltas[0];
+      yPadding += deltas[1];
+      console.log("PDF rotation manip [degrees:  "+rotOrig+" --> "+rotation_deg+" ] [delta : "+deltas[0]+" / "+deltas[1]+"] [ x: "+xOrig+" --> "+xPadding+"] [ y: "+yOrig+" --> "+yPadding+"] [dimensions : "+embedded_w+" / "+embedded_h+"  || true dimen : "+trueEmbedW+" / "+trueEmbedH+"]")
+    }
+    if (window.book.unified_source.rightRotDeg != 0 && is_odd) {
+      const rotOrig = rotation_deg
+      const xOrig = xPadding
+      const yOrig = yPadding
+      rotation_deg += window.book.unified_source.rightRotDeg
+      const deltas = pdfRotationCorrection(rotOrig, rotation_deg)
+      xPadding += deltas[0];
+      yPadding += deltas[1];
+      
     }
     spineHead[0] += window.book.physical.short_margin
     spineHead[1] += window.book.physical.long_margin
