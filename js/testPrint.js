@@ -9,10 +9,6 @@ export const testPrint = {
         size: 72 - (i * 2),
         borderWidth: 0,
         color: (i % 2 == 1) ?  PDFLib.rgb(1,1,1) : PDFLib.rgb(0,0,0),
-        // rotate: degrees(-15),
-        // borderColor: grayscale(0.5),
-        // opacity: 0.5,
-        // borderOpacity: 0.75,
       })
     }
   },
@@ -43,7 +39,6 @@ export const testPrint = {
       {
         x: w - (72*3),
         y: h -72,
-        //font: timesRomanFont,
         size: 20,
         color: PDFLib.rgb(0,0,0),
         lineHeight: 12,
