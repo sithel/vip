@@ -5,6 +5,7 @@ Launch February 4th 2025
 
 ## Versions
 
+- v0.0.4 - test print PDF generation 
 - v0.0.3 - reverse page order
 - v0.0.2 - fix typo, fix octavo fat fold line, turned on rotation functionality
 - v0.0.1 - disable rotation UI as it doesn't work yet
