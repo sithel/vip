@@ -386,7 +386,7 @@
   <body>
     <main class="container">
       <section id="title">
-        <h1>Villainous Imposer<BR><small id="version_info">v0.0.3</small>[VI]</h1>
+        <h1>Villainous Imposer<BR><small id="version_info">v0.0.4</small>[VI]</h1>
         <details>
           <summary>information & glossary</summary>
           <p>
@@ -528,7 +528,10 @@
           <p>
             This has to do with <i>your</i> machine and the paper you're feeding into it. <BR><br>
 
-            The paper margins are to add white space on the edges of the printed page in case you do not have a full-bleed printer. They are mirrored on either side - so a <code>10 pt</code> margin on the Long Sides will put a <code>10 pt</code> on both sides for a total of <code>20 pt</code>
+            The paper margins are to add white space on the edges of the printed page in case you do not have a full-bleed printer. They are mirrored on either side - so a <code>10 pt</code> margin on the Long Sides will put a <code>10 pt</code> on both sides for a total of <code>20 pt</code><br><br>
+
+            The <code>Download Test Print</code> button will give you a zip file named <code>vip_test_print</code>, which contains a PDF of same name. It looks at your selected paper size and flip orientation. 
+            You should print this at 100% scale and then check several things - are you flipping correctly - how much of the corners are eaten away by printer margin (each white line and each black line are 1 pt a piece -- my printer eats 12pt on all sides) - what line weight & color you want for your various mark ups - and what kind of printer skew you're dealing with (more on that later)
           </p>
         </details>
         <span class="disabled"><label for="unit_selector">Display Units</label>
@@ -567,6 +570,7 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; long sides
         <input type="number" id="paper_margin_long" name="paper_margin_long" placeholder="0" oninput="vip.handlePaperMarginUpdate()" />
         <small class="units">cm</small>
+        <button onclick="vip.generateTestPrint()">Download Test Print</button>
       </section>
 
 
@@ -600,8 +604,8 @@
                   ["octavo_fat", "Octavo [fat]", "8 pages per side, 4 folio", true, 4, [4], [2,4], "Starting to get smaller but still easy to assemble. This has nested folds on the top AND on the side that can sometimes be bulky - binder's prefernece", true],
                   ["octavo_thin", "Octavo [thin]", "8 pages per side, 4 folio", true, 4, [4],[2,4], "Starting to get smaller but still easy to assemble. This has a fold on edge that could compound skew problems, but there's no nested top fold - binder's preference", true],
                   ["8_zine", "8 Page Zine", "special assembly", false, -1, [8], [2, 4], "Classic format that requires no glue but is a fixed size. Printed on one side, it requires a small slice down the center. There are many better write-ups out there on how to assemble it- like <a href='https://www.quarantinepubliclibrary.com/tutorial' target='_blank'>like this one!</a>", true],
-                  ["sextodecimo_fat", "Sextodecimo [fat]", "16 pages per side, 8 folio", true, 4, [8], [4,4], "Palm sized on most paper, nested folds along the top", false],
-                  ["sextodecimo_thin", "Sextodecimo [thin]", "16 pages per side, 8 folio", true, 4, [8], [4,4], "Palm sized on most paper, long strip with fold in the middle", false],
+                  ["sextodecimo_fat", "Sextodecimo [fat]", "16 pages per side, 8 folio", true, 4, [8], [4,4], "Palm sized on most paper, nested folds along the top. If you go with 4 folio, you'll need to cut the sheet of paper in half (top vs bottom) and then fold-- still has nested top fold. The printer skew does not seem to compound too bad", false],
+                  ["sextodecimo_thin", "Sextodecimo [thin]", "16 pages per side, 8 folio", true, 4, [8], [4,4], "Palm sized on most paper, long strip with fold in the middle. If you go with 4 folio, you'll need to cut the sheet of paper in half (left vs right) and then zig-zag fold up. Initial testing suggests the printer skew is a bit more noticable", false],
                   ["small_3_by_3", "Small", "18 per side, 3 folio x 3", false, 3, [3,3,3], [3,6], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (3 folio)", true],
                   ["little_3_3_4", "Little", "20 per side, 3/3/4 folio", false, "3,3,4", [3,3,4], [4,5], "Custom imposition - requires cutting the sheet into 3 different sections which are then assembled into fixed signature sizes (two 3 folios and a 4 folio per sheet)", false],
                   ["tiny_4_by_4", "Tiny", "32 per side, 4 folio x 4", false, 4, [4,4,4,4], [4,8], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (4 folio)", true],
@@ -682,9 +686,9 @@
           </p>
         </details>
         <div class="printed_page_markup_options">
-            <input type="checkbox" id="markup_fold_lines" name="markup_fold_lines" value="fold" onchange="vip.handleMarkupDetailsChange(this, 'markup_fold_lines_details')" checked> <label for="markup_fold_lines"> fold lines</label> <span id="markup_fold_lines_details"><small><Input type=number id="fold_line_weight" placeholder="2"/> <span id="fold_line_weight_label">line weight (pt)</span></small><input type="color" id="markup_fold_lines_color" value="#aaaaaa" /> </span></br>
+            <input type="checkbox" id="markup_fold_lines" name="markup_fold_lines" value="fold" onchange="vip.handleMarkupDetailsChange(this, 'markup_fold_lines_details')" checked> <label for="markup_fold_lines"> fold lines</label> <span id="markup_fold_lines_details"><small><Input type=number id="fold_line_weight" placeholder="0.5"/> <span id="fold_line_weight_label">line weight (pt)</span></small><input type="color" id="markup_fold_lines_color" value="#969696" /> </span></br>
             <span class="disabled"><input type="checkbox" id="markup_cut_lines" name="markup_cut_lines" value="cut" onchange="vip.handleMarkupDetailsChange(this, 'markup_cut_lines_details')" checked><label for="markup_cut_lines"> cut lines</label><span id="markup_cut_lines_details"><small> <Input type=number id="cut_line_weight" placeholder="2"/>  <span id="cut_line_weight_label">line weight (pt)</span></small><input type="color" id="markup_cut_lines_color" value="#666666" /> </span><kbd>not implemented yet</kbd></span></br>
-            <input type="checkbox" id="markup_crosshairs" name="markup_crosshairs" value="cross" onchange="vip.handleMarkupDetailsChange(this, 'markup_crosshairs_details')" checked> <label for="markup_crosshairs"> cross-hairs</label> <span id="markup_crosshairs_details"><small><Input type=number id="markup_crosshairs_weight" placeholder="1"/>  <span id="markup_crosshairs_weight_label">line weight (pt)</span> | <Input type=number id="markup_crosshairs_length" placeholder="15"/>  <span id="markup_crosshairs_length_label">cross-hair leg length (pt)</span></small><input type="color" id="markup_crosshairs_color" value="#000000" /></span> </br>
+            <input type="checkbox" id="markup_crosshairs" name="markup_crosshairs" value="cross" onchange="vip.handleMarkupDetailsChange(this, 'markup_crosshairs_details')" checked> <label for="markup_crosshairs"> cross-hairs</label> <span id="markup_crosshairs_details"><small><Input type=number id="markup_crosshairs_weight" placeholder="0.25"/>  <span id="markup_crosshairs_weight_label">line weight (pt)</span> | <Input type=number id="markup_crosshairs_length" placeholder="10"/>  <span id="markup_crosshairs_length_label">cross-hair leg length (pt)</span></small><input type="color" id="markup_crosshairs_color" value="#333333" /></span> </br>
             <input type="checkbox" id="markup_spine_order" name="markup_spine_order" value="order" onchange="vip.handleMarkupDetailsChange(this, 'markup_spine_order_details')" checked> <label for="markup_spine_order"> spine marks: order</label><span id="markup_spine_order_details"> <Input type=number id="markup_spine_order_weight" placeholder="5"/>  <span id="markup_spine_order_weight_label">line weight (pt)</span><input type="color" id="markup_spine_order_color" value="#B8B8B8" /> </span></br>
             <input type="checkbox" id="markup_spine_bounds" name="markup_spine_bounds" value="order" onchange="vip.handleMarkupDetailsChange(this, 'markup_spine_bounds_details')" checked> <label for="markup_spine_bounds"> spine marks: bounds</label> <span id="markup_spine_bounds_details"><small> <Input type=number id="markup_spine_bounds_weight" placeholder="2"/>  <span id="markup_spine_bounds_weight_label">line weight (pt)</span> | <Input type=number id="markup_spine_bounds_length" placeholder="10"/>  <span id="markup_spine_bounds_length_label"> length (pt)</span><input type="color" id="markup_spine_bounds_color" value="#757575" /></small> </span></br>
             <div>

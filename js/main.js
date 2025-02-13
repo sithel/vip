@@ -1,5 +1,6 @@
 import { form, PAGE_SIZES } from './helper.js';
 import { utils } from './pdf.js';
+import { testPrint } from './testPrint.js';
 import { fileHandler } from './files.js';
 import { previewer } from './preview.js';
 import { builder, SIDE_COVERAGE_BOTH } from './pdf.js';
@@ -184,6 +185,9 @@ export const vip = {
     const longMargin = parseInt(document.getElementById("paper_margin_long").value)
     window.book.physical.short_margin = (isNaN(shortMargin)) ? 0 : shortMargin
     window.book.physical.long_margin  = (isNaN(longMargin))  ? 0 : longMargin
+  },
+  generateTestPrint: function() {
+    testPrint.build()
   },
   handleUnitChange: function(e) {
     const roundIt = window.roundIt;
