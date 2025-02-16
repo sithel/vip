@@ -213,10 +213,25 @@ export const builder = {
     }
     for(const subPageMap of origPageMap) {
       const pageNumList = Object.keys(subPageMap)
-      const embeddedPages = await new_pdf.embedPages(pageNumList.map(k => subPageMap[k]))
+      const bbox = {
+        left: this._collectValueOrPlaceholder(document.getElementById("pdf_margin_left")), 
+        right: window.book.unified_source.maxWidth-this._collectValueOrPlaceholder(document.getElementById("pdf_margin_right")),
+        top: window.book.unified_source.maxHeight-this._collectValueOrPlaceholder(document.getElementById("pdf_margin_top")),
+        bottom: this._collectValueOrPlaceholder(document.getElementById("pdf_margin_bottom"))
+      }
+      console.log("doing that embedded page stuff...")
+      const embeddedPages = await new_pdf.embedPages(pageNumList.map(k => subPageMap[k]), pageNumList.map(k => bbox))
       embeddedPages.forEach((p,i) => pageMap[pageNumList[i]] = p)
     }
     return [pageMap, sheets]
+  },
+  _collectValueOrPlaceholder: function(el) {
+    if (el.type == 'color') {
+      const c = this._hexToRgb(el.value)
+      return PDFLib.rgb(c.r / 255.0, c.g / 255.0, c.b / 255.0);
+    }
+    const v = parseFloat(el.value)
+    return (isNaN(v)) ? parseFloat(el.placeholder) : v
   },
   /**
    * @param signature_index - the signature to export as a file (printed as a full sheet) or -1 to print all of them
