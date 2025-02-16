@@ -171,7 +171,6 @@ export const imposerMagic = {
                           yScale: finalPlacement.yScale,
                           rotate: PDFLib.degrees(finalPlacement.rotation_deg)
                         })
-    this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
     if (center_info.length > 0 && center_info[1]) 
       this._renderSpineSigOrder(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
     this._renderSpinePdfBounds(new_page, finalPlacement, embedded_w, embedded_h, orientation)
@@ -191,10 +190,8 @@ export const imposerMagic = {
                           y: finalPlacement.y,
                           xScale: finalPlacement.xScale,
                           yScale: finalPlacement.yScale,
-                          opacity: 0.75,
                           rotate: PDFLib.degrees(finalPlacement.rotation_deg)
                         });
-    this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
     if (center_info.length > 0 && center_info[1]) 
       this._renderSpineSigOrder(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
     this._renderSpinePdfBounds(new_page, finalPlacement, embedded_w, embedded_h, orientation)
@@ -215,10 +212,8 @@ export const imposerMagic = {
                           y: finalPlacement.y,
                           xScale: (isTipped) ? finalPlacement.yScale : finalPlacement.xScale,
                           yScale: (isTipped) ? finalPlacement.xScale : finalPlacement.yScale,
-                          opacity: 0.75,
                           rotate: PDFLib.degrees(finalPlacement.rotation_deg)
                         })
-    this._maskPage(new_page, embedded_page, corner_x + window.book.physical.short_margin, corner_y + window.book.physical.long_margin, w, h, orientation);
     if (center_info.length > 0 && center_info[1]) 
       this._renderSpineSigOrder(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
     this._renderSpinePdfBounds(new_page, finalPlacement, embedded_w, embedded_h, orientation)
@@ -380,42 +375,6 @@ export const imposerMagic = {
       rotation_deg: rotation_deg
     }
   },
-  _maskPage: function(new_page, embedded_page, x, y, w, h, orientation){
-    return 
-    const [margin_top, margin_bottom, margin_right, margin_left] = [20, 30, 40, 50];
-    const lower = (orientation == RIGHT_SIDE_UP) ? margin_bottom : (orientation == UP_SIDE_DOWN) ? margin_top : (orientation == BOTTOM_TO_RIGHT) ? margin_left : margin_right
-    const upper = (orientation == RIGHT_SIDE_UP) ? margin_top : (orientation == UP_SIDE_DOWN) ? margin_bottom : (orientation == BOTTOM_TO_RIGHT) ? margin_right : margin_left
-    const left = (orientation == RIGHT_SIDE_UP) ? margin_left : (orientation == UP_SIDE_DOWN) ? margin_right : (orientation == BOTTOM_TO_RIGHT) ? margin_top : margin_bottom
-    const right = (orientation == RIGHT_SIDE_UP) ? margin_right : (orientation == UP_SIDE_DOWN) ? margin_left : (orientation == BOTTOM_TO_RIGHT) ? margin_bottom : margin_top
-    if (lower > 0) {
-      new_page.drawRectangle({
-                          width: w,
-                          height: lower,
-        x: x, y: y, borderWidth: 0, color: PDFLib.rgb(0,1,1), opacity: 0.25
-      });
-    }
-    if (upper > 0) {
-      new_page.drawRectangle({
-                          width: w,
-                          height: upper,
-        x: x, y: y + h - upper, borderWidth: 0, color: PDFLib.rgb(0,0,1), opacity: 0.25
-      });
-    }
-    if (left > 0) {
-      new_page.drawRectangle({
-                          width: left,
-                          height: h,
-        x: x, y: y, borderWidth: 0, color: PDFLib.rgb(0,1,0), opacity: 0.25
-      });
-    }
-    if (right > 0) {
-      new_page.drawRectangle({
-                          width: right,
-                          height: h,
-        x: x + w - right, y: y, borderWidth: 0, color: PDFLib.rgb(1,0,1), opacity: 0.25
-      });
-    }
-  },
   _calcDimens: function(new_page, x, y) {
     return {
       pW : new_page.getWidth()  - window.book.physical.short_margin * 2,
@@ -452,11 +411,11 @@ export const imposerMagic = {
     y += window.book.physical.long_margin
     new_page.drawLine({
       start: { x: x - len, y: y },          end: { x: x + len, y: y },
-      thickness: weight,  color: color,   opacity: 0.75,
+      thickness: weight,  color: color,
     });
     new_page.drawLine({
       start: { x: x, y: y - len },          end: { x: x, y: y + len },
-      thickness: weight,  color: color,   opacity: 0.75,
+      thickness: weight,  color: color,
     });
   },
   _renderFoldLine: function(new_page, x_start, y_start, x_end, y_end) {
@@ -470,7 +429,7 @@ export const imposerMagic = {
     y_end += window.book.physical.long_margin
     new_page.drawLine({
       start: { x: x_start, y: y_start},          end: { x: x_end, y: y_end },
-      thickness: weight,  color: color,   opacity: 0.75,
+      thickness: weight,  color: color,
       dashArray: [7, 5],
     });
   },
