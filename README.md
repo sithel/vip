@@ -5,6 +5,7 @@ Launch February 4th 2025
 
 ## Versions
 
+- v0.0.6 - fixing opacity bug!! (thanks myro!)
 - v0.0.5 - cropping of incoming PDF
 - v0.0.4 - test print PDF generation
 - v0.0.3 - reverse page order
