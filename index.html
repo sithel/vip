@@ -386,7 +386,7 @@
   <body>
     <main class="container">
       <section id="title">
-        <h1>Villainous Imposer<BR><small id="version_info">v0.0.4</small>[VI]</h1>
+        <h1>Villainous Imposer<BR><small id="version_info">v0.0.5</small>[VI]</h1>
         <details>
           <summary>information & glossary</summary>
           <p>
@@ -456,36 +456,11 @@
 
       <section id="page_manipulation" class="disabled">
         <h2>2. PDF Manipulation</h2>
-          <details class="disabled">
+          <details>
           <summary>Explanation</summary>
           <p>
-            This is to alter the (pre-rotation) PDF dimensions - negative values are ignored while positive values cut into the PDF, treating it as a smaller page (the space is masked via white rectangles drawn, which could mix poorly with large pages that could potentially overlap). For padding/adding of buffer white space, use the PDF Placement section<br>            
-            This is a rough prototype - the PDF library itself does not really allow for masking/cropping of pages -- keep an eye out for bad behavior<br>
-            You may want to mask a PDF and export it as a <code>Single</code> imposition, then import/impose that result if you're masking a non-trivial amount of space
-          </p>
-        </details>
-        <table id="pdf_marins_example" style="display:none;">
-          <tr><td colspan="3" id="example_pdf_margin_top"></td></tr>
-          <tr><td id="example_pdf_margin_left"></td><td id="example_pdf_margin_block"></td><td id="example_pdf_margin_right"></td></tr>
-          <tr><td colspan="3" id="example_pdf_margin_bottom"></td></tr>
-        </table>
-        <div id="pdf_margins" class="disabled">
-          <kbd>not implemented yet</kbd><BR>
-          PDF Masking<br> &nbsp;&nbsp;&nbsp;
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="pdf_margin_left">left </label><input type=number size="2" id="pdf_margin_left" min=0 oninput="vip.handlePdfMarginUpdate()">
-              <div id="pdf_margins_center">
-                <label for="pdf_margin_top">top</label> <input type=number size="2" id="pdf_margin_top" min=0 oninput="vip.handlePdfMarginUpdate()"><br>
-                <label for="pdf_margin_bottom"> bottom </label><input type=number size="2" id="pdf_margin_bottom" min=0 oninput="vip.handlePdfMarginUpdate()">
-              </div>
-              <input type=number size="2" id="pdf_margin_right" min=0 oninput="vip.handlePdfMarginUpdate()"><label for="pdf_margin_right"> right</label>
-        </div>
-        <div id="example_pdf_orientation" style="visibility: hidden;">
-          <div id="example_pdf_orientation_page_right" ></div><div id="example_pdf_orientation_spine" ></div><div id="example_pdf_orientation_page_left" ></div>
-        </div>
-        <br style="float:clear;">
-        <details>
-          <summary>Explanation</summary>
-          <p>
+            Cropping is to alter the PDF dimensions - negative values add white space while positive values cut into the PDF.<BR>
+            <br>
             Rotation is about how the PDF pages are oriented relative to the spine.<BR>
             Page <code>A</code> is the 1st page of the completed, closed textblock while <code>B</code> &amp; <code>C</code> are a sample spread (spine in the middle)<BR>
             The rotation of the letters indicate how the pages would be oriented.<BR>
@@ -493,6 +468,24 @@
             (such as a <a href="https://en.wikipedia.org/wiki/Dwarsligger" target="_blank">Dwarsligger ("sleeper" or "crossbeam" in Dutch)</a>, calendars, Tweet-based texts, books for music, etc)
           </p>
         </details>
+        <table id="pdf_marins_example" style="display:none;">
+          <tr><td colspan="3" id="example_pdf_margin_top"></td></tr>
+          <tr><td id="example_pdf_margin_left"></td><td id="example_pdf_margin_block"></td><td id="example_pdf_margin_right"></td></tr>
+          <tr><td colspan="3" id="example_pdf_margin_bottom"></td></tr>
+        </table>
+        <div id="pdf_margins">
+          PDF Cropping<br> &nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="pdf_margin_left">left </label><input type=number size="2" id="pdf_margin_left" placeholder="0" min=0 oninput="vip.handlePdfMarginUpdate()">
+              <div id="pdf_margins_center">
+                <label for="pdf_margin_top">top</label> <input type=number size="2" placeholder="0" id="pdf_margin_top" min=0 oninput="vip.handlePdfMarginUpdate()"><br>
+                <label for="pdf_margin_bottom"> bottom </label><input type=number size="2" placeholder="0" id="pdf_margin_bottom" min=0 oninput="vip.handlePdfMarginUpdate()">
+              </div>
+              <input type=number size="2" id="pdf_margin_right" placeholder="0" min=0 oninput="vip.handlePdfMarginUpdate()"><label for="pdf_margin_right"> right</label>
+        </div>
+        <div id="example_pdf_orientation" style="visibility: hidden;">
+          <div id="example_pdf_orientation_page_right" ></div><div id="example_pdf_orientation_spine" ></div><div id="example_pdf_orientation_page_left" ></div>
+        </div>
+        <br style="float:clear;">
         <span>
 
         <div id="pdf_margin_label">PDF Rotation<br></div>
