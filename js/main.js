@@ -31,16 +31,17 @@ export const vip = {
       document.getElementById("pdf_download").classList.add("disabled");
     }
   },
-  addUploadBlock: function(e) { form.addUploadBlock(e.parentElement.parentElement, e.parentElement) },
   removeUploadBlock : function(e) { 
     let id = parseInt(e.getAttribute("data-upload-index"));
     form.removeUploadBlock(e.parentElement.parentElement, e.parentElement);
     window.book.upload_blocks[id] = {}
+    document.getElementById("upload_block_interlacing").style.display = (document.getElementsByClassName("upload_block").length == 2) ? '':'none'
   },
-  processUploads : function(btn, uploadSection, detailsEl) {
+  processUploads : function(btn, uploadSection, detailsEl, is_interlaced) {
     console.log("== Processing Uploads...")
     document.getElementById("upload_blocks").setAttribute("style","pointer-events: none;opacity: 0.7;")
     btn.setAttribute("aria-busy", "true")
+    window.book.unified_source.interlaced = is_interlaced;
 
     let callback = function(){
       document.getElementById("upload_blocks").removeAttribute("style")
