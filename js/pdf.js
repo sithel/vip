@@ -209,8 +209,8 @@ export const builder = {
         continue;
       const pageFetchResults =  window.book.unified_source.getPdfPageForPageNumber(page);
 
-      if (typeof pageFetchResults === "number") {
-        continue;   // this is for pages at the end of the book that overflow the original PDF(s) but pad out final signature
+      if (typeof pageFetchResults === "number" || pageFetchResults == "b") {
+        continue;   // this is for blanks or pages at the end of the book that overflow the original PDF(s) but pad out final signature
       }
       const [block_i, origPage] = pageFetchResults;
       origPage.drawText(` `, {x: 125, y: 100, size: 24, },  )   // hack to prevent exception due to embedding a blank page!
