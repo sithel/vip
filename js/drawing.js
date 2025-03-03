@@ -72,7 +72,8 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
     newNode.setAttribute("id", "upload_block_"+idNum);
     parent.insertBefore(newNode,addBtn);
     window.book.upload_blocks[idNum] = {};
-    window.reb = parent;
+    if (!isInitial)
+      document.getElementById("upload_block_interlacing").style.display = (document.getElementsByClassName("upload_block").length == 2) ? '':'none'
   },
   updatePdfOrientationExample: function() {
     console.log("   > drawing.updatePdfOrientationExample")

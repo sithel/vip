@@ -87,7 +87,11 @@ export const utils = {
       fileSize += blocks[i].file.size
     }
     let scale = Math.min(100/maxWidth, 100/maxHeight)
-    unified_source.pageCount = window.book.upload_blocks.filter(x => x.pdfDoc != null).reduce( (acc, cur) => acc + cur._pagesList.length, 0)
+    const valid_upload_blocks = window.book.upload_blocks.filter(x => x.pdfDoc != null)
+    const is_interlaced = valid_upload_blocks.length == 2 && window.book.unified_source.interlaced
+    unified_source.pageCount = (is_interlaced)
+      ? Math.max(valid_upload_blocks[0]._pagesList.length,valid_upload_blocks[1]._pagesList.length)
+      : valid_upload_blocks.reduce( (acc, cur) => acc + cur._pagesList.length, 0)
     unified_source.maxWidth = maxWidth
     unified_source.maxHeight = maxHeight
     unified_source._scale100px = scale
@@ -100,6 +104,7 @@ export const utils = {
     document.getElementById("insert_pdf_source_details_here").innerHTML = `
             <div id="example_pdf_upload_page" style="width:`+maxWidth*scale+`px;height:`+maxHeight*scale+`px;"></div>
             There are <code>`+ unified_source.pageCount+`</code> pages<br>
+            `+((is_interlaced) ? '<small>( 📖 interlacing the '+valid_upload_blocks[0]._pagesList.length+' and '+valid_upload_blocks[1]._pagesList.length+' pages between two provided PDFs)</small><br>' : '')+`
             The working size is <code>`+ maxWidth+`</code> x <code>`+ maxHeight +`</code><br>
             <small>(working with `+(fileSize * 0.000001).toFixed(2)+` MB in memory
             `+ ((unified_source.is_large_file) ? `[⚠️ large file size detected, be sure to only preview first signature]` : ``) +`
@@ -204,8 +209,8 @@ export const builder = {
         continue;
       const pageFetchResults =  window.book.unified_source.getPdfPageForPageNumber(page);
 
-      if (typeof pageFetchResults === "number") {
-        continue;   // this is for pages at the end of the book that overflow the original PDF(s) but pad out final signature
+      if (typeof pageFetchResults === "number" || pageFetchResults == "b") {
+        continue;   // this is for blanks or pages at the end of the book that overflow the original PDF(s) but pad out final signature
       }
       const [block_i, origPage] = pageFetchResults;
       origPage.drawText(` `, {x: 125, y: 100, size: 24, },  )   // hack to prevent exception due to embedding a blank page!
