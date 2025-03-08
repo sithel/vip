@@ -3,8 +3,9 @@
 
 Launch February 4th 2025 
 
-## Versions
+## [Versions](#version-history)
 
+- v0.0.7 - adding interlacing functionality
 - v0.0.6 - fixing opacity bug!! (thanks myro!)
 - v0.0.5 - cropping of incoming PDF
 - v0.0.4 - test print PDF generation
@@ -68,8 +69,9 @@ Call `window.book.unified_source.processUpdate()` after base changes to re-calcu
 - `window.book.unified_source.maxWidth` / `window.book.unified_source.maxHeight` : raw PDF height (post step 1)
 - `window.book.unified_source.isTurned()` : returns true if it's -90 or 90 degree rotation (post step 2)
 - `window.book.unified_source.pdf_w` / `window.book.unified_source.pdf_h` : takes into account PDF margins and rotation. (post step 2)
-- `window.book.unified_source.pageCount` : calculated total pages across multiple PDFs and accounting for blanks
-- `window.book.unified_source.getPdfPageForPageNumber(pageNum)` : given page `N` in the result PDF, looks up in the `window.book.upload_blocks` to fetch the corresponding `PDFLib.PDFPage` -- returns `[upload_block_index, PDFPage]`
+- `window.book.unified_source.pageCount` : calculated total pages across multiple PDFs and accounting for blanks -- adjusts for interlaced pages
+- `window.book.unified_source.getPdfPageForPageNumber(pageNum)` : given page `N` in the result PDF, looks up in the `window.book.upload_blocks` to fetch the corresponding `PDFLib.PDFPage` -- returns `[upload_block_index, PDFPage]` -- adjusts for reversed or interlaced pages
+- `window.book.unifired_source.interlaced` : defaults to `false` - if `true` (set during `Processing`) then the odd pages come from the first PDF and the even come from the second (and there's exactly 2 sources)
 
 ## Physical (step 3)
 

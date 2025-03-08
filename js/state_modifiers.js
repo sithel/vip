@@ -47,7 +47,12 @@ export const unified_source_modifier = {
         reversePageNum = origPageNum
       }
     }
+    const valid_upload_blocks = window.book.upload_blocks.filter(x => x.pdfDoc != null)
+    const is_interlaced = valid_upload_blocks.length == 2 && window.book.unified_source.interlaced
     pageNum = (should_reverse) ? reversePageNum : pageNum
+    /** @return -- either the page number if still searching
+     *              OR [upload block index, PDFPage] if found
+     *              OR 'b' if it's blank/out of range */
     const lookForPage = function(acc, curBlock, block_i) {
       if (!isNumber(acc)) {
         return acc
@@ -56,7 +61,6 @@ export const unified_source_modifier = {
       if (targetPageNum < curBlock._pagesList.length) {
         const pageListEntry = curBlock._pagesList[targetPageNum]
         if (pageListEntry == -1) {
-          const page = curBlock.pdfDoc.getPage(targetPageNum)
           return "b"
         }
         const page = curBlock.pdfDoc.getPage(pageListEntry - 1) // page numbers foolishly indexed at 1
@@ -65,9 +69,15 @@ export const unified_source_modifier = {
         return acc + curBlock._pagesList.length
       }
     }
-    return window.book.upload_blocks
-      .filter(x => x.pdfDoc != null)
-      .reduce(lookForPage, 0)
+    if (is_interlaced) {
+      const block = (pageNum % 2 == 0) ? valid_upload_blocks[0] : valid_upload_blocks[1]
+      const block_i = window.book.upload_blocks.findIndex(b => b == block)
+      const pageListEntry = block._pagesList[pageNum]
+      return (pageListEntry == -1 || pageListEntry == undefined)
+        ? "b"
+        : [block_i, block.pdfDoc.getPage(pageListEntry - 1)] // page numbers foolishly indexed at 1
+    }
+    return valid_upload_blocks.reduce(lookForPage, 0)
   },
   attach : function() {
     window.book.unified_source.isTurned = this._isTurned

@@ -14,7 +14,7 @@
   <script language="javascript">
     window.book = {
       upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument } */],
-      unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0, pageCount: 0, pdf_is_valid: false, maxWidth: 0,  maxHeight: 0, is_large_file: false /* _scale100px: Int,  */ }, 
+      unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0, pageCount: 0, pdf_is_valid: false, maxWidth: 0,  maxHeight: 0, is_large_file: false, interlaced: false /* _scale100px: Int,  */ }, 
       imposition: { /* name: String, canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>, cellCount_l:Int, cellCount_s:Int*/},
       imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, pageCount: Int, blanks: Int, hasSplitSig: Boolean, requiresCutting: Boolean */ },
       physical: { short_margin: 0, long_margin: 0, scaling: 'fit', placement: 'center' /* display_unit: String */},
@@ -113,6 +113,10 @@
         float: right;
         background: #daa52042;
         border: 1px solid black;
+      }
+      #upload_block_interlacing {
+        margin-left: 40px;
+        margin-bottom: 8px;
       }
     }
     #page_manipulation {
@@ -390,6 +394,7 @@
     <main class="container">
       <section id="title">
         <h1>Villainous Imposer<BR><small id="version_info">
+
           <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.0.8</a>
         </small>[VI]</h1>
         <details>
@@ -419,7 +424,9 @@
             If the PDFs are diffent sizes, the maximum dimensions are used<BR>
             Each PDF can be preceeded by <code>N</code> blank pages (default is <code>0</code>)<br>
             Page selection can be either <code>all</code> (the default), <code>,</code> separated list of page numbers, a range defined via <code>-</code>. Blank pages can be inserted via <codE>b</codE>.<br>
-            <mark>Invalid page numbers will be ignored, invalid input will cause an error</mark>
+            <mark>Invalid page numbers will be ignored, invalid input will cause an error</mark><br>
+            <br>
+            If there are exactly 2 valid PDF sources, you have the option to <code>interlace</code> them -- this means the odd pages will be pulled from the first PDF and the even pages pulled from the second PDF. If the page counts (after evaluating the <code>page selection</code>s) do not align, blank pages will be used to pad out the short PDF to reach the length of the larger.
           </p>
         </details>
         <section id="upload_blocks">
@@ -441,9 +448,17 @@
         <button onclick="vip.processUploads(
         this,
         document.getElementById('upload_blocks'),
-        document.getElementById('upload_blocks_result')
+        document.getElementById('upload_blocks_result'),
+        false
         )"
         >Process Uploads</button>
+        <button id="upload_block_interlacing" style="display: none;" onclick="vip.processUploads(
+        this,
+        document.getElementById('upload_blocks'),
+        document.getElementById('upload_blocks_result'),
+        true
+        )"
+        >Process Uploads as Interlaced</button>
         <br>&nbsp;
         <details id="upload_blocks_result" style="visibility: hidden;">
           <summary>Working Input Details</summary>
