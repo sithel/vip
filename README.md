@@ -5,6 +5,7 @@ Launch February 4th 2025
 
 ## [Versions](#version-history)
 
+- v0.0.8 - fixing links and bug introduced in v0.0.3
 - v0.0.7 - adding interlacing functionality
 - v0.0.6 - fixing opacity bug!! (thanks myro!)
 - v0.0.5 - cropping of incoming PDF
