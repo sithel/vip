@@ -16,7 +16,7 @@ Launch February 4th 2025
 
 ## Help Wanted
 
-- https://github.com/sithel/vip/issues/4 #4 - origiami simulator and the `.fold` file format
+- https://github.com/sithel/vip/issues/4  - origiami simulator and the `.fold` file format
 
 # TODOs
 
