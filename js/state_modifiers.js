@@ -39,7 +39,8 @@ export const unified_source_modifier = {
       return typeof value === "number" && isFinite(value);
     }
     const origPageNum = pageNum
-    let reversePageNum = (document.getElementById("pdf_reverse_order").checked) ? window.book.imposed.pageCount - pageNum - 1 : pageNum
+    const should_reverse = document.getElementById("pdf_reverse_order").checked
+    let reversePageNum = (should_reverse) ? window.book.imposed.pageCount - pageNum - 1 : pageNum
     if (window.book.imposed.blanks > 0) {
       reversePageNum -= window.book.imposed.blanks
       if (reversePageNum < 0) {
@@ -48,7 +49,7 @@ export const unified_source_modifier = {
     }
     const valid_upload_blocks = window.book.upload_blocks.filter(x => x.pdfDoc != null)
     const is_interlaced = valid_upload_blocks.length == 2 && window.book.unified_source.interlaced
-    pageNum = reversePageNum
+    pageNum = (should_reverse) ? reversePageNum : pageNum
     /** @return -- either the page number if still searching
      *              OR [upload block index, PDFPage] if found
      *              OR 'b' if it's blank/out of range */
