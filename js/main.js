@@ -139,29 +139,33 @@ export const vip = {
     window.book.physical.placement = document.getElementById("pdf_white_space_placement").value;
     window.book.imposed.processUpdate();
   },
-  handlePaperSizeDropdownChange: function(el) {
-    console.log("We selected '"+el.value+"'")
-    console.log(PAGE_SIZES[el.value])
-    window.book.selected_paper_size = el.value
+  /**  Expects the `paper_size_options` select element  */
+  handlePaperSizeDropdownChange: function(el, update_text_field) {
+    console.log("[handlePaperSizeDropdownChange] We selected '"+el.value+"'")
     const customDimens = function() {
       const customEl = document.getElementById("paper_size_custom")
+      if (customEl == null) 
+        return PAGE_SIZES
       PAGE_SIZES['custom'] = [parseFloat(customEl.getAttribute("data-width-pt")),parseFloat(customEl.getAttribute("data-height-pt"))]
-      return PAGE_SIZES['custom']
+      return PAGE_SIZES
     }
-    const dimens = (el.value == "custom") ? customDimens() : PAGE_SIZES[el.value]
-    window.book.physical.paper_size = PAGE_SIZES[el.value]
+    const dimens = (el.value == "custom") ? customDimens()[el.value] : PAGE_SIZES[el.value]
+    console.log("[handlePaperSizeDropdownChange]    > using dimensions "+ dimens[0]+" x "+dimens[1])
+    window.book.selected_paper_size = dimens
+    window.book.physical.paper_size = dimens
     window.book.selected_paper_dimensions = dimens
     document.getElementById("paper_size").setAttribute("placeholder", dimens[0] +" x "+dimens[1])
     if (el.value != "custom") {
       document.getElementById("paper_size").value = ""
-    } else {
+    } else if (update_text_field) {
       document.getElementById("paper_size").value = dimens[0] + " x " + dimens[1]
     }
     window.book.imposed.processUpdate();
   },
+  /** Expects the `paper_size` input text element*/
   handleManualPaperSizeChange: function(el) {
     const optionEl = document.getElementById("paper_size_custom")
-    console.log("Looking at '"+el.value+"' given ", optionEl)
+    console.log("[handleManualPaperSizeChange] looking at custom user input '"+el.value+"'")
     if (el.value == "") {
       el.removeAttribute("aria-invalid")
       if (optionEl != null)
@@ -179,7 +183,7 @@ export const vip = {
       document.getElementById("paper_size_options").appendChild(custom)
     el.setAttribute("aria-invalid", isNaN(w) || isNaN(h))
     document.getElementById("paper_size_options").value = "custom"
-    window.book.imposed.processUpdate();
+    this.handlePaperSizeDropdownChange(document.getElementById("paper_size_options"), false)
   },
   handlePaperMarginUpdate: function() {
     const shortMargin = parseInt(document.getElementById("paper_margin_short").value)
