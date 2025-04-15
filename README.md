@@ -5,7 +5,10 @@ Launch February 4th 2025
 
 ## [Versions](#version-history)
 
+<<<<<<< HEAD
 - v0.0.9 - adding [FAQ page](https://sithel.github.io/vip/docs/faq.html) and fixing custom dimensions so they actually work
+=======
+>>>>>>> main
 - v0.0.8 - fixing links and bug introduced in v0.0.3
 - v0.0.7 - adding interlacing functionality
 - v0.0.6 - fixing opacity bug!! (thanks myro!)
