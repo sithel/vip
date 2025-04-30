@@ -14,7 +14,10 @@ export const fileHandler = {
   },
   handleDownloadOptions: async function(fileName, downloadAggregate, frontAndBackSeparate, signatureFiles) {
     console.log("Exporting PDF under file name ["+fileName+"] -- downloadAggregate ["+downloadAggregate+"] / frontAndBackSeparate ["+frontAndBackSeparate+"] / signatureFiles["+signatureFiles+"]")
-    fileName += "_" + window.book.imposition.name + "_"
+    const is_flip_short = document.getElementById("flip_paper_short").checked
+    fileName += "_" + ((is_flip_short) ? "FlipShort" : "FlipLong") 
+      //+ "_" + window.book.physical.paper_size[0] + "_x_" + window.book.physical.paper_size[1]
+      + "_" + window.book.imposition.name
     try {
       const zip = new JSZip();
       const addToZip = this._addToZip.bind(this)

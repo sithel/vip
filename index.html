@@ -394,7 +394,7 @@
     <main class="container">
       <section id="title">
         <h1>Villainous Imposer<BR><small id="version_info">
-          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.0.9</a>
+          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.0.10</a>
         </small>[VI]</h1>
         <details>
           <summary>information & glossary</summary>
@@ -608,6 +608,7 @@
             <td width="100%" colspan="2">
               <div id="imposition_options_list"></div>
               <script language="javascript">
+                // see drawing.js's renderImpositionOptions for value documentation
                 imposition_options = [
                   ["single", "Single", "1 page per side, no folio", false, -1, [0.5], [1,1], "Yes, this is just like the source PDF -- not really useful for bookbinding/imposition, but given all the other features (trimming, re-ordering, padding) I figured why not", false],
                   ["folio", "Folio", "2 pages per side, 1 folio", true, 4, [1], [1,2], "Minimal folding, large book, no cutting/trimming needed. Classic for beginners but too large for my personal taste", true],
@@ -621,6 +622,7 @@
                   ["small_3_by_3", "Small", "18 per side, 3 folio x 3", false, 3, [3,3,3], [3,6], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (3 folio)", true],
                   ["little_3_3_4", "Little", "20 per side, 3/3/4 folio", false, "3,3,4", [3,3,4], [4,5], "Custom imposition - requires cutting the sheet into 3 different sections which are then assembled into fixed signature sizes (two 3 folios and a 4 folio per sheet)", false],
                   ["tiny_4_by_4", "Tiny", "32 per side, 4 folio x 4", false, 4, [4,4,4,4], [4,8], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (4 folio)", true],
+                  ["tiny_landscape_4_by_4", "Tiny Landscape", "32 per side, 4 folio x 4", false, 4, [4,4,4,4], [4,8], "Two rows of 2 signatures- only requires 1 cut to assemble if you're trimming the edges open later. Each half is 2 signatures folded up acordian style top-to-bottom, joined at the foredge between the signatures. Each half makes a W shape of 2 joined signatures. Imposition thanks to BB.", true],
                   ["mini", "Mini", "60 per side, 2/3 folio x 6 ", false, "3,2", [2,3,2,3,2,3,2,3,2,3,2,3], [6,10], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes- each row is made up of two signatures ", true],
                 ]
                 imposition_options.forEach((o, i) => {
@@ -757,6 +759,8 @@
           <summary>Details</summary>
           <p>
             Note that <code>each signature as separate file</code> outputs full sheets -- if the imposition configuration has signatures that do not fill up entire sheets, the files downloaded will be full sheets and thus could contain extra folios
+            <br>
+            Appended to the entered file name, seperated by <code>_</code>s, is: printer flip side, imposition format, 'aggregate' or signature number, and front/back information if split.
           </p>
         </details>
         <div>
@@ -774,8 +778,11 @@
             front / back of sheets as separate files
           </label>
           <BR>
+
           <input type=text id="file_download_name" placeholder="your_file_name">.pdf &nbsp;&nbsp;&nbsp;&nbsp;
           <button onclick="vip.downloadFile(document.getElementById('file_download_name').value, document.getElementById('file_download_name').getAttribute('placeholder'))">get that file!</button>
+          <br>
+          <br>
           <kbd class="disabled">saving/persisting imposer settings not implemented yet</kbd><br><br>
           <kbd class="disabled">imposer does not yet work when saved locally</kbd><br>
         </div>

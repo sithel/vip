@@ -5,6 +5,7 @@ Launch February 4th 2025
 
 ## [Versions](#version-history)
 
+- v0.0.10 - adding Tiny Landscape imposition & slightly improving saved file name
 - v0.0.9 - adding [FAQ page](https://sithel.github.io/vip/docs/faq.html) and fixing custom dimensions so they actually work
 - v0.0.8 - fixing links and bug introduced in v0.0.3
 - v0.0.7 - adding interlacing functionality
@@ -28,8 +29,6 @@ There's a lot of features and a lot of work remaining--
 ### Functionality
 
 - cut lines
-- masking
-- interweaving 2 PDF source (even/odds)
 - export settings via .txt file
 - persist/export/import imposer configurations
 - export imposer debug information
@@ -47,7 +46,6 @@ There's a lot of features and a lot of work remaining--
 ### Stretch/Long Term
 
 - figure out CORS stuff so it can be saved to someone's computer
-- masking logic
 - page numbers in the margins
 - printer creep
 - printer/PDF skew correction
@@ -85,6 +83,14 @@ This really highlights the mangling of terms. Height = Long Side = `y`, Width = 
 - `window.book.physical.long_margin` : value to be mirrored on both sides of the paper (compressing total imposition)
 
 ## Imposition (step 4)
+
+Oh so very "write once, read never" kinda' logic there for all the specific impositions (seE: `imposer.js`) -- am sure there's a better way to handle/encode the folio positions & handle the front/back flip short/long logic but I've not figured it out yet.
+
+Within `imposer.js`:
+ 
+ - `_renderPage` is pretty solid (and self documented) -- given placement x,y on sheet and cell w,h to work with, figures out how to place specified `page_num` according to the `window.book.physical.scaling`
+ - the `_handleIMPOSITION` functions manage folio wrangling and placement, relying on `_renderPage` and getting a lot of helper values from `_calcDimens` (yay for destructuring in JavaScript!)
+
 
 ## Placement / Imposed (step 5)
 
