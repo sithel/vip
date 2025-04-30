@@ -12,7 +12,7 @@ export const imposerMagic = {
    * w / h - the CELL SPACE AVAILABLE 
    * orientation - one of the RIGHT_SIDE_UP/UP_SIDE_DOWN/BOTTOM_TO_LEFT/BOTTOM_TO_RIGHT - how to render page in cell
    * is_odd - as viewed from page numbers in a book, starting w/ page 1.  Odd == right hand side of page, even == left hand side of page
-   * center_info - emtpy list if not, [sig index, isOuter - ture outer / false inner]
+   * center_info - emtpy list if not, [sig index, isOuter - true outer / false inner]
    */
   _renderPage: function(new_page, page_map, page_num, corner_x, corner_y, w, h, orientation, center_info) {
     const embedded_page = page_map[page_num];
@@ -834,6 +834,64 @@ export const imposerMagic = {
     }
     targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
   },
+  _handleFourByFourLandscape: function(new_page, pageMap, folio_list, sheet_index, is_front) {
+    const {pW, pH, renderPage, flip_short, renderCrosshair, calcCenterInfo} = this._calcDimens(new_page)
+    const cell_w = pW/4.0;
+    const cell_h = pH/8.0;
+    const flip_short_back = flip_short && !is_front
+    const flip_long_back = !flip_short && !is_front
+    for(let block = 0; block < 4; ++block) {
+      const block_start_x = (block == 0 || block == 2) 
+        ? (is_front || flip_short) ? pW/2 : 0
+        : (is_front || flip_short) ? 0 : pW/2
+      const block_start_y = (block == 0 || block == 1) 
+        ? (is_front || !flip_short) ? pH/2 : 0
+        : (is_front || !flip_short) ? 0 : pH/2
+
+      for(let folio = 0; folio < 4; ++folio) {
+        const f_pair_x = block_start_x
+        const f_pair_y = block_start_y + ((flip_short_back) ? ( cell_h * (3 - folio)) : (cell_h * (folio)))
+        const orientation = (flip_short_back)
+          ? ((folio == 0 || folio == 2) ? UP_SIDE_DOWN : RIGHT_SIDE_UP)
+          : ((folio == 1 || folio == 3) ? UP_SIDE_DOWN : RIGHT_SIDE_UP)
+        const folio_index = folio + (block * 4)
+        if (folio_index >= folio_list.length) {
+          break;
+        }
+        const f = folio_list[folio_index]
+        const left_page_num = (flip_long_back) 
+         ? ( (orientation == RIGHT_SIDE_UP)  ? f[1] : f[0] )
+         : (orientation == RIGHT_SIDE_UP)  ? f[3] : f[2]
+        const right_page_num = (flip_long_back) 
+         ? ( (orientation == RIGHT_SIDE_UP)  ? f[2] : f[3] )
+         : (orientation == RIGHT_SIDE_UP) ? f[0] : f[1]
+        const center_info = calcCenterInfo(Math.min(left_page_num, right_page_num))
+        console.log("> "+block+"/"+folio+"  [front : "+is_front+" | flip_short : "+flip_short+"] >> "+left_page_num+" , "+right_page_num+"  @ "+orientation)
+        renderPage(new_page, pageMap, left_page_num,  f_pair_x,           f_pair_y, cell_w, cell_h, orientation, center_info)
+        renderPage(new_page, pageMap, right_page_num, f_pair_x + cell_w,  f_pair_y, cell_w, cell_h, orientation, center_info)
+      }
+    }
+
+    if (is_front) {
+      this._renderFoldLine(new_page, 0, cell_h,   pW, cell_h)
+      this._renderFoldLine(new_page, 0, cell_h * 3,   pW, cell_h * 3)
+      this._renderFoldLine(new_page, 0, cell_h * 5,   pW, cell_h * 5)
+      this._renderFoldLine(new_page, 0, cell_h * 7,   pW, cell_h * 7)
+      this._renderFoldLine(new_page, pW/2.0, cell_h * 4,   pW/2.0, cell_h * 5)
+      this._renderFoldLine(new_page, pW/2.0, cell_h * 0,   pW/2.0, cell_h * 1)
+    } else {
+      this._renderFoldLine(new_page, 0, cell_h * 2,   pW, cell_h * 2)
+      this._renderFoldLine(new_page, 0, cell_h * 4,   pW, cell_h * 4)
+      this._renderFoldLine(new_page, 0, cell_h * 6,   pW, cell_h * 6)
+    }
+    const targets = [];
+    for(let j = 0; j <= pH; j += cell_h) {
+      for (let k = 0; k <= pW; k += cell_w) {
+        targets.push([k, j]);
+      }
+    }
+    targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
+  },
   _handleLittle334: function(new_page, pageMap, folio_list, sheet_index, is_front) {
     const {pW, pH, renderPage, flip_short, renderCrosshair, calcCenterInfo} = this._calcDimens(new_page)
     const cell_w = pW/4.0;
@@ -947,6 +1005,7 @@ export const imposerMagic = {
       case 'small_3_by_3': this._handleThreeByThree(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'little_3_3_4': this._handleLittle334(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'tiny_4_by_4': this._handleFourByFour(new_page, pageMap, folio_list, sheet_index, is_front); break;
+      case 'tiny_landscape_4_by_4': this._handleFourByFourLandscape(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'mini': this._handleMini(new_page, pageMap, folio_list, sheet_index, is_front); break;
     }
     
