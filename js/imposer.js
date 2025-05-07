@@ -877,8 +877,8 @@ export const imposerMagic = {
       this._renderFoldLine(new_page, 0, cell_h * 3,   pW, cell_h * 3)
       this._renderFoldLine(new_page, 0, cell_h * 5,   pW, cell_h * 5)
       this._renderFoldLine(new_page, 0, cell_h * 7,   pW, cell_h * 7)
-      this._renderFoldLine(new_page, pW/2.0, cell_h * 4,   pW/2.0, cell_h * 5)
-      this._renderFoldLine(new_page, pW/2.0, cell_h * 0,   pW/2.0, cell_h * 1)
+      this._renderFoldLine(new_page, pW/2.0, cell_h * 7,   pW/2.0, cell_h * 8)
+      this._renderFoldLine(new_page, pW/2.0, cell_h * 3,   pW/2.0, cell_h * 4)
     } else {
       this._renderFoldLine(new_page, 0, cell_h * 2,   pW, cell_h * 2)
       this._renderFoldLine(new_page, 0, cell_h * 4,   pW, cell_h * 4)
