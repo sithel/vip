@@ -5,6 +5,7 @@ Launch February 4th 2025
 
 ## [Versions](#version-history)
 
+- v0.0.11 - fixing Tiny Landscape folding marks and adding duo Sexto imposition
 - v0.0.10 - adding Tiny Landscape imposition & slightly improving saved file name
 - v0.0.9 - adding [FAQ page](https://sithel.github.io/vip/docs/faq.html) and fixing custom dimensions so they actually work
 - v0.0.8 - fixing links and bug introduced in v0.0.3

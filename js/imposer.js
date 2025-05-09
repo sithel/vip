@@ -519,6 +519,81 @@ export const imposerMagic = {
     if (!is_front && !flip_short)
       this._renderFoldLine(new_page, 0, cell_h, pW, cell_h)
   },
+  _handleDuoSexto: function(new_page, pageMap, folio_list, sheet_index, is_front) {
+    const {cell_w, cell_h, pW, pH, renderCrosshair, flip_short} = this._drawTopBottomConnectedBlocks(
+      new_page,
+      pageMap,
+      folio_list,
+      is_front,
+      2, // block count
+      3 // folio count
+      );
+
+    if (is_front) {
+      this._renderFoldLine(new_page, 0, cell_h,   pW, cell_h)
+    } else if (flip_short) {
+      this._renderFoldLine(new_page, 0, cell_h,   pW, cell_h)
+      this._renderFoldLine(new_page, pW/2.0, 0,   pW/2.0, cell_h)
+    } else {
+      this._renderFoldLine(new_page, 0, cell_h * 2,   pW, cell_h * 2)
+      this._renderFoldLine(new_page, pW/2.0, cell_h * 2,   pW/2.0, cell_h * 3)
+    }
+    const targets = [];
+    for(let j = 0; j <= pH; j += cell_h) {
+      for (let k = 0; k <= pW; k += cell_w) {
+        targets.push([k, j]);
+      }
+    }
+    targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
+  },
+  _drawTopBottomConnectedBlocks : function(new_page, pageMap, folio_list, is_front, block_count, folio_count){
+    const {pW, pH, renderPage, flip_short, renderCrosshair, calcCenterInfo} = this._calcDimens(new_page)
+    const cell_w = pW/((block_count == 1) ? 2.0 : 2.0 * 2);
+    const cell_h = pH/((block_count == 2) ? folio_count * 1.0 : folio_count * 2.0);
+    const flip_short_back = flip_short && !is_front
+    const flip_long_back = !flip_short && !is_front
+    for(let block = 0; block <= block_count; ++block) {  // 1 blocks = left / right of sheet
+      const block_start_x = (block == 0 || block == 2 )//|| (block == 1 && block_count < 3)) 
+        ? (is_front || flip_short) ? pW/2 : 0
+        : (is_front || flip_short) ? 0 : pW/2
+      const block_start_y = (block_count <= 2)
+        ? 0
+        : (block == 0 || block == 1) 
+          ? (is_front || !flip_short) ? pH/2 : 0
+          : (is_front || !flip_short) ? 0 : pH/2
+
+      for(let folio = 0; folio < folio_count; ++folio) {  // 3 folio = signature size, per block
+        const f_pair_x = block_start_x
+        const f_pair_y = block_start_y + ((flip_short_back) ? ( cell_h * (folio_count - 1 - folio)) : (cell_h * (folio)))
+        const orientation = (flip_short_back)
+          ? ((folio == 0 || folio == 2) ? UP_SIDE_DOWN : RIGHT_SIDE_UP)
+          : ((folio == 1 || folio == 3) ? UP_SIDE_DOWN : RIGHT_SIDE_UP)
+        const folio_index = folio + (block * folio_count)
+        if (folio_index >= folio_list.length) {
+          continue;
+        }
+        const f = folio_list[folio_index]
+        const left_page_num = (flip_long_back) 
+         ? ( (orientation == RIGHT_SIDE_UP)  ? f[1] : f[0] )
+         : (orientation == RIGHT_SIDE_UP)  ? f[3] : f[2]
+        const right_page_num = (flip_long_back) 
+         ? ( (orientation == RIGHT_SIDE_UP)  ? f[2] : f[3] )
+         : (orientation == RIGHT_SIDE_UP) ? f[0] : f[1]
+        const center_info = calcCenterInfo(Math.min(left_page_num, right_page_num))
+        console.log("> "+block+"/"+folio+"  [front : "+is_front+" | flip_short : "+flip_short+"] >> "+left_page_num+" , "+right_page_num+"  @ "+orientation)
+        renderPage(new_page, pageMap, left_page_num,  f_pair_x,           f_pair_y, cell_w, cell_h, orientation, center_info)
+        renderPage(new_page, pageMap, right_page_num, f_pair_x + cell_w,  f_pair_y, cell_w, cell_h, orientation, center_info)
+      }
+    }
+    return {
+      cell_w: cell_h,
+      cell_h: cell_h,
+      pW: pW,
+      pH: pH,
+      renderCrosshair: renderCrosshair,
+      flip_short: flip_short
+    }
+  },
   _handleOctoFat: function(new_page, pageMap, folio_list, sheet_index, is_front) {
     const {pW, pH, renderPage, flip_short, renderCrosshair} = this._calcDimens(new_page)
     const cell_w = pW/2.0;
@@ -840,7 +915,7 @@ export const imposerMagic = {
     const cell_h = pH/8.0;
     const flip_short_back = flip_short && !is_front
     const flip_long_back = !flip_short && !is_front
-    for(let block = 0; block < 4; ++block) {
+    for(let block = 0; block < 4; ++block) {  // 4 blocks = four quadrants of sheet
       const block_start_x = (block == 0 || block == 2) 
         ? (is_front || flip_short) ? pW/2 : 0
         : (is_front || flip_short) ? 0 : pW/2
@@ -848,7 +923,7 @@ export const imposerMagic = {
         ? (is_front || !flip_short) ? pH/2 : 0
         : (is_front || !flip_short) ? 0 : pH/2
 
-      for(let folio = 0; folio < 4; ++folio) {
+      for(let folio = 0; folio < 4; ++folio) {  // 4 folio = signature size, per block
         const f_pair_x = block_start_x
         const f_pair_y = block_start_y + ((flip_short_back) ? ( cell_h * (3 - folio)) : (cell_h * (folio)))
         const orientation = (flip_short_back)
@@ -997,6 +1072,7 @@ export const imposerMagic = {
       case 'folio': this._handleFolio(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'quarto': this._handleQuarto(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case '6_side': this._handleSexto(new_page, pageMap, folio_list, sheet_index, is_front); break;
+      case '12_side': this._handleDuoSexto(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'octavo_fat': this._handleOctoFat(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'octavo_thin': this._handleOctoThin(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case '8_zine': this._handle8PageZine(new_page, pageMap, folio_list, sheet_index, is_front); break;
