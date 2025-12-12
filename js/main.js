@@ -139,6 +139,14 @@ export const vip = {
     window.book.physical.placement = document.getElementById("pdf_white_space_placement").value;
     window.book.imposed.processUpdate();
   },
+  rotatePrinterPaper: function() {
+    const paperSelectionValue = document.getElementById("paper_size_options").value
+    const currentOrientation = PAGE_SIZES[paperSelectionValue] 
+    const customDimensInput = document.getElementById("paper_size")
+    customDimensInput.value = currentOrientation[1] + " x "+ currentOrientation[0]
+    console.log("[rotatePrinterPaper] Rotating paper ["+paperSelectionValue+"] was  ", PAGE_SIZES[paperSelectionValue] )
+    vip.handleManualPaperSizeChange(customDimensInput)
+  },
   /**  Expects the `paper_size_options` select element  */
   handlePaperSizeDropdownChange: function(el, update_text_field) {
     console.log("[handlePaperSizeDropdownChange] We selected '"+el.value+"'")
@@ -184,12 +192,18 @@ export const vip = {
     el.setAttribute("aria-invalid", isNaN(w) || isNaN(h))
     document.getElementById("paper_size_options").value = "custom"
     this.handlePaperSizeDropdownChange(document.getElementById("paper_size_options"), false)
+    this.handlePaperMarginUpdate()
   },
   handlePaperMarginUpdate: function() {
     const shortMargin = parseInt(document.getElementById("paper_margin_short").value)
     const longMargin = parseInt(document.getElementById("paper_margin_long").value)
     window.book.physical.short_margin = (isNaN(shortMargin)) ? 0 : shortMargin
     window.book.physical.long_margin  = (isNaN(longMargin))  ? 0 : longMargin
+    const x_is_short = window.book.physical.paper_size[0] <= window.book.physical.paper_size[1]
+    const x_printer_margin_bonus = (x_is_short) ? window.book.physical.long_margin : window.book.physical.short_margin
+    const y_printer_margin_bonus = (x_is_short) ? window.book.physical.short_margin : window.book.physical.long_margin
+    window.book.physical.printer_marin_bonus = [x_printer_margin_bonus, y_printer_margin_bonus]
+
   },
   generateTestPrint: function() {
     testPrint.build()
