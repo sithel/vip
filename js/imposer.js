@@ -360,14 +360,17 @@ export const imposerMagic = {
       yPadding += deltas[1];
       
     }
-    spineHead[0] += window.book.physical.short_margin
-    spineHead[1] += window.book.physical.long_margin
+    const x_printer_margin_bonus = window.book.physical.printer_marin_bonus[0]
+    const y_printer_margin_bonus = window.book.physical.printer_marin_bonus[1]
+
+    spineHead[0] += x_printer_margin_bonus
+    spineHead[1] += y_printer_margin_bonus
     
-    spineTail[0] += window.book.physical.short_margin
-    spineTail[1] += window.book.physical.long_margin
+    spineTail[0] += x_printer_margin_bonus
+    spineTail[1] += y_printer_margin_bonus
     return {
-      x: corner_x + window.book.physical.short_margin + xPadding,
-      y: corner_y + window.book.physical.long_margin + yPadding,
+      x: corner_x + x_printer_margin_bonus + xPadding,
+      y: corner_y + y_printer_margin_bonus + yPadding,
       spineHead: spineHead,
       spineTail: spineTail,
       xScale: xScale,
@@ -377,8 +380,8 @@ export const imposerMagic = {
   },
   _calcDimens: function(new_page, x, y) {
     return {
-      pW : new_page.getWidth()  - window.book.physical.short_margin * 2,
-      pH : new_page.getHeight() - window.book.physical.long_margin  * 2,
+      pW : new_page.getWidth()  - window.book.physical.printer_marin_bonus[0] * 2,
+      pH : new_page.getHeight() - window.book.physical.printer_marin_bonus[1]  * 2,
       renderPage : this._renderPage.bind(this),
       flip_short : document.getElementById("flip_paper_short").checked,
       renderCrosshair : this._renderCrossHair.bind(this),
@@ -407,8 +410,8 @@ export const imposerMagic = {
     const len = this._collectValueOrPlaceholder(document.getElementById("markup_crosshairs_length"))
     const weight = this._collectValueOrPlaceholder(document.getElementById("markup_crosshairs_weight"))
     const color = this._collectValueOrPlaceholder(document.getElementById("markup_crosshairs_color"))
-    x += window.book.physical.short_margin
-    y += window.book.physical.long_margin
+    x += window.book.physical.printer_marin_bonus[0]
+    y += window.book.physical.printer_marin_bonus[1]
     new_page.drawLine({
       start: { x: x - len, y: y },          end: { x: x + len, y: y },
       thickness: weight,  color: color,
@@ -423,10 +426,10 @@ export const imposerMagic = {
       return;
     const weight = this._collectValueOrPlaceholder(document.getElementById("fold_line_weight"))
     const color = this._collectValueOrPlaceholder(document.getElementById("markup_fold_lines_color"))
-    x_start += window.book.physical.short_margin
-    y_start += window.book.physical.long_margin
-    x_end += window.book.physical.short_margin
-    y_end += window.book.physical.long_margin
+    x_start += window.book.physical.printer_marin_bonus[0]
+    y_start += window.book.physical.printer_marin_bonus[1]
+    x_end += window.book.physical.printer_marin_bonus[0]
+    y_end += window.book.physical.printer_marin_bonus[1]
     new_page.drawLine({
       start: { x: x_start, y: y_start},          end: { x: x_end, y: y_end },
       thickness: weight,  color: color,

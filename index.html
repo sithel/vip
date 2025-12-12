@@ -17,7 +17,7 @@
       unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0, pageCount: 0, pdf_is_valid: false, maxWidth: 0,  maxHeight: 0, is_large_file: false, interlaced: false /* _scale100px: Int,  */ }, 
       imposition: { /* name: String, canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>, cellCount_l:Int, cellCount_s:Int*/},
       imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, pageCount: Int, blanks: Int, hasSplitSig: Boolean, requiresCutting: Boolean */ },
-      physical: { short_margin: 0, long_margin: 0, scaling: 'fit', placement: 'center' /* display_unit: String */},
+      physical: { short_margin: 0, long_margin: 0, scaling: 'fit', placement: 'center' /* display_unit: String */, printer_marin_bonus: [0,0]},
       page_orientation: null,
       display_unit: null, // what to show, ex: cm
       display_unit_scale: null, // what to multiple pts by, ex: 1/72
@@ -394,7 +394,7 @@
     <main class="container">
       <section id="title">
         <h1>Villainous Imposer<BR><small id="version_info">
-          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.0.11</a>
+          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.0.12</a>
         </small>[VI]</h1>
         <details>
           <summary>information & glossary</summary>
@@ -540,6 +540,10 @@
           <p>
             This has to do with <i>your</i> machine and the paper you're feeding into it. <BR><br>
 
+            To enter custom paper sizes, just type in the text field next to the drop down. Any "number x number" format should work. The "Custom" option will be automatically added to the end of the drop down<br><br>
+
+            The &#x1f504; button swaps the width & height of the paper. It will always report "Custom", even if you select a paper size, rotate and then rotate back again. Sorry<br><br>
+
             The paper margins are to add white space on the edges of the printed page in case you do not have a full-bleed printer. They are mirrored on either side - so a <code>10 pt</code> margin on the Long Sides will put a <code>10 pt</code> on both sides for a total of <code>20 pt</code><br><br>
 
             The <code>Download Test Print</code> button will give you a zip file named <code>vip_test_print</code>, which contains a PDF of same name. It looks at your selected paper size and flip orientation. 
@@ -561,9 +565,11 @@
             <option value="" selected>Letter</option>
             <option>A4</option>
           </select>
-          <input type="text" id="paper_size" name="paper_size" placeholder="10x30" oninput="vip.handleManualPaperSizeChange(this)"/>
+          <input type="text" id="paper_size" name="paper_size" placeholder="10x30" size="10" oninput="vip.handleManualPaperSizeChange(this)"/>
+          <small class="units" style="width: auto;margin: 0.5em 0.5em 0em 0em;">cm</small>
+          <div onclick="vip.rotatePrinterPaper()">&#x1f504;</div>
         </fieldset>
-        <small class="units">cm</small>
+        
         <BR>
         Flip Paper
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -582,7 +588,8 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; long sides
         <input type="number" id="paper_margin_long" name="paper_margin_long" placeholder="0" oninput="vip.handlePaperMarginUpdate()" />
         <small class="units">cm</small>
-        <button onclick="vip.generateTestPrint()">Download Test Print</button>
+        <br>
+        <button onclick="vip.generateTestPrint()" style="margin-left: 20em">Download Test Print</button>
       </section>
 
 

@@ -5,6 +5,7 @@ Launch February 4th 2025
 
 ## [Versions](#version-history)
 
+- v0.0.12 - fixing Paper Margins (were swapped) & adding Rotate Paper button
 - v0.0.11 - fixing Tiny Landscape folding marks and adding duo Sexto imposition
 - v0.0.10 - adding Tiny Landscape imposition & slightly improving saved file name
 - v0.0.9 - adding [FAQ page](https://sithel.github.io/vip/docs/faq.html) and fixing custom dimensions so they actually work
@@ -76,12 +77,13 @@ Call `window.book.unified_source.processUpdate()` after base changes to re-calcu
 
 ## Physical (step 3)
 
-This really highlights the mangling of terms. Height = Long Side = `y`, Width = Short Side = `x`
+This really highlights the mangling of terms. Height = `y`, Width = `x` (short/long is input, but calculated out to x/y)
 
 - `window.book.physical.display_unit` : either `metric`, `imperial`, or `points`
 - `window.book.physical.paper_size` : a 2 value list of the sheet's `[width, height]` in points
 - `window.book.physical.short_margin` : value to be mirrored on both sides of the paper (compressing total imposition)
 - `window.book.physical.long_margin` : value to be mirrored on both sides of the paper (compressing total imposition)
+- `window.book.physical.printer_marin_bonus` : 2 dimensional array `[x, y]` of the correct printer margin (taking into account short/long settings & real dimensions)
 
 ## Imposition (step 4)
 
@@ -91,6 +93,7 @@ Within `imposer.js`:
  
  - `_renderPage` is pretty solid (and self documented) -- given placement x,y on sheet and cell w,h to work with, figures out how to place specified `page_num` according to the `window.book.physical.scaling`
  - the `_handleIMPOSITION` functions manage folio wrangling and placement, relying on `_renderPage` and getting a lot of helper values from `_calcDimens` (yay for destructuring in JavaScript!)
+
 
 
 ## Placement / Imposed (step 5)

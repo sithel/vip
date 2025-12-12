@@ -138,7 +138,6 @@ export const imposed_modifier = {
       const imposition = window.book.imposition
       const selected_paper_dimensions = window.book.selected_paper_dimensions
       if (selected_paper_dimensions == undefined || selected_paper_dimensions.length != 2 || imposition.cellCount_l == undefined || imposition.cellCount_s == undefined ) {
-        console.log("bailing because of    "+imposition.cellCount_l+" x "+imposition.cellCount_s +" on ",selected_paper_dimensions);
         return
       }
       window.book.imposed.isValid = true
