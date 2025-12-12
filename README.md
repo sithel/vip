@@ -95,7 +95,6 @@ Within `imposer.js`:
  - the `_handleIMPOSITION` functions manage folio wrangling and placement, relying on `_renderPage` and getting a lot of helper values from `_calcDimens` (yay for destructuring in JavaScript!)
 
 
-
 ## Placement / Imposed (step 5)
 
 You can find the logic handling this over in `helper.js` `calImpositionInfo()`
