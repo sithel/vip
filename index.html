@@ -540,13 +540,15 @@
           <p>
             This has to do with <i>your</i> machine and the paper you're feeding into it. <BR><br>
 
-            To enter custom paper sizes, just type in the text field next to the drop down. Any "number x number" format should work. The "Custom" option will be automatically added to the end of the drop down<br><br>
+            To enter custom paper sizes, just type in the text field next to the drop down. Any <code>number x number</code> format should work. The <code>Custom</code> option will be automatically added to the end of the drop down<br><br>
 
-            The &#x1f504; button swaps the width & height of the paper. It will always report "Custom", even if you select a paper size, rotate and then rotate back again. Sorry<br><br>
+            The &#x1f504; button swaps the width & height of the paper. It will always report <code>Custom</code>, even if you select a paper size, rotate and then rotate back again. Sorry<br><br>
 
-            The paper margins are to add white space on the edges of the printed page in case you do not have a full-bleed printer. They are mirrored on either side - so a <code>10 pt</code> margin on the Long Sides will put a <code>10 pt</code> on both sides for a total of <code>20 pt</code><br><br>
+            <b>Printer Flip Paper</b> is an important setting that needs to align with how your printer is configured/works. Printers (or people, when manually flipping!) will either rotate the paper when turning it over to print on the other side via the long or short axis of the sheet. The imposition rendering needs to reflect this correctly. This information (flip long/flip short) will also be exported in the file name. Make sure it's correct or you'll have a bad time.<br><br>
 
-            The <code>Download Test Print</code> button will give you a zip file named <code>vip_test_print</code>, which contains a PDF of same name. It looks at your selected paper size and flip orientation. 
+            The <b>Paper Margins</b> are to add white space on the edges of the printed page in case you do not have a full-bleed printer. They are mirrored on either side - so a <code>10 pt</code> margin on the Long Sides will put a <code>10 pt</code> on both sides for a total of <code>20 pt</code><br><br>
+
+            The <b>Download Test Print</b> button will give you a zip file named <code>vip_test_print</code>, which contains a PDF of same name. It looks at your selected paper size and flip orientation. 
             You should print this at 100% scale and then check several things - are you flipping correctly - how much of the corners are eaten away by printer margin (each white line and each black line are 1 pt a piece -- my printer eats 12pt on all sides) - what line weight & color you want for your various mark ups - and what kind of printer skew you're dealing with (more on that later)
           </p>
         </details>
@@ -571,7 +573,7 @@
         </fieldset>
         
         <BR>
-        Flip Paper
+        Printer Flip Paper
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <label for="flip_paper_short">
           short side&nbsp;&nbsp;<input type="radio" id="flip_paper_short" name="flip_paper" value="short" checked>
