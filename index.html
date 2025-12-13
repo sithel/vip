@@ -13,7 +13,7 @@
 
   <script language="javascript">
     window.book = {
-      upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument } */],
+      upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument, splitPages: Boolean } */],
       unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0, pageCount: 0, pdf_is_valid: false, maxWidth: 0,  maxHeight: 0, is_large_file: false, interlaced: false /* _scale100px: Int,  */ }, 
       imposition: { /* name: String, canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>, cellCount_l:Int, cellCount_s:Int*/},
       imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, pageCount: Int, blanks: Int, hasSplitSig: Boolean, requiresCutting: Boolean */ },
@@ -33,13 +33,12 @@
   </script>
 
   <script  type="module" language="javascript">
-    import { basic, vip } from './js/main.js';
+    import { vip } from './js/main.js';
     import { unified_source_modifier, imposed_modifier} from './js/state_modifiers.js';
     import { tests } from './tests/miscTests.js';
     tests();
     unified_source_modifier.attach()
     imposed_modifier.attach()
-    window.basicLocal = basic
     window.vip = vip
 
     document.getElementById("unit_selector").value = "points";
@@ -394,7 +393,7 @@
     <main class="container">
       <section id="title">
         <h1>Villainous Imposer<BR><small id="version_info">
-          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.0.12</a>
+          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.0.13</a>
         </small>[VI]</h1>
         <details>
           <summary>information & glossary</summary>
@@ -446,14 +445,12 @@
         </script>
         <button onclick="vip.processUploads(
         this,
-        document.getElementById('upload_blocks'),
         document.getElementById('upload_blocks_result'),
         false
         )"
         >Process Uploads</button>
         <button id="upload_block_interlacing" style="display: none;" onclick="vip.processUploads(
         this,
-        document.getElementById('upload_blocks'),
         document.getElementById('upload_blocks_result'),
         true
         )"

@@ -16,6 +16,7 @@ export const imposerMagic = {
    */
   _renderPage: function(new_page, page_map, page_num, corner_x, corner_y, w, h, orientation, center_info) {
     const embedded_page = page_map[page_num];
+    console.log("REbecca, this? ",embedded_page)
     if (embedded_page == undefined) {
       return;
     }

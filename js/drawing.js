@@ -66,6 +66,8 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
             <input type="file" id="file" name="file" accept=".pdf" data-upload-index="`+idNum+`" onchange="vip.uploadBlockPdf(this)"/><br>
             <input class="page_count" type="text" name="text" data-upload-index="`+idNum+`" onchange="vip.uploadBlockPageSelection(this)" placeholder="all" />
             <small>page selection</small><br>
+            <label id="pdf_split_page_label" for="pdf_split_page">
+            <input type="checkbox" role="switch" id="pdf_split_page" name="pdf_split_page" data-upload-index="`+idNum+`" onchange="vip.uploadBlockSplitPages(this)"> <small>split each PDF page in half</small></label>
             `+showDeleteBtn+`
     `
     newNode.className = "upload_block";

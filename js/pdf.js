@@ -111,9 +111,39 @@ export const utils = {
             )</small>
     `
   },
-  _ingestPdfFile: async function(file) {
+  _splitPdfFile: async function(origPdf) {
+      console.log(" ~~ splitting the PDF ("+origPdf.getPageCount()+" pages) ")
+      const newPdf = await PDFLib.PDFDocument.create();
+      // const embeddedPage = await newPdf.embedPage(origPdf.getPage(1));
+      // const embeddedPages = [await newPdf.embedPage(origPdf.getPage(1)), await newPdf.embedPage(origPdf.getPage(2))]
+      const oldDimension = [origPdf.getPage(0).getWidth(), origPdf.getPage(0).getHeight()];
+      const newDimension = [oldDimension[0] / 2, oldDimension[1]]
+      console.log(" ~~~ old dimens ",oldDimension," vs new dimens ",newDimension)
+      for(var i = 0; i < origPdf.getPageCount(); ++i) {
+        const origPage = origPdf.getPage(i)
+        const embeddedPage = await newPdf.embedPage(origPage);
+        const left =  newPdf.addPage(newDimension)
+         left.drawPage(embeddedPage, {xScale: 0.25, yScale:0.25})
+        console.log("My embedded page??? ["+i+"] ", embeddedPage, " vs page ",origPage)
+        const right =  newPdf.addPage(newDimension)
+         right.drawPage(embeddedPage, {xScale: 0.25, yScale:0.25})
+        right.drawRectangle({
+          x: 2,
+          y: 2, 
+          width: embeddedPage.width - 4,
+          height: embeddedPage.height - 4,
+          borderWidth: 5,
+          borderColor: PDFLib.grayscale(0.5),
+        })
+      }
+      return newPdf;
+  },
+  _ingestPdfFile: async function(file, splitPages) {
     const input = await file.arrayBuffer();
     const pdfDoc = await PDFLib.PDFDocument.load(input);
+    if (splitPages) {
+      return await this._splitPdfFile(pdfDoc)
+    }
     return pdfDoc
   },
   processUploadBlocks : async function (callback){
@@ -127,20 +157,11 @@ export const utils = {
     for (let i = 0; i < blocks.length; ++i) {
       let block = blocks[i]
       console.log("it could work ["+i+"] ", this) 
-      block.pdfDoc = await this._ingestPdfFile(block.file)
+      block.pdfDoc = await this._ingestPdfFile(block.file, !!block.splitPages) // the !! is to squish undefined into false
     }
     this._calcPdfDimensions()
     resultsE.removeAttribute("style")
     setTimeout(callback,500); // make sure folks feel like it's processing, even if it's quick
-  },
-  openDoc : async function(file) {
-    console.log("I see this ", PDFLib.PDFDocument);
-    const input = await file.arrayBuffer();
-    const pdfDoc = await PDFLib.PDFDocument.load(input);
-    const pages = pdfDoc.getPages();
-    console.log("open doc ran -- ", pdfDoc)
-    console.log(pages)
-    window.reb2 = pdfDoc
   }
 }
 

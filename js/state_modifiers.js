@@ -34,7 +34,7 @@ export const unified_source_modifier = {
   _hasValidPdf: function() {
     return this.pdf_is_valid && this.pageCount > 0
   },
-  _getPdfPageForPageNumber: function shark(pageNum) {
+  _getPdfPageForPageNumber: function(pageNum) {
     const isNumber = function(value) {
       return typeof value === "number" && isFinite(value);
     }
