@@ -111,38 +111,49 @@ export const utils = {
             )</small>
     `
   },
+  _shark: async function(origPdf) {
+
+const pdfDoc = await PDFLib.PDFDocument.create()
+const page = pdfDoc.addPage()
+
+const sourcePdfUrl = 'https://pdf-lib.js.org/assets/with_large_page_count.pdf'
+const sourcePdf = await fetch(sourcePdfUrl).then((res) => res.arrayBuffer())
+
+// Embed page 74 from the PDF
+const [embeddedPage] = await pdfDoc.embedPdf(sourcePdf, [73])
+console.log("Trying to do stuff w/ ",sourcePdf)
+
+page.drawPage(embeddedPage, {
+  x: 25,
+  y: 20,
+  xScale: 0.5,
+  yScale: 0.5,
+  rotate: PDFLib.degrees(30),
+  opacity: 0.75,
+})
+return pdfDoc
+  },
   _splitPdfFile: async function(origPdf) {
-      console.log(" ~~ splitting the PDF ("+origPdf.getPageCount()+" pages) ")
+      console.log("  [_splitPdfFile] splitting pdf pages in half ("+origPdf.getPageCount()+" pages) ")
       const newPdf = await PDFLib.PDFDocument.create();
-      // const embeddedPage = await newPdf.embedPage(origPdf.getPage(1));
-      // const embeddedPages = [await newPdf.embedPage(origPdf.getPage(1)), await newPdf.embedPage(origPdf.getPage(2))]
-      const oldDimension = [origPdf.getPage(0).getWidth(), origPdf.getPage(0).getHeight()];
-      const newDimension = [oldDimension[0] / 2, oldDimension[1]]
-      console.log(" ~~~ old dimens ",oldDimension," vs new dimens ",newDimension)
       for(var i = 0; i < origPdf.getPageCount(); ++i) {
-        const origPage = origPdf.getPage(i)
-        const embeddedPage = await newPdf.embedPage(origPage);
+        const origPage = origPdf.getPage(i);
+        const newDimension = [origPage.getWidth() / 2, origPage.getHeight()];
+        const embeddedPage = await newPdf.embedPage(origPage)
         const left =  newPdf.addPage(newDimension)
-         left.drawPage(embeddedPage, {xScale: 0.25, yScale:0.25})
-        console.log("My embedded page??? ["+i+"] ", embeddedPage, " vs page ",origPage)
+        left.drawPage(embeddedPage, {x: 0, y: 0})
         const right =  newPdf.addPage(newDimension)
-         right.drawPage(embeddedPage, {xScale: 0.25, yScale:0.25})
-        right.drawRectangle({
-          x: 2,
-          y: 2, 
-          width: embeddedPage.width - 4,
-          height: embeddedPage.height - 4,
-          borderWidth: 5,
-          borderColor: PDFLib.grayscale(0.5),
-        })
+        right.drawPage(embeddedPage, {x: newDimension[0] * -1, y: 0})
       }
-      return newPdf;
+      const pdfBytes = await newPdf.save()
+      console.log("  [_splitPdfFile] saving reassembled PDF and reloading it")
+      return await PDFLib.PDFDocument.load(pdfBytes);
   },
   _ingestPdfFile: async function(file, splitPages) {
     const input = await file.arrayBuffer();
     const pdfDoc = await PDFLib.PDFDocument.load(input);
     if (splitPages) {
-      return await this._splitPdfFile(pdfDoc)
+      return await this._splitPdfFile(pdfDoc);//this._splitPdfFile(pdfDoc)
     }
     return pdfDoc
   },
