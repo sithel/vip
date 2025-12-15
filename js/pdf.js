@@ -57,8 +57,8 @@ export const utils = {
       this._appendPdfSourceError("No PDF files selected!")
       return;
     }
-    let maxHeight = 0;
-    let maxWidth = 0;
+    let sourceHeights = [];
+    let sourceWidths = [];
     let fileSize = 0;
     for (let i = 0; i < blocks.length; ++i) {
       let original_pdf = blocks[i].pdfDoc;
@@ -81,11 +81,15 @@ export const utils = {
         if (pageNumber == -1)
           continue;
         let sourcePdfPage = pages[pageNumber - 1];
-        maxHeight = Math.max(maxHeight, sourcePdfPage.getHeight());
-        maxWidth = Math.max(maxWidth, sourcePdfPage.getWidth());
+        sourceHeights.push(sourcePdfPage.getHeight());
+        sourceWidths.push(sourcePdfPage.getWidth());
       }
       fileSize += blocks[i].file.size
     }
+    sourceHeights.sort()
+    sourceWidths.sort()
+    const maxHeight = sourceHeights[sourceHeights.length - 1];//sourceHeights[Math.floor(sourceHeights.length/2)]
+    const maxWidth = sourceWidths[sourceWidths.length - 1];//sourceWidths[Math.floor(sourceWidths.length/2)]
     let scale = Math.min(100/maxWidth, 100/maxHeight)
     const valid_upload_blocks = window.book.upload_blocks.filter(x => x.pdfDoc != null)
     const is_interlaced = valid_upload_blocks.length == 2 && window.book.unified_source.interlaced
@@ -138,36 +142,43 @@ return pdfDoc
       const newPdf = await PDFLib.PDFDocument.create();
       for(var i = 0; i < origPdf.getPageCount(); ++i) {
         const origPage = origPdf.getPage(i);
-        var { x, y, width, height } = origPage.getMediaBox()
-        console.log("["+i+"] Looking at getMediaBox "+x+", "+y+" : "+Math.round(width)+" x "+Math.round(height)+" ~~~~~~ "+Math.round(origPage.getWidth())+" vs "+Math.round(origPage.getHeight()))
-        var { x,ty, width, height } = origPage.getTrimBox()
-        console.log("["+i+"] Looking at getTrimBox "+x+", "+y+" : "+Math.round(width)+" x "+Math.round(height)+" ~~~~~~ "+Math.round(origPage.getWidth())+" vs "+Math.round(origPage.getHeight()))
-        var { x,ty, width, height } = origPage.getBleedBox()
-        console.log("["+i+"] Looking at BleedBox "+x+", "+y+" : "+Math.round(width)+" x "+Math.round(height)+" ~~~~~~ "+Math.round(origPage.getWidth())+" vs "+Math.round(origPage.getHeight()))
-        var { x,ty, width, height } = origPage.getArtBox()
-        console.log("["+i+"] Looking at ArtBox "+x+", "+y+" : "+Math.round(width)+" x "+Math.round(height)+" ~~~~~~ "+Math.round(origPage.getWidth())+" vs "+Math.round(origPage.getHeight()))
-        var { x,ty, width, height } = origPage.getCropBox()
-        console.log("["+i+"] Looking at CropBox "+x+", "+y+" : "+Math.round(width)+" x "+Math.round(height)+" ~~~~~~ "+Math.round(origPage.getWidth())+" vs "+Math.round(origPage.getHeight()))
         const newDimension = [origPage.getWidth() / 2, origPage.getHeight()];
         const embeddedPage = await newPdf.embedPage(origPage)
         const left =  newPdf.addPage(newDimension)
         left.drawPage(embeddedPage, {x: 0, y: 0})
-        left.drawRectangle({x:0, y:0, width: newDimension[0], height: newDimension[1], borderWidth: 5, borderColor: PDFLib.rgb(1, 0, 0), opacity: 0})
         const right =  newPdf.addPage(newDimension)
         right.drawPage(embeddedPage, {x: newDimension[0] * -1, y: 0})
-        right.drawRectangle({x:0, y:0, width: newDimension[0], height: newDimension[1], borderWidth: 5, borderColor: PDFLib.rgb(0, 0, 1), opacity: 0})
       }
       const pdfBytes = await newPdf.save()
       console.log("  [_splitPdfFile] saving reassembled PDF and reloading it")
       return await PDFLib.PDFDocument.load(pdfBytes);
   },
-  _ingestPdfFile: async function(file, splitPages) {
+  _ingestPdfFile: async function(file, splitPages, framePages) {
     const input = await file.arrayBuffer();
     const pdfDoc = await PDFLib.PDFDocument.load(input);
     if (splitPages) {
-      return await this._splitPdfFile(pdfDoc);//this._splitPdfFile(pdfDoc)
+      return await this._splitPdfFile(pdfDoc);
     }
-    return pdfDoc
+    if (!framePages) {
+      return pdfDoc
+    }
+    const newPdf = await PDFLib.PDFDocument.create();
+    for(var i = 0; i < pdfDoc.getPageCount(); ++i) {
+      const origPage = pdfDoc.getPage(i);
+      var { x,y, width, height } = origPage.getCropBox();
+      const embeddedPage = await newPdf.embedPage(origPage,   { left: x,  bottom: y, right: width + x, top: height + y});
+      const newDimension = [width, height];
+      if (x > 0 || y > 0) {
+        console.log("We're going to translate the page ["+i+"] -- "+-x+", "+-y+" : ["+newDimension[0]+", "+newDimension[1]+"]")
+      }
+      const newPage =  newPdf.addPage(newDimension);
+      
+      newPage.drawPage(embeddedPage, {x: 0, y: 0});
+      // newPage.drawRectangle({x: 0, y:0, width: newDimension[0], height:newDimension[1], opacity: 0, borderOpacity: 1, borderWidth: 10, borderColor: PDFLib.grayscale(0.5)})
+      // newPage.drawRectangle({x: x, y:x, width: width, height:height, opacity: 0, borderOpacity: 1, borderWidth: 5, borderColor: PDFLib.grayscale(0.25)})
+    }
+    const pdfBytes = await newPdf.save()
+    return await PDFLib.PDFDocument.load(pdfBytes);
   },
   processUploadBlocks : async function (callback){
     let errorE = document.getElementById("insert_pdf_source_errors_here");
@@ -180,7 +191,7 @@ return pdfDoc
     for (let i = 0; i < blocks.length; ++i) {
       let block = blocks[i]
       console.log("it could work ["+i+"] ", this) 
-      block.pdfDoc = await this._ingestPdfFile(block.file, !!block.splitPages) // the !! is to squish undefined into false
+      block.pdfDoc = await this._ingestPdfFile(block.file, !!block.splitPages, !!block.framePages) // the !! is to squish undefined into false
     }
     this._calcPdfDimensions()
     resultsE.removeAttribute("style")

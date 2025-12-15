@@ -5,6 +5,7 @@ Launch February 4th 2025
 
 ## [Versions](#version-history)
 
+- v0.0.13 - adding the 'split origin PDF' option & the 'honor MediaBox' option
 - v0.0.12 - fixing Paper Margins (were swapped) & adding Rotate Paper button
 - v0.0.11 - fixing Tiny Landscape folding marks and adding duo Sexto imposition
 - v0.0.10 - adding Tiny Landscape imposition & slightly improving saved file name

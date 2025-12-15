@@ -13,7 +13,7 @@
 
   <script language="javascript">
     window.book = {
-      upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument, splitPages: Boolean } */],
+      upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument, splitPages: Boolean, framePages: Boolean } */],
       unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0, pageCount: 0, pdf_is_valid: false, maxWidth: 0,  maxHeight: 0, is_large_file: false, interlaced: false /* _scale100px: Int,  */ }, 
       imposition: { /* name: String, canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>, cellCount_l:Int, cellCount_s:Int*/},
       imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, pageCount: Int, blanks: Int, hasSplitSig: Boolean, requiresCutting: Boolean */ },
@@ -573,11 +573,11 @@
         Printer Flip Paper
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <label for="flip_paper_short">
-          short side&nbsp;&nbsp;<input type="radio" id="flip_paper_short" name="flip_paper" value="short" checked>
+          short side&nbsp;&nbsp;<input type="radio" id="flip_paper_short" name="flip_paper" value="short" >
         </label>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <label for="flip_paper_long">
-          long side&nbsp;&nbsp;<input type="radio" id="flip_paper_long" name="flip_paper" value="long">
+          long side&nbsp;&nbsp;<input type="radio" id="flip_paper_long" name="flip_paper" value="long" checked>
         </label>
         <BR>
         Paper Margins 
