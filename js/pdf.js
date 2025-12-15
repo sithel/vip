@@ -138,12 +138,24 @@ return pdfDoc
       const newPdf = await PDFLib.PDFDocument.create();
       for(var i = 0; i < origPdf.getPageCount(); ++i) {
         const origPage = origPdf.getPage(i);
+        var { x, y, width, height } = origPage.getMediaBox()
+        console.log("["+i+"] Looking at getMediaBox "+x+", "+y+" : "+Math.round(width)+" x "+Math.round(height)+" ~~~~~~ "+Math.round(origPage.getWidth())+" vs "+Math.round(origPage.getHeight()))
+        var { x,ty, width, height } = origPage.getTrimBox()
+        console.log("["+i+"] Looking at getTrimBox "+x+", "+y+" : "+Math.round(width)+" x "+Math.round(height)+" ~~~~~~ "+Math.round(origPage.getWidth())+" vs "+Math.round(origPage.getHeight()))
+        var { x,ty, width, height } = origPage.getBleedBox()
+        console.log("["+i+"] Looking at BleedBox "+x+", "+y+" : "+Math.round(width)+" x "+Math.round(height)+" ~~~~~~ "+Math.round(origPage.getWidth())+" vs "+Math.round(origPage.getHeight()))
+        var { x,ty, width, height } = origPage.getArtBox()
+        console.log("["+i+"] Looking at ArtBox "+x+", "+y+" : "+Math.round(width)+" x "+Math.round(height)+" ~~~~~~ "+Math.round(origPage.getWidth())+" vs "+Math.round(origPage.getHeight()))
+        var { x,ty, width, height } = origPage.getCropBox()
+        console.log("["+i+"] Looking at CropBox "+x+", "+y+" : "+Math.round(width)+" x "+Math.round(height)+" ~~~~~~ "+Math.round(origPage.getWidth())+" vs "+Math.round(origPage.getHeight()))
         const newDimension = [origPage.getWidth() / 2, origPage.getHeight()];
         const embeddedPage = await newPdf.embedPage(origPage)
         const left =  newPdf.addPage(newDimension)
         left.drawPage(embeddedPage, {x: 0, y: 0})
+        left.drawRectangle({x:0, y:0, width: newDimension[0], height: newDimension[1], borderWidth: 5, borderColor: PDFLib.rgb(1, 0, 0), opacity: 0})
         const right =  newPdf.addPage(newDimension)
         right.drawPage(embeddedPage, {x: newDimension[0] * -1, y: 0})
+        right.drawRectangle({x:0, y:0, width: newDimension[0], height: newDimension[1], borderWidth: 5, borderColor: PDFLib.rgb(0, 0, 1), opacity: 0})
       }
       const pdfBytes = await newPdf.save()
       console.log("  [_splitPdfFile] saving reassembled PDF and reloading it")
