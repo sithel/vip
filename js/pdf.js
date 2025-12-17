@@ -115,28 +115,6 @@ export const utils = {
             )</small>
     `
   },
-  _shark: async function(origPdf) {
-
-const pdfDoc = await PDFLib.PDFDocument.create()
-const page = pdfDoc.addPage()
-
-const sourcePdfUrl = 'https://pdf-lib.js.org/assets/with_large_page_count.pdf'
-const sourcePdf = await fetch(sourcePdfUrl).then((res) => res.arrayBuffer())
-
-// Embed page 74 from the PDF
-const [embeddedPage] = await pdfDoc.embedPdf(sourcePdf, [73])
-console.log("Trying to do stuff w/ ",sourcePdf)
-
-page.drawPage(embeddedPage, {
-  x: 25,
-  y: 20,
-  xScale: 0.5,
-  yScale: 0.5,
-  rotate: PDFLib.degrees(30),
-  opacity: 0.75,
-})
-return pdfDoc
-  },
   _splitPdfFile: async function(origPdf) {
       console.log("  [_splitPdfFile] splitting pdf pages in half ("+origPdf.getPageCount()+" pages) ")
       const newPdf = await PDFLib.PDFDocument.create();
