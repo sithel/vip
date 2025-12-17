@@ -116,15 +116,10 @@ export const vip = {
     console.log("I see [page selection] "+id+" has ["+e.value+"] ", e)
     window.book.upload_blocks[id].pageSelection = e.value
   },
-  uploadBlockFramePages: function(e) {
+  uploadBlockPreProcessing: function(e) {
     let id = parseInt(e.getAttribute("data-upload-index"))
-    console.log("I see [frame pages] "+id+" has ["+e.value+"] ", e)
-    window.book.upload_blocks[id].framePages = e.checked
-  },
-  uploadBlockSplitPages: function(e) {
-    let id = parseInt(e.getAttribute("data-upload-index"))
-    console.log("I see [split pages] "+id+" has ["+e.value+"] ", e)
-    window.book.upload_blocks[id].splitPages = e.checked
+    console.log("I see [pre processing] "+id+" has ["+e.value+"] ", e)
+    window.book.upload_blocks[id].preProcessing = e.value
   },
   handlePdfPageScaling: function() {
     window.book.physical.scaling = document.getElementById("pdf_page_scaling").value;

@@ -153,29 +153,26 @@ return pdfDoc
       console.log("  [_splitPdfFile] saving reassembled PDF and reloading it")
       return await PDFLib.PDFDocument.load(pdfBytes);
   },
-  _ingestPdfFile: async function(file, splitPages, framePages) {
+  _ingestPdfFile: async function(file, preProcessing) {
     const input = await file.arrayBuffer();
     const pdfDoc = await PDFLib.PDFDocument.load(input);
-    if (splitPages) {
+    if (preProcessing == "split") {
       return await this._splitPdfFile(pdfDoc);
     }
-    if (!framePages) {
+    if (preProcessing != "frame") {
       return pdfDoc
     }
     const newPdf = await PDFLib.PDFDocument.create();
     for(var i = 0; i < pdfDoc.getPageCount(); ++i) {
       const origPage = pdfDoc.getPage(i);
-      var { x,y, width, height } = origPage.getCropBox();
+      var { x,y, width, height } = origPage.getBleedBox();
       const embeddedPage = await newPdf.embedPage(origPage,   { left: x,  bottom: y, right: width + x, top: height + y});
       const newDimension = [width, height];
       if (x > 0 || y > 0) {
         console.log("We're going to translate the page ["+i+"] -- "+-x+", "+-y+" : ["+newDimension[0]+", "+newDimension[1]+"]")
       }
       const newPage =  newPdf.addPage(newDimension);
-      
       newPage.drawPage(embeddedPage, {x: 0, y: 0});
-      // newPage.drawRectangle({x: 0, y:0, width: newDimension[0], height:newDimension[1], opacity: 0, borderOpacity: 1, borderWidth: 10, borderColor: PDFLib.grayscale(0.5)})
-      // newPage.drawRectangle({x: x, y:x, width: width, height:height, opacity: 0, borderOpacity: 1, borderWidth: 5, borderColor: PDFLib.grayscale(0.25)})
     }
     const pdfBytes = await newPdf.save()
     return await PDFLib.PDFDocument.load(pdfBytes);
@@ -190,8 +187,8 @@ return pdfDoc
       .filter(block => { return block.file != null })
     for (let i = 0; i < blocks.length; ++i) {
       let block = blocks[i]
-      console.log("it could work ["+i+"] ", this) 
-      block.pdfDoc = await this._ingestPdfFile(block.file, !!block.splitPages, !!block.framePages) // the !! is to squish undefined into false
+      console.log(".  processing upload block ["+i+"] ", this) 
+      block.pdfDoc = await this._ingestPdfFile(block.file, block.preProcessing)
     }
     this._calcPdfDimensions()
     resultsE.removeAttribute("style")
