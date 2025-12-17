@@ -66,6 +66,13 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
             <input type="file" id="file" name="file" accept=".pdf" data-upload-index="`+idNum+`" onchange="vip.uploadBlockPdf(this)"/><br>
             <input class="page_count" type="text" name="text" data-upload-index="`+idNum+`" onchange="vip.uploadBlockPageSelection(this)" placeholder="all" />
             <small>page selection</small><br>
+            <label for="pdf_pre_processing"><small>PDF pre-processing
+              <select name="pdf_pre_processing" id="pdf_pre_processing" data-upload-index="`+idNum+`" onchange="vip.uploadBlockPreProcessing(this)" style="width: auto;">
+                <option value="none">none</option>
+                <option value="split">split pages in half</option>
+                <option value="frame">crop to PDF's BleedBox</option>
+              </select>
+            </small></label>
             `+showDeleteBtn+`
     `
     newNode.className = "upload_block";
@@ -76,7 +83,6 @@ viewBox="0.0 0.0 197.6482939632546 280.6719160104987" fill="none" stroke="none" 
       document.getElementById("upload_block_interlacing").style.display = (document.getElementsByClassName("upload_block").length == 2) ? '':'none'
   },
   updatePdfOrientationExample: function() {
-    console.log("   > drawing.updatePdfOrientationExample")
     let deets = window.book.unified_source;
     if (deets.pdf == undefined) {
       return

@@ -57,8 +57,8 @@ export const utils = {
       this._appendPdfSourceError("No PDF files selected!")
       return;
     }
-    let maxHeight = 0;
-    let maxWidth = 0;
+    let sourceHeights = [];
+    let sourceWidths = [];
     let fileSize = 0;
     for (let i = 0; i < blocks.length; ++i) {
       let original_pdf = blocks[i].pdfDoc;
@@ -81,11 +81,15 @@ export const utils = {
         if (pageNumber == -1)
           continue;
         let sourcePdfPage = pages[pageNumber - 1];
-        maxHeight = Math.max(maxHeight, sourcePdfPage.getHeight());
-        maxWidth = Math.max(maxWidth, sourcePdfPage.getWidth());
+        sourceHeights.push(sourcePdfPage.getHeight());
+        sourceWidths.push(sourcePdfPage.getWidth());
       }
       fileSize += blocks[i].file.size
     }
+    sourceHeights.sort()
+    sourceWidths.sort()
+    const maxHeight = sourceHeights[sourceHeights.length - 1];//sourceHeights[Math.floor(sourceHeights.length/2)]
+    const maxWidth = sourceWidths[sourceWidths.length - 1];//sourceWidths[Math.floor(sourceWidths.length/2)]
     let scale = Math.min(100/maxWidth, 100/maxHeight)
     const valid_upload_blocks = window.book.upload_blocks.filter(x => x.pdfDoc != null)
     const is_interlaced = valid_upload_blocks.length == 2 && window.book.unified_source.interlaced
@@ -111,10 +115,45 @@ export const utils = {
             )</small>
     `
   },
-  _ingestPdfFile: async function(file) {
+  _splitPdfFile: async function(origPdf) {
+      console.log("  [_splitPdfFile] splitting pdf pages in half ("+origPdf.getPageCount()+" pages) ")
+      const newPdf = await PDFLib.PDFDocument.create();
+      for(var i = 0; i < origPdf.getPageCount(); ++i) {
+        const origPage = origPdf.getPage(i);
+        const newDimension = [origPage.getWidth() / 2, origPage.getHeight()];
+        const embeddedPage = await newPdf.embedPage(origPage)
+        const left =  newPdf.addPage(newDimension)
+        left.drawPage(embeddedPage, {x: 0, y: 0})
+        const right =  newPdf.addPage(newDimension)
+        right.drawPage(embeddedPage, {x: newDimension[0] * -1, y: 0})
+      }
+      const pdfBytes = await newPdf.save()
+      console.log("  [_splitPdfFile] saving reassembled PDF and reloading it")
+      return await PDFLib.PDFDocument.load(pdfBytes);
+  },
+  _ingestPdfFile: async function(file, preProcessing) {
     const input = await file.arrayBuffer();
     const pdfDoc = await PDFLib.PDFDocument.load(input);
-    return pdfDoc
+    if (preProcessing == "split") {
+      return await this._splitPdfFile(pdfDoc);
+    }
+    if (preProcessing != "frame") {
+      return pdfDoc
+    }
+    const newPdf = await PDFLib.PDFDocument.create();
+    for(var i = 0; i < pdfDoc.getPageCount(); ++i) {
+      const origPage = pdfDoc.getPage(i);
+      var { x,y, width, height } = origPage.getBleedBox();
+      const embeddedPage = await newPdf.embedPage(origPage,   { left: x,  bottom: y, right: width + x, top: height + y});
+      const newDimension = [width, height];
+      if (x > 0 || y > 0) {
+        console.log("We're going to translate the page ["+i+"] -- "+-x+", "+-y+" : ["+newDimension[0]+", "+newDimension[1]+"]")
+      }
+      const newPage =  newPdf.addPage(newDimension);
+      newPage.drawPage(embeddedPage, {x: 0, y: 0});
+    }
+    const pdfBytes = await newPdf.save()
+    return await PDFLib.PDFDocument.load(pdfBytes);
   },
   processUploadBlocks : async function (callback){
     let errorE = document.getElementById("insert_pdf_source_errors_here");
@@ -126,21 +165,12 @@ export const utils = {
       .filter(block => { return block.file != null })
     for (let i = 0; i < blocks.length; ++i) {
       let block = blocks[i]
-      console.log("it could work ["+i+"] ", this) 
-      block.pdfDoc = await this._ingestPdfFile(block.file)
+      console.log(".  processing upload block ["+i+"] ", this) 
+      block.pdfDoc = await this._ingestPdfFile(block.file, block.preProcessing)
     }
     this._calcPdfDimensions()
     resultsE.removeAttribute("style")
     setTimeout(callback,500); // make sure folks feel like it's processing, even if it's quick
-  },
-  openDoc : async function(file) {
-    console.log("I see this ", PDFLib.PDFDocument);
-    const input = await file.arrayBuffer();
-    const pdfDoc = await PDFLib.PDFDocument.load(input);
-    const pages = pdfDoc.getPages();
-    console.log("open doc ran -- ", pdfDoc)
-    console.log(pages)
-    window.reb2 = pdfDoc
   }
 }
 

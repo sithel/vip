@@ -5,14 +5,6 @@ import { fileHandler } from './files.js';
 import { previewer } from './preview.js';
 import { builder, SIDE_COVERAGE_BOTH } from './pdf.js';
 
-export const basic = {
-  txt : "sharks sharksss sharks",
-  fun : function() { 
-    console.log("hellow world, ", arguments[0]);
-    window.reb = arguments[0]
-  }
-}
-
 export const vip = {
   auditDisabledStates: function() {
     console.log("[auditing disabled states]")
@@ -37,7 +29,7 @@ export const vip = {
     window.book.upload_blocks[id] = {}
     document.getElementById("upload_block_interlacing").style.display = (document.getElementsByClassName("upload_block").length == 2) ? '':'none'
   },
-  processUploads : function(btn, uploadSection, detailsEl, is_interlaced) {
+  processUploads : function(btn, detailsEl, is_interlaced) {
     console.log("== Processing Uploads...")
     document.getElementById("upload_blocks").setAttribute("style","pointer-events: none;opacity: 0.7;")
     btn.setAttribute("aria-busy", "true")
@@ -123,6 +115,11 @@ export const vip = {
     let id = parseInt(e.getAttribute("data-upload-index"))
     console.log("I see [page selection] "+id+" has ["+e.value+"] ", e)
     window.book.upload_blocks[id].pageSelection = e.value
+  },
+  uploadBlockPreProcessing: function(e) {
+    let id = parseInt(e.getAttribute("data-upload-index"))
+    console.log("I see [pre processing] "+id+" has ["+e.value+"] ", e)
+    window.book.upload_blocks[id].preProcessing = e.value
   },
   handlePdfPageScaling: function() {
     window.book.physical.scaling = document.getElementById("pdf_page_scaling").value;

@@ -13,7 +13,7 @@
 
   <script language="javascript">
     window.book = {
-      upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument } */],
+      upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument, preProcessing: String } */],
       unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0, pageCount: 0, pdf_is_valid: false, maxWidth: 0,  maxHeight: 0, is_large_file: false, interlaced: false /* _scale100px: Int,  */ }, 
       imposition: { /* name: String, canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>, cellCount_l:Int, cellCount_s:Int*/},
       imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, pageCount: Int, blanks: Int, hasSplitSig: Boolean, requiresCutting: Boolean */ },
@@ -33,13 +33,12 @@
   </script>
 
   <script  type="module" language="javascript">
-    import { basic, vip } from './js/main.js';
+    import { vip } from './js/main.js';
     import { unified_source_modifier, imposed_modifier} from './js/state_modifiers.js';
     import { tests } from './tests/miscTests.js';
     tests();
     unified_source_modifier.attach()
     imposed_modifier.attach()
-    window.basicLocal = basic
     window.vip = vip
 
     document.getElementById("unit_selector").value = "points";
@@ -394,7 +393,7 @@
     <main class="container">
       <section id="title">
         <h1>Villainous Imposer<BR><small id="version_info">
-          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.0.12</a>
+          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.0.13</a>
         </small>[VI]</h1>
         <details>
           <summary>information & glossary</summary>
@@ -422,10 +421,12 @@
             Multiple PDFs can be used, but at least one is needed<br>
             If the PDFs are diffent sizes, the maximum dimensions are used<BR>
             Each PDF can be preceeded by <code>N</code> blank pages (default is <code>0</code>)<br>
-            Page selection can be either <code>all</code> (the default), <code>,</code> separated list of page numbers, a range defined via <code>-</code>. Blank pages can be inserted via <codE>b</codE>.<br>
+            <b>Page selection</b> can be either <code>all</code> (the default), <code>,</code> separated list of page numbers, a range defined via <code>-</code>. Blank pages can be inserted via <codE>b</codE>.<br>
             <mark>Invalid page numbers will be ignored, invalid input will cause an error</mark><br>
             <br>
-            If there are exactly 2 valid PDF sources, you have the option to <code>interlace</code> them -- this means the odd pages will be pulled from the first PDF and the even pages pulled from the second PDF. If the page counts (after evaluating the <code>page selection</code>s) do not align, blank pages will be used to pad out the short PDF to reach the length of the larger.
+            The <b>PDF pre-processing</b> is a rare need -- you'll probably want <code>none</code> for it. The <code>split pages in half</code> is useful for scans of books/when the PDF page is actually 2 book pages. When selected, the <b>page selection</b> values apply <i>after</i> the splitting happens. The <code>crop to PDF's BleedBox</code> mutates the PDF pages- trimming each PDF page down to whatever values are encoded in the PDF's <code>BleedBox</code> (<a href="https://pdf-lib.js.org/docs/api/classes/pdfpage#getbleedbox" target="_new">reference</a>).<BR>
+            <br>
+            If there are exactly 2 valid PDF sources, you have the option to <b>Process Uploads as Interlaced</b> them -- this means the odd pages will be pulled from the first PDF and the even pages pulled from the second PDF. If the page counts (after evaluating the <b>page selection</b>s) do not align, blank pages will be used to pad out the shorter PDF to reach the length of the larger.
           </p>
         </details>
         <section id="upload_blocks">
@@ -446,14 +447,12 @@
         </script>
         <button onclick="vip.processUploads(
         this,
-        document.getElementById('upload_blocks'),
         document.getElementById('upload_blocks_result'),
         false
         )"
         >Process Uploads</button>
         <button id="upload_block_interlacing" style="display: none;" onclick="vip.processUploads(
         this,
-        document.getElementById('upload_blocks'),
         document.getElementById('upload_blocks_result'),
         true
         )"
@@ -576,11 +575,11 @@
         Printer Flip Paper
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <label for="flip_paper_short">
-          short side&nbsp;&nbsp;<input type="radio" id="flip_paper_short" name="flip_paper" value="short" checked>
+          short side&nbsp;&nbsp;<input type="radio" id="flip_paper_short" name="flip_paper" value="short" >
         </label>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <label for="flip_paper_long">
-          long side&nbsp;&nbsp;<input type="radio" id="flip_paper_long" name="flip_paper" value="long">
+          long side&nbsp;&nbsp;<input type="radio" id="flip_paper_long" name="flip_paper" value="long" checked>
         </label>
         <BR>
         Paper Margins 
