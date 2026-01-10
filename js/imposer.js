@@ -49,10 +49,18 @@ export const imposerMagic = {
       total_h: Number(document.getElementById("pdf_padding_top").value) + bottom
     }
   },
-  _renderSpinePdfBounds: function(new_page, finalPlacement, embedded_w, embedded_h, orientation) {
+  _renderSpinePdfBounds: function(new_page, finalPlacement, embedded_w, embedded_h, orientation,center_info) {
     const enabled_boundry_marks = document.getElementById('markup_spine_bounds').checked
     if (!enabled_boundry_marks)
       return
+
+    const spine_only = document.getElementById('markup_spine_bounds_only_on_spine').checked
+    if (spine_only) {
+       if (!center_info || center_info.length === 0 || !center_info[1]) {
+           return
+       }
+    }
+
     let spineHead = [finalPlacement.x, finalPlacement.y]
     let spineTail = [finalPlacement.x, finalPlacement.y]
     const [w, h] = [embedded_w * finalPlacement.xScale, embedded_h * finalPlacement.yScale]
@@ -173,7 +181,7 @@ export const imposerMagic = {
                         })
     if (center_info.length > 0 && center_info[1]) 
       this._renderSpineSigOrder(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
-    this._renderSpinePdfBounds(new_page, finalPlacement, embedded_w, embedded_h, orientation)
+    this._renderSpinePdfBounds(new_page, finalPlacement, embedded_w, embedded_h, orientation,center_info)
     if (center_info.length > 0)
       this._renderSewingStations(new_page, finalPlacement.spineHead, finalPlacement.spineTail, orientation, center_info[1])
   },
@@ -194,7 +202,7 @@ export const imposerMagic = {
                         });
     if (center_info.length > 0 && center_info[1]) 
       this._renderSpineSigOrder(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
-    this._renderSpinePdfBounds(new_page, finalPlacement, embedded_w, embedded_h, orientation)
+    this._renderSpinePdfBounds(new_page, finalPlacement, embedded_w, embedded_h, orientation, center_info)
     if (center_info.length > 0)
       this._renderSewingStations(new_page, finalPlacement.spineHead, finalPlacement.spineTail, orientation, center_info[1])
   },
@@ -216,7 +224,7 @@ export const imposerMagic = {
                         })
     if (center_info.length > 0 && center_info[1]) 
       this._renderSpineSigOrder(new_page, center_info[0], finalPlacement.spineHead, finalPlacement.spineTail)
-    this._renderSpinePdfBounds(new_page, finalPlacement, embedded_w, embedded_h, orientation)
+    this._renderSpinePdfBounds(new_page, finalPlacement, embedded_w, embedded_h, orientation, center_info)
     if (center_info.length > 0)
       this._renderSewingStations(new_page, finalPlacement.spineHead, finalPlacement.spineTail, orientation, center_info[1])
   },
