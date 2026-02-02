@@ -70,10 +70,10 @@ export const utils = {
         this._appendPdfSourceError("Invalid page list: <code>"+selectedPages+"</code> for PDF <code>"+window.book.upload_blocks[0].file.name+"</code>")
         continue;
       }
-      blocks[i]._pagesList = pagesList.flat()
       for(let j = 0; j < blocks[i].precedingBlanks; ++j) {
         pagesList.unshift(-1)
       }
+      blocks[i]._pagesList = pagesList.flat()
 
       const pages = original_pdf.getPages()
       let pagesSet = new Set(pagesList)
