@@ -5,6 +5,7 @@ Launch February 4th 2025
 
 ## [Versions](#version-history)
 
+- v0.0.15 - fixed issue with "preceeding blank" entry not working
 - v0.0.14 - Added "spine only" option for PDF bounds to keep the gutter clean.
 - v0.0.13 - adding PDF pre-processing so pages can be split in half or cropped to their CropBox -- also cleaned up some unused/unneeded code & switched default to Flip Long (was Flip Short)
 - v0.0.12 - fixing Paper Margins (were swapped) & adding Rotate Paper button
