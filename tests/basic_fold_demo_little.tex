@@ -1,0 +1,48 @@
+\documentclass[showtrims]{memoir}
+
+\usepackage{pgffor}  % to allow the foreach loop 
+\usepackage[margin=0in]{geometry}
+
+\newcommand{\impositionType}{Little}
+\newcommand{\widthCount}{4}
+\newcommand{\heightCount}{5}
+\newcommand{\paperWidth}{\fpeval{8.5/\widthCount}}
+\newcommand{\paperHeight}{\fpeval{11/\heightCount}}
+
+\setstocksize{\paperHeight in}{\paperWidth in} 
+\settrimmedsize{\paperHeight in}{\paperWidth in}{*}
+
+\setbinding{0cm} 
+\setlrmarginsandblock{0cm}{0cm}{*} 
+\setulmarginsandblock{0cm}{0cm}{*}
+
+\begin{document}
+\pagenumbering{gobble}
+
+\begin{center}
+
+\HUGE 
+\fontfamily{lmr}
+
+\foreach \n in {1,...,40}{
+	\newcommand{\nFontSize}{\fpeval{\n + 2}}
+	{ \Large \vspace*{0.5em} \textsc{	\impositionType }}
+	
+	\vspace*{0.5em} 
+	
+	\underline{\n} 
+	
+	\vspace*{0.5em}	
+
+	
+	\fontsize{\nFontSize}{\nFontSize}\selectfont
+	
+	\parbox{\textwidth}{ \begin{center} Waltz, bad nymph, for quick jigs vex.\\ font size \nFontSize \end{center}}
+	
+	\newpage
+}
+
+\end{center}
+
+
+\end{document}

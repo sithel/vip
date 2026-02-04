@@ -1,0 +1,58 @@
+\documentclass[showtrims]{memoir}
+
+\usepackage{pgffor}  % to allow the foreach loop 
+\usepackage[margin=0in]{geometry}
+
+\newcommand{\impositionType}{Quarto}
+\newcommand{\widthCount}{2}
+\newcommand{\heightCount}{2}
+\newcommand{\paperWidth}{\fpeval{8.5/\widthCount}}
+\newcommand{\paperHeight}{\fpeval{11/\heightCount}}
+
+\setstocksize{\paperHeight in}{\paperWidth in} 
+\settrimmedsize{\paperHeight in}{\paperWidth in}{*}
+
+\setbinding{0cm} 
+\setlrmarginsandblock{0cm}{0cm}{*} 
+\setulmarginsandblock{0cm}{0cm}{*}
+
+\begin{document}
+\pagenumbering{gobble}
+
+\begin{center}
+
+\HUGE 
+\fontfamily{lmr}
+
+\foreach \n in {1,...,8}{
+	\newcommand{\nFontSizeA}{\fpeval{(\n * 3) + 1}}
+	\newcommand{\nFontSizeB}{\fpeval{(\n * 3) + 2}}
+	\newcommand{\nFontSizeC}{\fpeval{(\n * 3) + 3}}
+	{ \Large \vspace*{0.5em} \textsc{	\impositionType }}
+	
+	\vspace*{0.5em} 
+	
+	\underline{\n} 
+	
+	\vspace*{0.5em}	
+
+	
+	\fontsize{\nFontSizeA}{\nFontSizeA}\selectfont
+	
+	\parbox{\textwidth}{ 
+	\begin{center} Waltz, bad nymph, for quick jigs vex.\\ font size \nFontSizeA \\
+	\fontsize{\nFontSizeB}{\nFontSizeB}\selectfont
+	Waltz, bad nymph, for quick jigs vex.\\ font size  \nFontSizeB \\
+	\fontsize{\nFontSizeB}{\nFontSizeC}\selectfont
+	Waltz, bad nymph, for quick jigs vex.\\ font size  \nFontSizeC
+	\end{center}}
+
+
+	
+	\newpage
+}
+
+\end{center}
+
+
+\end{document}
