@@ -1075,6 +1075,52 @@ export const imposerMagic = {
     }
     targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
   },
+
+  _handleLilliputian: function(new_page, pageMap, folio_list, sheet_index, is_front) {
+    const {pW, pH, renderPage, flip_short, renderCrosshair, calcCenterInfo} = this._calcDimens(new_page)
+    console.log("~~ Rebecca")
+    const cell_w = pW/16;
+    const cell_h = pH/16;
+    const drawPair = function(pageDeets, start_x, start_y, delta_x, delta_y, orientation) {
+      const [f, a, b] = pageDeets
+      if (f >= folio_list.length)
+        return
+      const pageNum1 = folio_list[f][a]
+      const pageNum2 = folio_list[f][b]
+      const center_info = calcCenterInfo(pageNum1)
+      renderPage(new_page, pageMap, pageNum1, start_x, start_y, cell_w, cell_h, orientation, center_info)
+      renderPage(new_page, pageMap, pageNum2, start_x + delta_x, start_y + delta_y, cell_w, cell_h, orientation, center_info)
+    }
+    // [folio index, is_outer]
+    const strip = [[8, false], [7, true], [6, false], [5, true], [1, true], [2, false], [3, true], [4, false]]
+    const flip_long_strip = strip.toReversed().map( (strip_seg) => [strip_seg[0], !strip_seg[1]])
+    const flip_short_strip = strip.map( (strip_seg) => [strip_seg[0], !strip_seg[1]])
+    for(var f = -1; f < folio_list.length; f += 8) {
+      const workingStrip = (is_front) ? strip : ( (flip_short) ? flip_short_strip : flip_long_strip )
+      const orientation = (!is_front && flip_short) ? UP_SIDE_DOWN : RIGHT_SIDE_UP
+      workingStrip.forEach(function (strip_seg, i){ 
+        const y = (f+1) / 8 + 1
+        const folio_i = f + strip_seg[0]
+        const left_foio = strip_seg[0] > 4
+        const is_outer = strip_seg[1]
+        const pages = (is_outer) ? [3,0] : [1,2] 
+        const pageDeets = (orientation == UP_SIDE_DOWN) ? [folio_i,  pages[1], pages[0]] : [folio_i,  pages[0], pages[1]]
+        const start_y = (orientation == UP_SIDE_DOWN) ? (y - 1) * cell_h : pH - y * cell_h
+        drawPair(pageDeets,   i * 2 * cell_w, start_y,       cell_w, 0,      orientation)
+      })
+    }
+
+    const targets = [];
+    for(let j = 0; j <= pH; j += cell_h) {
+      for (let k = 0; k <= pW; k += cell_w) {
+        if ( (k == 0 && j == 0) || (k == 0 && j == pH) || (k == pW && j == 0) || (k == pW && j == pH))
+          continue;
+        targets.push([k, j]);
+      }
+    }
+    targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
+  },
+
   // FRONT : folio [0] & [3]            BACK : folio [1] & [2]
   // folio_list -- all the folios for that sheet
   imposePdf: function(new_page, pageMap, folio_list, sheet_index, is_front) {
@@ -1094,6 +1140,7 @@ export const imposerMagic = {
       case 'tiny_4_by_4': this._handleFourByFour(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'tiny_landscape_4_by_4': this._handleFourByFourLandscape(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'mini': this._handleMini(new_page, pageMap, folio_list, sheet_index, is_front); break;
+      case 'lilliputian': this._handleLilliputian(new_page, pageMap, folio_list, sheet_index, is_front); break;
     }
     
   }
