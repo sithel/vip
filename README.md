@@ -5,7 +5,7 @@ Launch February 4th 2025
 
 ## [Versions](#version-history)
 
-- v0.0.17 - added Lilliputian imposition & folding gifs!
+- v0.0.17 - added Lilliputian imposition (initial pass) & folding gifs!
 - v0.0.16 - updated some FAQ stuff & added more [`test`](https://github.com/sithel/vip/tree/main/tests) files
 - v0.0.15 - fixed issue with "preceeding blank" entry not working
 - v0.0.14 - Added "spine only" option for PDF bounds to keep the gutter clean.
