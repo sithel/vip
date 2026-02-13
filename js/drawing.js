@@ -8,6 +8,8 @@ drawing = {
   [5] - list of folios per sheet
   [6] - cells on printed page [short, long] 
   [7] - long desc 
+  [8] - rotate (boolean)
+  [9] - folding animation gif filename (or null)
   */
   renderImpositionOptions: function(el, info, i){
     let newNode = document.createElement("div");
