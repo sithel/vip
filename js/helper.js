@@ -60,6 +60,12 @@ export const form = {
   },
   setSelectedImpositionInfo: function(imp_info){ 
     document.getElementById("imposition_more_info_text").innerHTML = imp_info[7]
+    if (imp_info[9] != null) {
+      document.getElementById("imposition_folding_gif").setAttribute("src", "docs/"+imp_info[9]+".gif")
+      document.getElementById("imposition_folding_gif_link").href =  "docs/"+imp_info[9]+".gif"
+    } else {
+      document.getElementById("imposition_folding_gif").setAttribute("src", "")
+    }
     if (window.book.imposition["canCustomizeCounts"])
       document.getElementById("folios_per_signature").removeAttribute("disabled")
     else {
