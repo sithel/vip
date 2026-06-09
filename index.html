@@ -10,6 +10,7 @@
   <script src="lib/pdf-lib.js"></script>
   <script src="lib/jszip.js"></script>
   <script src="lib/file-saver.js"></script>
+  <script src="js/savesettings.js"></script>
 
   <script language="javascript">
     window.book = {
@@ -45,6 +46,7 @@
     document.getElementById("unit_selector").dispatchEvent(new Event('change'));
     document.getElementById("paper_size_options").value = "LETTER";
     document.getElementById("paper_size_options").dispatchEvent(new Event('change'));
+    window.vip.listSettings()
   </script>
   <!-- Pico.css -->
   <link
@@ -386,6 +388,16 @@
         width:auto;
       }
     }
+
+    #meta_section {
+      label {
+        display: inline;
+      }
+      input, select {
+        width: 250px;
+        color:green;
+      }
+    }
   </style>
   </head>
 
@@ -393,7 +405,7 @@
     <main class="container">
       <section id="title">
         <h1>Villainous Imposer<BR><small id="version_info">
-          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.0.17</a>
+          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.0.18</a>
         </small>[VI]</h1>
         <details>
           <summary>information & glossary</summary>
@@ -792,16 +804,27 @@
             front / back of sheets as separate files
           </label>
           <BR>
-
+          
           <input type=text id="file_download_name" placeholder="your_file_name">.pdf &nbsp;&nbsp;&nbsp;&nbsp;
           <button onclick="vip.downloadFile(document.getElementById('file_download_name').value, document.getElementById('file_download_name').getAttribute('placeholder'))">get that file!</button>
           <br>
+
           <br>
-          <kbd class="disabled">saving/persisting imposer settings not implemented yet</kbd><br><br>
+          <br>
           <kbd class="disabled">imposer does not yet work when saved locally</kbd><br>
+
         </div>
       </section>
-      <section>
+      <section id="meta_section">
+        <div id="save_settings">
+            <label for="save_settings_name">Name current settings:
+            <input id="save_settings_name" type="text" length="20" required="true" onInput="vip.settingsNameUpdate(this, document.getElementById('save_settings_button'))">
+            <button id="save_settings_button" class="disabled" onclick="vip.saveSettings(document.getElementById('save_settings_name'))">Save Current Settings</button>
+          </div>
+        <div id="load_settings_results">
+          <label for="load_settings_list">Load saved settings: </label>
+          <select class="settings" id="load_settings_list"></select>
+        </div>
         [<a href="docs/faq.html"> there's an FAQ page if you're looking for help </a>]
       </section>
     </main>

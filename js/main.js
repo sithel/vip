@@ -256,6 +256,25 @@ export const vip = {
     const frontAndBackSeparate = document.getElementById("download-front-back").checked
     const signatureFiles = document.getElementById("download-signatures").checked
     fileHandler.handleDownloadOptions(fileName, downloadAggregate, frontAndBackSeparate, signatureFiles);
+  },
+  settingsNameUpdate: function(settingsNameEl, settingsSaveBtn) {
+    console.log(" I see " , settingsNameEl.value.length, " : ",settingsSaveBtn )
+    if (settingsNameEl.value.length > 0) {
+      console.log("begone")
+      settingsSaveBtn.classList.remove("disabled");
+    } else {
+      settingsSaveBtn.classList.add("disabled");
+    }
+  },
+  saveSettings: function(settingsNameEl) {
+    saveImposerSettings(settingsNameEl.value)
+    settingsNameEl.value = ""
+  },
+  listSettings: function() {
+    listSettings(document.getElementById("load_settings_results"))
+  },
+  loadSettings: function(saved_name) {
+    load_settings_form(document.getElementById("load_settings_results"))
   }
 }
 
