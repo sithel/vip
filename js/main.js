@@ -29,7 +29,7 @@ export const vip = {
     window.book.upload_blocks[id] = {}
     document.getElementById("upload_block_interlacing").style.display = (document.getElementsByClassName("upload_block").length == 2) ? '':'none'
   },
-  processUploads : function(btn, detailsEl, is_interlaced) {
+  processUploads : function(btn, is_interlaced) {
     console.log("== Processing Uploads...")
     document.getElementById("upload_blocks").setAttribute("style","pointer-events: none;opacity: 0.7;")
     btn.setAttribute("aria-busy", "true")
@@ -38,8 +38,11 @@ export const vip = {
     let callback = function(){
       document.getElementById("upload_blocks").removeAttribute("style")
       btn.removeAttribute("aria-busy")
-      detailsEl.removeAttribute("style")
-      detailsEl.setAttribute("open", "")
+      const uploadedDetailsEl = document.getElementById('upload_blocks_result')
+      uploadedDetailsEl.removeAttribute("style")
+      uploadedDetailsEl.setAttribute("open", "")
+      const savedSettingsEl =  document.getElementById('saved_settings_block')
+      savedSettingsEl.classList.remove("disabled");
       console.log("=== Processing Uploads Complete ")
       if (window.book.unified_source.hasValidPdf()) {
         document.getElementById("page_manipulation").setAttribute("class","")
@@ -266,15 +269,33 @@ export const vip = {
       settingsSaveBtn.classList.add("disabled");
     }
   },
-  saveSettings: function(settingsNameEl) {
-    saveImposerSettings(settingsNameEl.value)
+  saveSettings: function(saveSettingsButtonEl, settingsNameEl) {
+    saveImposerSettings(settingsNameEl.value, document.getElementById("load_settings_results"))
     settingsNameEl.value = ""
+    saveSettingsButtonEl.classList.add("disabled");
   },
   listSettings: function() {
     listSettings(document.getElementById("load_settings_results"))
   },
   loadSettings: function(saved_name) {
     load_settings_form(document.getElementById("load_settings_results"))
+  },
+  exportSettings: function(exportEl) {
+    const settingsListEl = document.getElementById('load_settings_list') // created dynamically in savesettings.js
+
+    const ls = read_localStorage()
+    const requested = JSON.parse(ls[settingsListEl.value])
+    const diffObj = {}
+    for (const [key, value] of Object.entries(DEFAULT_VIP_SETTINGS)) {
+      const differ = JSON.stringify(DEFAULT_VIP_SETTINGS[key]) != JSON.stringify(requested[key])
+      console.log(" for '"+key+"' : "+differ)
+      if (differ) {
+        diffObj[key] = requested[key]
+      }
+    }
+
+    const exportString= JSON.stringify(diffObj).replaceAll(":{",": {").replaceAll("},","}, ")
+    exportEl.innerHTML = "looking at <b>"+settingsListEl.value+"</b>:<br><pre id='settings_export_info'>" + exportString+"</pre>"
   }
 }
 
