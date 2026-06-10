@@ -14,7 +14,7 @@ drawing = {
   renderImpositionOptions: function(el, info, i){
     let newNode = document.createElement("div");
     s = `
-    <input type="radio" name="page_imposition" value="single" id="`+info[0]+`" onchange='vip.handlePageImpositionUpdate(`+i+`)'>
+    <input type="radio" name="page_imposition" value="`+info[0]+`" id="`+info[0]+`" onchange='vip.handlePageImpositionUpdate(`+i+`)'>
     <label for="`+info[0]+`">`+info[1]+`</label><br>
     <small><label for="`+info[0]+`">`+info[2]+`</label></small>
     `

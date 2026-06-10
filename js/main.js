@@ -283,7 +283,7 @@ export const vip = {
     load_settings_form(document.getElementById("load_settings_results"))
   },
   importSettings: function(importEl) {
-    importEl.innerHTML = "Paste in export code: <BR>";
+    importEl.innerHTML = "paste in export code : <BR>";
     const inputField = document.createElement("textarea");
     inputField.id = "settings_import_field";
     importEl.appendChild(inputField);
@@ -293,7 +293,6 @@ export const vip = {
     importBtn.addEventListener("click", function(){
       const userInput = inputField.value
       try {
-        console.log("sharks : "+userInput)
         const regex = /\[(.*)\] (.*)/;
         const result = userInput.split("\n").filter(l => l.trim().length > 0 ).map(l => {
           const r = l.match(regex);
@@ -302,7 +301,7 @@ export const vip = {
         changeSettingsBasedOnImport(result)
       } catch (e) {
         inputField.value= "There was a problem with your import code\n-----[error]\n"+e+"\n------[provided]\n"+userInput
-        console.log(e)
+        console.error(e)
       }
       
     })
@@ -311,7 +310,7 @@ export const vip = {
     const settingsListEl = document.getElementById('load_settings_list') // created dynamically in savesettings.js
     const settingsName = settingsListEl.value
     if (settingsName == "" || settingsName == "null" || settingsName == LOCAL_STORAGE_DEFAULT_KEY){
-      exportEl.innerHTML = ""
+      exportEl.innerHTML = "<pre>you can only export Settings that you saved</pre>"
       return
     }
     const ls = read_localStorage()
@@ -326,7 +325,7 @@ export const vip = {
     }
 
     const exportString= Object.keys(diffObj).map(k => "["+k+"] "+diffObj[k]).join("\n")
-    exportEl.innerHTML = "looking at <b>"+settingsName+"</b>:<br><pre id='settings_export_info'>" + exportString+"</pre>"
+    exportEl.innerHTML = "looking at <b>"+settingsName+"</b>:<br><pre id='settings_export_info'>" + exportString+"&nbsp;</pre>"
     const selectAllBtn = document.createElement("button");
     selectAllBtn.textContent = "Select All";   
     exportEl.appendChild(selectAllBtn)
