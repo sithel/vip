@@ -292,13 +292,19 @@ export const vip = {
     importEl.appendChild(importBtn)
     importBtn.addEventListener("click", function(){
       const userInput = inputField.value
-      console.log("sharks : "+userInput)
-      const regex = /\[(.*)\] (.*)/;
-      const result = userInput.split("\n").map(l => {
-        const r = l.match(regex);
-        return [r[1], r[2]]
-      })
-      changeSettingsBasedOnImport(result)
+      try {
+        console.log("sharks : "+userInput)
+        const regex = /\[(.*)\] (.*)/;
+        const result = userInput.split("\n").filter(l => l.trim().length > 0 ).map(l => {
+          const r = l.match(regex);
+          return [r[1].trim(), r[2].trim()]
+        })
+        changeSettingsBasedOnImport(result)
+      } catch (e) {
+        inputField.value= "There was a problem with your import code\n-----[error]\n"+e+"\n------[provided]\n"+userInput
+        console.log(e)
+      }
+      
     })
   },
   exportSettings: function(exportEl) {
@@ -314,7 +320,7 @@ export const vip = {
     for (const [key, value] of Object.entries(DEFAULT_VIP_SETTINGS)) {
       const differ = JSON.stringify(DEFAULT_VIP_SETTINGS[key]) != JSON.stringify(requested[key])// && requested[key] != undefined
       console.log(" for '"+key+"' : "+differ+" :: ",requested[key], " vs ",DEFAULT_VIP_SETTINGS[key])
-      if (differ) {
+      if (differ && requested.hasOwnProperty(key)) {
         diffObj[key] = requested[key].value
       }
     }
