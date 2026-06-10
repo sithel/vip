@@ -101,6 +101,8 @@ export const vip = {
     this.auditDisabledStates();
   },
   handleFoliosPerSigUpdate: function() {
+    if (document.querySelector('input[name="page_imposition"]:checked') == null)
+      return
     form.calImpositionInfo(window.book.unified_source.pageCount)
   },
   /*{ pageSelection: String, precedingBlanks: Int , file: File }*/
@@ -280,22 +282,56 @@ export const vip = {
   loadSettings: function(saved_name) {
     load_settings_form(document.getElementById("load_settings_results"))
   },
+  importSettings: function(importEl) {
+    importEl.innerHTML = "Paste in export code: <BR>";
+    const inputField = document.createElement("textarea");
+    inputField.id = "settings_import_field";
+    importEl.appendChild(inputField);
+    const importBtn = document.createElement("button");
+    importBtn.textContent = "Import";
+    importEl.appendChild(importBtn)
+    importBtn.addEventListener("click", function(){
+      const userInput = inputField.value
+      console.log("sharks : "+userInput)
+      const regex = /\[(.*)\] (.*)/;
+      const result = userInput.split("\n").map(l => {
+        const r = l.match(regex);
+        return [r[1], r[2]]
+      })
+      changeSettingsBasedOnImport(result)
+    })
+  },
   exportSettings: function(exportEl) {
     const settingsListEl = document.getElementById('load_settings_list') // created dynamically in savesettings.js
-
+    const settingsName = settingsListEl.value
+    if (settingsName == "" || settingsName == "null" || settingsName == LOCAL_STORAGE_DEFAULT_KEY){
+      exportEl.innerHTML = ""
+      return
+    }
     const ls = read_localStorage()
-    const requested = JSON.parse(ls[settingsListEl.value])
+    const requested = JSON.parse(ls[settingsName])
     const diffObj = {}
     for (const [key, value] of Object.entries(DEFAULT_VIP_SETTINGS)) {
-      const differ = JSON.stringify(DEFAULT_VIP_SETTINGS[key]) != JSON.stringify(requested[key])
-      console.log(" for '"+key+"' : "+differ)
+      const differ = JSON.stringify(DEFAULT_VIP_SETTINGS[key]) != JSON.stringify(requested[key])// && requested[key] != undefined
+      console.log(" for '"+key+"' : "+differ+" :: ",requested[key], " vs ",DEFAULT_VIP_SETTINGS[key])
       if (differ) {
-        diffObj[key] = requested[key]
+        diffObj[key] = requested[key].value
       }
     }
 
-    const exportString= JSON.stringify(diffObj).replaceAll(":{",": {").replaceAll("},","}, ")
-    exportEl.innerHTML = "looking at <b>"+settingsListEl.value+"</b>:<br><pre id='settings_export_info'>" + exportString+"</pre>"
+    const exportString= Object.keys(diffObj).map(k => "["+k+"] "+diffObj[k]).join("\n")
+    exportEl.innerHTML = "looking at <b>"+settingsName+"</b>:<br><pre id='settings_export_info'>" + exportString+"</pre>"
+    const selectAllBtn = document.createElement("button");
+    selectAllBtn.textContent = "Select All";   
+    exportEl.appendChild(selectAllBtn)
+    selectAllBtn.addEventListener("click", function(){
+      const r = document.createRange();
+      const w=document.getElementById("settings_export_info");  
+      r.selectNodeContents(w);  
+      const sel=window.getSelection(); 
+      sel.removeAllRanges(); 
+      sel.addRange(r); 
+    })
   }
 }
 
