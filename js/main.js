@@ -263,7 +263,6 @@ export const vip = {
     fileHandler.handleDownloadOptions(fileName, downloadAggregate, frontAndBackSeparate, signatureFiles);
   },
   settingsNameUpdate: function(settingsNameEl, settingsSaveBtn) {
-    console.log(" I see " , settingsNameEl.value.length, " : ",settingsSaveBtn )
     if (settingsNameEl.value.length > 0) {
       console.log("begone")
       settingsSaveBtn.classList.remove("disabled");
