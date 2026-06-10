@@ -10,6 +10,7 @@
   <script src="lib/pdf-lib.js"></script>
   <script src="lib/jszip.js"></script>
   <script src="lib/file-saver.js"></script>
+  <script src="js/savesettings.js"></script>
 
   <script language="javascript">
     window.book = {
@@ -45,6 +46,7 @@
     document.getElementById("unit_selector").dispatchEvent(new Event('change'));
     document.getElementById("paper_size_options").value = "LETTER";
     document.getElementById("paper_size_options").dispatchEvent(new Event('change'));
+    window.vip.listSettings()
   </script>
   <!-- Pico.css -->
   <link
@@ -116,6 +118,30 @@
       #upload_block_interlacing {
         margin-left: 40px;
         margin-bottom: 8px;
+      }
+      #save_settings {
+        padding-left: 2em;
+        #save_settings_name {
+          width: 15em;
+        }
+        #load_settings_list {
+          width: 15em;
+        }
+        #settings_export_info {
+          white-space: pre-wrap;
+          font-size: 7pt;
+        }
+        #settings_list_load_btn {
+          margin-left: 0.5em;
+          margin-right: 0.5em;
+        }
+        #settings_import_field {
+          font-size: 7pt;
+          line-height: 6pt;
+          height: 10em;
+          width: 50em;
+          margin-bottom: 0.5em;
+        }
       }
     }
     #page_manipulation {
@@ -386,6 +412,16 @@
         width:auto;
       }
     }
+
+    #meta_section {
+      label {
+        display: inline;
+      }
+      input, select {
+        width: 250px;
+        color:green;
+      }
+    }
   </style>
   </head>
 
@@ -393,7 +429,7 @@
     <main class="container">
       <section id="title">
         <h1>Villainous Imposer<BR><small id="version_info">
-          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.0.17</a>
+          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.1.0</a>
         </small>[VI]</h1>
         <details>
           <summary>information & glossary</summary>
@@ -445,19 +481,28 @@
             true
           )
         </script>
-        <button onclick="vip.processUploads(
-        this,
-        document.getElementById('upload_blocks_result'),
-        false
-        )"
-        >Process Uploads</button>
-        <button id="upload_block_interlacing" style="display: none;" onclick="vip.processUploads(
-        this,
-        document.getElementById('upload_blocks_result'),
-        true
-        )"
-        >Process Uploads as Interlaced</button>
+        <button onclick="vip.processUploads(this,false)">Process Uploads</button>
+        <button id="upload_block_interlacing" style="display: none;" onclick="vip.processUploads(this, true)">
+          Process Uploads as Interlaced</button>
+
         <br>&nbsp;
+
+        <details id="saved_settings_block"  class="disabled">
+          <summary>Saved Imposer Settings</summary>
+          <center><kbd>NEW  - potential bugs</kbd></center>
+          <div id="save_settings">
+              <label for="save_settings_name">Name current settings:
+              <input id="save_settings_name" type="text" length="20" required="true" onInput="vip.settingsNameUpdate(this, document.getElementById('save_settings_button'))">
+              <button id="save_settings_button" class="disabled" onclick="vip.saveSettings(this, document.getElementById('save_settings_name'))">Save</button>
+              <div id="load_settings_results">
+              </div>
+              <button id="export_settings_btn" onclick="vip.exportSettings(document.getElementById('import_export_settings'))">Export</button>
+              <button id="import_settings_btn" onclick="vip.importSettings(document.getElementById('import_export_settings'))">Import</button>
+              <div id="import_export_settings"></div>
+          </div>
+          
+        </details>
+
         <details id="upload_blocks_result" style="visibility: hidden;">
           <summary>Working Input Details</summary>
           <p>
@@ -470,6 +515,7 @@
             </details>
           </p>
         </details>
+
       </section>
 
       <section id="page_manipulation" class="disabled">
@@ -636,7 +682,7 @@
                   ["tiny_4_by_4", "Tiny", "32 per side, 4 folio x 4", false, 4, [4,4,4,4], [4,8], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (4 folio)", true, "tiny_fold"],
                   ["tiny_landscape_4_by_4", "Tiny Landscape", "32 per side, 4 folio x 4", false, 4, [4,4,4,4], [4,8], "Two rows of 2 signatures- only requires 1 cut to assemble if you're trimming the edges open later. Each half is 2 signatures folded up acordian style top-to-bottom, joined at the foredge between the signatures. Each half makes a W shape of 2 joined signatures. Imposition thanks to BB.", true, "tiny_landscape_fold"],
                   ["mini", "Mini", "60 per side, 2/3 folio x 6 ", false, "3,2", [2,3,2,3,2,3,2,3,2,3,2,3], [6,10], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes- each row is made up of two signatures ", true, null],
-                  ["lilliputian", "Lilliputian", "256 per side, 4 folio x 32 ", false, "4", [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4], [16,16], "Imposition designed by <a href='https://www.tumblr.com/little-cat-press' target='_new'>Aspen</a> (<code>nonbinary_octopus</code>) to really push the limits of little books! (still slightly WIP, needs cut/fold lines) The imposition is 32 signatures -- 2 signatures per row, each signature 4 folio in size.  It's advised that leave the top and bottom strips/rows blank -- you can achieve this by injecting the correct number of blanks in the <code>page selection</code> up in <b>1. Source PDF(s)</b> -- <code>b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b</code> (32 blanks)", true, null],
+                  ["lilliputian", "Lilliputian", "256 per side, 4 folio x 32 ", false, "4", [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4], [16,16], "Imposition designed by <a href='https://www.tumblr.com/little-cat-press' target='_new'>Aspen</a> (<code>nonbinary_octopus</code>) to really push the limits of little books! (still slightly WIP, needs cut/fold lines) The imposition is 32 signatures -- 2 signatures per row, each signature 4 folio in size.  It's advised that you leave the top and bottom strips/rows blank -- you can achieve this by injecting the correct number of blanks in the <code>page selection</code> up in <b>1. Source PDF(s)</b> -- <code>b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b</code> (32 blanks)", true, null],
                 ]
                 imposition_options.forEach((o, i) => {
                   drawing.renderImpositionOptions(document.getElementById("imposition_options_list"), o, i)
@@ -792,18 +838,17 @@
             front / back of sheets as separate files
           </label>
           <BR>
-
+          
           <input type=text id="file_download_name" placeholder="your_file_name">.pdf &nbsp;&nbsp;&nbsp;&nbsp;
           <button onclick="vip.downloadFile(document.getElementById('file_download_name').value, document.getElementById('file_download_name').getAttribute('placeholder'))">get that file!</button>
           <br>
+
           <br>
-          <kbd class="disabled">saving/persisting imposer settings not implemented yet</kbd><br><br>
+          <br>
           <kbd class="disabled">imposer does not yet work when saved locally</kbd><br>
         </div>
       </section>
-      <section>
-        [<a href="docs/faq.html"> there's an FAQ page if you're looking for help </a>]
-      </section>
+      [<a href="docs/faq.html"> there's an FAQ page if you're looking for help </a>]
     </main>
 
 <section id="footer">

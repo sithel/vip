@@ -29,7 +29,7 @@ export const vip = {
     window.book.upload_blocks[id] = {}
     document.getElementById("upload_block_interlacing").style.display = (document.getElementsByClassName("upload_block").length == 2) ? '':'none'
   },
-  processUploads : function(btn, detailsEl, is_interlaced) {
+  processUploads : function(btn, is_interlaced) {
     console.log("== Processing Uploads...")
     document.getElementById("upload_blocks").setAttribute("style","pointer-events: none;opacity: 0.7;")
     btn.setAttribute("aria-busy", "true")
@@ -38,8 +38,11 @@ export const vip = {
     let callback = function(){
       document.getElementById("upload_blocks").removeAttribute("style")
       btn.removeAttribute("aria-busy")
-      detailsEl.removeAttribute("style")
-      detailsEl.setAttribute("open", "")
+      const uploadedDetailsEl = document.getElementById('upload_blocks_result')
+      uploadedDetailsEl.removeAttribute("style")
+      uploadedDetailsEl.setAttribute("open", "")
+      const savedSettingsEl =  document.getElementById('saved_settings_block')
+      savedSettingsEl.classList.remove("disabled");
       console.log("=== Processing Uploads Complete ")
       if (window.book.unified_source.hasValidPdf()) {
         document.getElementById("page_manipulation").setAttribute("class","")
@@ -98,6 +101,8 @@ export const vip = {
     this.auditDisabledStates();
   },
   handleFoliosPerSigUpdate: function() {
+    if (document.querySelector('input[name="page_imposition"]:checked') == null)
+      return
     form.calImpositionInfo(window.book.unified_source.pageCount)
   },
   /*{ pageSelection: String, precedingBlanks: Int , file: File }*/
@@ -256,6 +261,81 @@ export const vip = {
     const frontAndBackSeparate = document.getElementById("download-front-back").checked
     const signatureFiles = document.getElementById("download-signatures").checked
     fileHandler.handleDownloadOptions(fileName, downloadAggregate, frontAndBackSeparate, signatureFiles);
+  },
+  settingsNameUpdate: function(settingsNameEl, settingsSaveBtn) {
+    if (settingsNameEl.value.length > 0) {
+      console.log("begone")
+      settingsSaveBtn.classList.remove("disabled");
+    } else {
+      settingsSaveBtn.classList.add("disabled");
+    }
+  },
+  saveSettings: function(saveSettingsButtonEl, settingsNameEl) {
+    saveImposerSettings(settingsNameEl.value, document.getElementById("load_settings_results"))
+    settingsNameEl.value = ""
+    saveSettingsButtonEl.classList.add("disabled");
+  },
+  listSettings: function() {
+    listSettings(document.getElementById("load_settings_results"))
+  },
+  loadSettings: function(saved_name) {
+    load_settings_form(document.getElementById("load_settings_results"))
+  },
+  importSettings: function(importEl) {
+    importEl.innerHTML = "paste in export code : <BR>";
+    const inputField = document.createElement("textarea");
+    inputField.id = "settings_import_field";
+    importEl.appendChild(inputField);
+    const importBtn = document.createElement("button");
+    importBtn.textContent = "Import";
+    importEl.appendChild(importBtn)
+    importBtn.addEventListener("click", function(){
+      const userInput = inputField.value
+      try {
+        const regex = /\[(.*)\] (.*)/;
+        const result = userInput.split("\n").filter(l => l.trim().length > 0 ).map(l => {
+          const r = l.match(regex);
+          return [r[1].trim(), r[2].trim()]
+        })
+        changeSettingsBasedOnImport(result)
+      } catch (e) {
+        inputField.value= "There was a problem with your import code\n-----[error]\n"+e+"\n------[provided]\n"+userInput
+        console.error(e)
+      }
+      
+    })
+  },
+  exportSettings: function(exportEl) {
+    const settingsListEl = document.getElementById('load_settings_list') // created dynamically in savesettings.js
+    const settingsName = settingsListEl.value
+    if (settingsName == "" || settingsName == "null" || settingsName == LOCAL_STORAGE_DEFAULT_KEY){
+      exportEl.innerHTML = "<pre>you can only export Settings that you saved</pre>"
+      return
+    }
+    const ls = read_localStorage()
+    const requested = JSON.parse(ls[settingsName])
+    const diffObj = {}
+    for (const [key, value] of Object.entries(DEFAULT_VIP_SETTINGS)) {
+      const differ = JSON.stringify(DEFAULT_VIP_SETTINGS[key]) != JSON.stringify(requested[key])// && requested[key] != undefined
+      console.log(" for '"+key+"' : "+differ+" :: ",requested[key], " vs ",DEFAULT_VIP_SETTINGS[key])
+      if (differ && requested.hasOwnProperty(key)) {
+        diffObj[key] = requested[key].value
+      }
+    }
+
+    const exportString= Object.keys(diffObj).map(k => "["+k+"] "+diffObj[k]).join("\n")
+    exportEl.innerHTML = "looking at <b>"+settingsName+"</b>:<br><pre id='settings_export_info'>" + exportString+"&nbsp;</pre>"
+    const selectAllBtn = document.createElement("button");
+    selectAllBtn.textContent = "Select All";   
+    exportEl.appendChild(selectAllBtn)
+    selectAllBtn.addEventListener("click", function(){
+      const r = document.createRange();
+      const w=document.getElementById("settings_export_info");  
+      r.selectNodeContents(w);  
+      const sel=window.getSelection(); 
+      sel.removeAllRanges(); 
+      sel.addRange(r); 
+    })
   }
 }
 
