@@ -58,7 +58,7 @@ const DEFAULT_VIP_SETTINGS = {
 	},
 	flip_paper: {
 		type: 'radio',
-		value: 'long'
+		value: 'flip_paper_long'
 	},
 	paper_margin_short: {
 		type: 'number',
