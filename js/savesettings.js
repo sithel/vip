@@ -5,7 +5,7 @@
 // Any new imposer settings that are added to the page must also be added
 // to the data structure below, or it won't be saved. 
 
-const debug = 1;
+const debug = 0;
 if (debug) { console.log("start"); };
 
 const LOCAL_STORAGE_SETTINGS_KEY = "savedVipImposerSettings"
@@ -70,7 +70,7 @@ const DEFAULT_VIP_SETTINGS = {
 	},
 
 
-
+// meh - I'll sort the rest of these later... 
 
 	unit_selector: {
 		type: 'selectlist',
@@ -228,23 +228,6 @@ if (debug) { console.log(DEFAULT_VIP_SETTINGS); };
 
 
 
-// savedSettings format:
-// {
-// 	saveName: {
-// 		formid: {
-// 			type: [type],
-// 			value: [value],
-// 		},
-// 		formid: (etc)
-// 	},
-// 	saveName: (etc)
-// }
-
-
-//=============[ read ]
-
-
-
 
 /**
  * @return pull out our data from local storage (or {} if nothing is saved)
@@ -261,6 +244,10 @@ function read_localStorage() {
 	if (debug) { console.log(savedSettings); };
 	return savedSettings;
 }
+
+
+
+
 
 
 
@@ -346,6 +333,10 @@ function listSettings(loadResultsEl) {
 	});
 }
 
+
+
+
+
 /**
  * @param userImportedData - a list of 2 dimensional arrays [0 - key], [1 - value] 
  */
@@ -358,6 +349,11 @@ function changeSettingsBasedOnImport(userImportedData) {
 	}
 	changeSettings(settingsSet)
 }
+
+
+
+
+
 
 function changeSettings(settingsSet) {
 	const sendChange = new Event("change");
@@ -421,6 +417,10 @@ function changeSettings(settingsSet) {
 }
 
 
+
+
+
+
 function saveImposerSettings(settings_name, loadResultsEl) {
 	if (debug) { console.log("saving the settings as '"+settings_name+"'"); };
 	var newSet = {};
@@ -430,16 +430,6 @@ function saveImposerSettings(settings_name, loadResultsEl) {
 			const radioSelected = document.querySelector('input[name="'+key+'"]:checked')
 			if (debug) { console.log(" key ["+key+"] locking in ",radioSelected) }
 			newSet[key] = { type: 'radio', value : radioSelected.id };
-
-			// const radio = document.getElementsByName(key);
-			// // and they need to iterate through the collection of radio inputs 
-			// // with the same name to see which one is checked
-			// for (item of radio) {
-			// 	if (debug) { console.log(item); };
-			// 	if (item.checked == true) {
-			// 		newSet[key] = { type: 'radio', value: item.value };
-			// 	}
-			// }
 		}  else if (value.type == 'selectlist') { //selectlists are fetched by id
 			const sl = document.getElementById(key);
 			if (debug) { console.log(sl); };
