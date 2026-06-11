@@ -264,7 +264,6 @@ export const vip = {
   },
   settingsNameUpdate: function(settingsNameEl, settingsSaveBtn) {
     if (settingsNameEl.value.length > 0) {
-      console.log("begone")
       settingsSaveBtn.classList.remove("disabled");
     } else {
       settingsSaveBtn.classList.add("disabled");

@@ -429,7 +429,11 @@ function saveImposerSettings(settings_name, loadResultsEl) {
 		if (value.type == 'radio') { // radios need to fetch by name, not id
 			const radioSelected = document.querySelector('input[name="'+key+'"]:checked')
 			if (debug) { console.log(" key ["+key+"] locking in ",radioSelected) }
-			newSet[key] = { type: 'radio', value : radioSelected.id };
+			if (radioSelected == null) {
+				newSet[key] = { type: 'radio', value : "" };
+			} else {
+				newSet[key] = { type: 'radio', value : radioSelected.id };
+			}
 		}  else if (value.type == 'selectlist') { //selectlists are fetched by id
 			const sl = document.getElementById(key);
 			if (debug) { console.log(sl); };
