@@ -5,7 +5,7 @@ Launch February 4th 2025
 
 ## [Versions](#version-history)
 
-- v0.1.1 - forgot to include all that save settings code - embarrassing 
+- v0.1.1 - forgot to include all that save settings code (embarrassing) & fixing duo sexto crosshairs 
 - v0.1.0 - fixed rotation ui indicators & now saving settings! (thanks [varve](https://www.write-on.org/) [`seasonal_lacustrine_sediment`]!)
 - v0.0.17 - added Lilliputian imposition (initial pass) & folding gifs! (thanks  Lele | Gilding the Lele Press [`lele_levation`] & Aspen | Little Cat Press [`nonbinary_octopus`]!)
 - v0.0.16 - updated some FAQ stuff & added more [`test`](https://github.com/sithel/vip/tree/main/tests) files 

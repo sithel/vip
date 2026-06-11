@@ -597,7 +597,7 @@ export const imposerMagic = {
       }
     }
     return {
-      cell_w: cell_h,
+      cell_w: cell_w,
       cell_h: cell_h,
       pW: pW,
       pH: pH,
