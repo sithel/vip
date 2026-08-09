@@ -16,7 +16,7 @@
   }
   // this only produces update if PDF has been set (but if set, will kick off update)
   function pageNumUpdate(e) {
-    const pageNums = e.value.split(",").map(v => parseInt(v.trim())).filter(v => v > 0)
+    const pageNums = e.value.split(",").map(v => parseInt(v.trim())).filter(v => v > 0).map(v => v - 1)
     console.log("I see ",e.value," <-- this? gives -->",pageNums.join(" - "))
     if (window.pdf == null)
       return
@@ -35,13 +35,23 @@
     const baseDimen = 200
     const pageDimens = [baseDimen * 4, baseDimen * 5]
     const newPage =  newPdf.addPage(pageDimens);
-    layout_page_2x2(
-      newPage,
-      embeddedPages,
-      pageNumList,
-      [embeddedPages[0].width * 1.0, embeddedPages[0].height * 1.0],
-      pageDimens
-    )
+    if(document.getElementById("layout_2x2").checked) {
+      layout_page_2x2(
+        newPage,
+        embeddedPages,
+        pageNumList,
+        [embeddedPages[0].width * 1.0, embeddedPages[0].height * 1.0],
+        pageDimens
+      )
+    } else {
+      layout_page_3x2(
+        newPage,
+        embeddedPages,
+        pageNumList,
+        [embeddedPages[0].width * 1.0, embeddedPages[0].height * 1.0],
+        pageDimens
+      )
+    }
     const pdfBytes = await newPdf.save();
     // "now you're working with bindary data"
     const pdfBlob = new Blob([pdfBytes], { type: "application/pdf"});
@@ -50,8 +60,8 @@
     viewerPrefs.setHideToolbar(true);//false);
     viewerPrefs.setHideMenubar(true);//false);
     viewerPrefs.setHideWindowUI(true);//false);
-    viewerPrefs.setFitWindow(false);//true);
-    viewerPrefs.setCenterWindow(false);//true);
+    viewerPrefs.setFitWindow(true);
+    viewerPrefs.setCenterWindow(true);
     viewerPrefs.setDisplayDocTitle(false);//true);
     previewFrame.src = URL.createObjectURL(pdfBlob);
   }
@@ -76,20 +86,32 @@
     pdfPage.drawRectangle({x: drawn_width * 2 , y: 0, width: pageDimens[0], height: pageDimens[1], color: PDFLib.rgb(0,0,0), opacity: 1})
   }
 
+  function layout_page_3x2(pdfPage, embeddedPages, pageNumList, origDimens, pageDimens) {
+    const pairScaleFactor = Math.min((pageDimens[0] + 2)/origDimens[0], (pageDimens[1] + 2)/origDimens[1]) * 0.5;
+    const headRoom = pageDimens[1] - origDimens[1] * pairScaleFactor
+
+  }
+
 </script>
 </head>
 <body>
   <div style="float:right;border: 1px solid black;margin-right: 20px;">
     <center>
-    <iframe style="width:1000px; height: 700px;" id="pdf_results_preview" type="application/pdf"></iframe>
+    <iframe style="width:1000px; height: 800px;" id="pdf_results_preview" type="application/pdf"></iframe>
     </center>
   </div>
   <div style="width:700px;padding-left:100px;zoom:0.5;">
-    <h2>Input <small>(v.0.0.1)</h2>
+    <h2>Input <small>(v.0.0.2)</small></h2>
     Input PDF: <input type="file" id="file" name="file" accept=".pdf" onchange="uploadNewFile(this)">
     <br>
     Input Page Numbers: <small>(comma seperated 1-indexed page numbers)</small>
     <input type="text" id="page_nums" name="page_nums" oninput="pageNumUpdate(this)" value="1,2,3,4,5,6,7,8,10">
+    <br>
+    Layout Style:
+    <input type="radio" id="layout_2x2" name="layout_style" value="2x2" onchange="pageNumUpdate(document.getElementById('page_nums'))" checked>
+      <label for="layout_2x2">2x2</label>
+    <input type="radio" id="layout_3x2" name="layout_style" value="3x2" onchange="pageNumUpdate(document.getElementById('page_nums'))">
+      <label for="layout_3x2">3x2</label>
   </div>
 
 <div style="clear:both;"></div>
