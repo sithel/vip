@@ -89,7 +89,29 @@
   function layout_page_3x2(pdfPage, embeddedPages, pageNumList, origDimens, pageDimens) {
     const pairScaleFactor = Math.min((pageDimens[0] + 2)/origDimens[0], (pageDimens[1] + 2)/origDimens[1]) * 0.5;
     const headRoom = pageDimens[1] - origDimens[1] * pairScaleFactor
+    const drawn_width_bottom = origDimens[0] * pairScaleFactor
+    const drawn_height_bottom = origDimens[1] * pairScaleFactor
+    const tripleScaleFactor = Math.min(headRoom/origDimens[1], (drawn_width_bottom*2.0) / (origDimens[0] * 3.0))
+    const drawn_width_triple = origDimens[0] * tripleScaleFactor
+    const drawn_height_triple = origDimens[1] * tripleScaleFactor
 
+
+    pdfPage.drawPage(embeddedPages[0], {x : 0,                  y: 0, xScale: pairScaleFactor, yScale: pairScaleFactor})
+    pdfPage.drawPage(embeddedPages[1], {x : drawn_width_bottom, y: 0, xScale: pairScaleFactor, yScale: pairScaleFactor})
+
+    pdfPage.drawPage(embeddedPages[2], {x : 0,                           y: drawn_height_bottom, xScale: tripleScaleFactor, yScale: tripleScaleFactor})
+    pdfPage.drawPage(embeddedPages[3], {x : drawn_width_triple,          y: drawn_height_bottom, xScale: tripleScaleFactor, yScale: tripleScaleFactor})
+    pdfPage.drawPage(embeddedPages[4], {x : drawn_width_triple * 2 + 1,  y: drawn_height_bottom, xScale: tripleScaleFactor, yScale: tripleScaleFactor})
+
+    pdfPage.drawRectangle({x: 0 , y: 0, width: drawn_width_bottom, height: drawn_height_bottom, borderColor: PDFLib.rgb(0,0,0), borderWidth: 1})
+    pdfPage.drawRectangle({x: drawn_width_bottom , y: 0, width: drawn_width_bottom, height: drawn_height_bottom, borderColor: PDFLib.rgb(0,0,0), borderWidth: 1})
+
+    pdfPage.drawRectangle({x: 0 , y: drawn_height_bottom, width: drawn_width_triple, height: drawn_height_triple, borderColor: PDFLib.rgb(0,0,0), borderWidth: 1})
+    pdfPage.drawRectangle({x: drawn_width_triple , y: drawn_height_bottom, width: drawn_width_triple, height: drawn_height_triple, borderColor: PDFLib.rgb(0,0,0), borderWidth: 1})
+    pdfPage.drawRectangle({x: drawn_width_triple * 2 , y: drawn_height_bottom, width: drawn_width_triple, height: drawn_height_triple, borderColor: PDFLib.rgb(0,0,0), borderWidth: 1})
+
+    pdfPage.drawRectangle({x: 0 , y: drawn_height_bottom + drawn_height_triple, width: pageDimens[0], height: pageDimens[1], color: PDFLib.rgb(0,0,0), opacity: 1})
+    pdfPage.drawRectangle({x: drawn_width_bottom * 2 , y: 0, width: pageDimens[0], height: pageDimens[1], color: PDFLib.rgb(0,0,0), opacity: 1})
   }
 
 </script>
@@ -101,7 +123,7 @@
     </center>
   </div>
   <div style="width:700px;padding-left:100px;zoom:0.5;">
-    <h2>Input <small>(v.0.0.2)</small></h2>
+    <h2>Input <small>(v.0.0.3)</small></h2>
     Input PDF: <input type="file" id="file" name="file" accept=".pdf" onchange="uploadNewFile(this)">
     <br>
     Input Page Numbers: <small>(comma seperated 1-indexed page numbers)</small>
