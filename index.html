@@ -669,8 +669,8 @@
         <table>
           <tr>
             <td id="imposition_more_info"><div id="imposition_more_info_text"></div></td>
-            <td rowspan="2" style="text-align: center;"><a href="" id="imposition_folding_gif_link" target="_new"><img src="" style="width:100px;" id="imposition_folding_gif"></a></td>
-            <td rowspan="2"><div id="imposition_folio_calculations" style="display:none;"></div></td>
+            <td rowspan="2" style="text-align: center;padding: 0px"><a href="" id="imposition_folding_gif_link" target="_new"><img src="" style="max-width: 200px;min-width: 100px;" id="imposition_folding_gif"></a></td>
+            <td rowspan="2" style="min-width:200px;padding:0px;"><div id="imposition_folio_calculations" style="display:none;"></div></td>
           </tr>
           <tr>
             <td>
@@ -695,6 +695,7 @@
                   ["single", "Single", "1 page per side, no folio", false, -1, [0.5], [1,1], "Yes, this is just like the source PDF -- not really useful for bookbinding/imposition, but given all the other features (trimming, re-ordering, padding) I figured why not", false, null],
                   ["folio", "Folio", "2 pages per side, 1 folio", true, 4, [1], [1,2], "Minimal folding, large book, no cutting/trimming needed. Classic for beginners but too large for my personal taste", true, "folio_fold"],
                   ["quarto", "Quarto", "4 pages per side, 2 folio", true, 4, [2], [2,2], "Perfect! Produces something closer to a more 'typical' book IMO with room to trim -- you could cut the folios apart pre-assembly, leave them folded and wait for the trimming step to separate, or go old school and make an <a href='https://onlineacademiccommunity.uvic.ca/theopenbook/2024/02/15/opening-the-unopened/' target='_blank'>unopend book</a> for the reader to slice with their <a href='https://en.wikipedia.org/wiki/Paper_knife' target='_blank'>paper knife</a> as they read", false, "quarto_fold"],
+                  ["cut_quarto", "Cut Quarto", "4 pages per side, 2 folio", true, 4, [2], [2,2], "For the savage folks with big blades. Are you just going to cut these pages before you fold them? Madness! Well, if so- this imposition is 2 quarto signatures stacked side by side -- cut across the middle and then fold them in half (consider them 'face down' in that the outer sheets of the signatues are at the 'top' and the inner sheets of the signature are at the 'bottom') The cost of this madness is that the last signature of an odd-numbered signature count is half blank pages. You can wrestle between this imposition and the classic 'quarto' to make an optimal print :P", false, "cut_quarto_fold"],
                   ["6_side", "Sexto", "6 pages per side, 3 folio", true, 3, [3], [2,3], "A wide format, assembled via an easy Z fold - requires trimming on top and bottom to separate folios", false, null],
                   ["octavo_fat", "Octavo [fat]", "8 pages per side, 4 folio", true, 4, [4], [2,4], "Starting to get smaller but still easy to assemble. This has nested folds on the top AND on the side that can sometimes be bulky - binder's prefernece", true, "octavo_fat_fold"],
                   ["octavo_thin", "Octavo [thin]", "8 pages per side, 4 folio", true, 4, [4],[2,4], "Starting to get smaller but still easy to assemble. This has a fold on edge that could compound skew problems, but there's no nested top fold - binder's preference", true, "octavo_thin_fold"],
@@ -794,8 +795,8 @@
             <input type="checkbox" id="markup_sewing" name="markup_sewing" value="sewing" checked onchange="vip.handleSewingStationChange(this)"> <label for="markup_sewing">sewing / punching guides</label>
               <select id="markup_sewing_stations" name="markup_sewing_stations">
                 <option value="outer">spine only</option>
-                <option value="inner">inner folio only</option>
-                <option value="inner_outer" selected>spine & inner folio</option>
+                <option value="inner" selected>inner folio only</option>
+                <option value="inner_outer">spine & inner folio</option>
               </select>
               <input type="color" id="markup_sewing_stations_color" value="#4b4b4b" />
               <div id="markup_sewing_stations_details">
