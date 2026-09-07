@@ -172,6 +172,14 @@ export const form = {
     outputEl.removeAttribute("style")
     outputEl.innerHTML = "<small>Given "+pageCount+" PDF pages<br> ➥ 1 sheet</small>"
   },
+  _handleSignatureDeficitInfoDisplay(folio_deficit) {
+    document.getElementById("signature_count_smoothing_block").style.display = (window.book.imposition.canKate) ? "" : "none"
+    document.getElementById("signature_count_smoothing_desc").innerHTML = (!window.book.imposition.canKate) ? "" : "reduce folio count across final signatures in attempt to spread out the "+folio_deficit+" folio deficit in final signature"
+    document.getElementById("folio_arrangement_details").innerHTML = "<small><b>" + window.book.imposed.signatures.length +" signatures</b> listed with folio counts and their center-spread page numbers above</small> <br><center>" + window.book.imposed.signatures
+      .map(s => "<div class='signature_info_block'><small class='center_folio_page_nums'>"+(s[s.length - 1][1]+1)+" - "+(s[s.length - 1][2]+1)+"</small><br>"+s.length +"</div>")
+      .join("") +"</center>";
+
+  },
   calImpositionInfo: function(pageCount) {
     const defaultCount = window.book.imposition["defaultFolioCounts"]
     const canCustomize = window.book.imposition["canCustomizeCounts"]
@@ -198,6 +206,16 @@ export const form = {
       return;
     }
     this._populateSheets(counts)
+    // begin -- all the stuff for Kate feature
+    const signatureCount = window.book.imposed.signatures.length
+    window.book.imposition.canKate = counts.length == 1 && signatureCount> 1 && (counts[0] - window.book.imposed.signatures[signatureCount - 1].length) > 1
+    const folio_deficit = (window.book.imposition.canKate) ? counts[0] - window.book.imposed.signatures[signatureCount - 1].length : 0
+    if (window.book.imposition.canKate && window.book.imposition.shouldKate) {
+      const kateCounts = Array(signatureCount).fill(counts[0]).map((c,i) => (i >= signatureCount - folio_deficit) ? counts[0] - 1 : counts[0]);
+      this._populateSheets(kateCounts)
+    }
+    this._handleSignatureDeficitInfoDisplay(folio_deficit)
+    // end -- kate feature stuff
     window.book.imposed.pageCount = window.book.imposed.signatures.map(s => s.length).reduce((a,v) => a+v,0) * 4;
     window.book.imposed.blanks = window.book.imposed.pageCount - pageCount;
     let s = "<small>"

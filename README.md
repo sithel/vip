@@ -5,6 +5,7 @@ Launch February 4th 2025
 
 ## [Versions](#version-history)
 
+- v0.1.2 - adding the folio count smoothing across final signatures feature (for `katethereader`!!)
 - v0.1.1 - forgot to include all that save settings code (embarrassing) & fixing duo sexto crosshairs 
 - v0.1.0 - fixed rotation ui indicators & now saving settings! (thanks [varve](https://www.write-on.org/) [`seasonal_lacustrine_sediment`]!)
 - v0.0.17 - added Lilliputian imposition (initial pass) & folding gifs! (thanks  Lele | Gilding the Lele Press [`lele_levation`] & Aspen | Little Cat Press [`nonbinary_octopus`]!)
@@ -100,6 +101,8 @@ Within `imposer.js`:
  
  - `_renderPage` is pretty solid (and self documented) -- given placement x,y on sheet and cell w,h to work with, figures out how to place specified `page_num` according to the `window.book.physical.scaling`
  - the `_handleIMPOSITION` functions manage folio wrangling and placement, relying on `_renderPage` and getting a lot of helper values from `_calcDimens` (yay for destructuring in JavaScript!)
+
+ Note! Adding the "Kate" feature and referring to it as such in the code because I can't come up with a briefer description. It's the folio re-distribution across final signatures to reduce the deficit of final signature count. I track whether you CAN do it (single folio requested count, deficit larger than 2, more than 1 signature) and whehter you SHOULD do it (user checked the box) 
 
 
 ## Placement / Imposed (step 5)

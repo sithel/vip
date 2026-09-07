@@ -16,8 +16,8 @@
     window.book = {
       upload_blocks: [/*{ pageSelection: String, precedingBlanks: Int , file: File, pdfDoc: PDFLib.PDFDocument, preProcessing: String } */],
       unified_source: { leftRotDeg: 0, rightRotDeg: 0, marginLeft: 0, marginRight: 0, marginTop: 0, marginBottom: 0, pageCount: 0, pdf_is_valid: false, maxWidth: 0,  maxHeight: 0, is_large_file: false, interlaced: false /* _scale100px: Int,  */ }, 
-      imposition: { /* name: String, canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>, cellCount_l:Int, cellCount_s:Int*/},
-      imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, pageCount: Int, blanks: Int, hasSplitSig: Boolean, requiresCutting: Boolean */ },
+      imposition: { /* name: String, canCustomizeCounts:Boolean, defaultFolioCounts: Int/String, foliosPerSheet: List<Int>, cellCount_l:Int, cellCount_s:Int, canKate: Boolean, shouldKate: Boolean */}, // the use of "kate" is shorthand for the signature/folio evening feature request frequently made by Kate and hard to summarize -- thus calling it "kate"
+      imposed: { /* sheets: List<List<PageNumber>>, signatures: List<List<PageNumber>>, pageCount: Int, blanks: Int, hasSplitSig: Boolean, requiresCutting: Boolean */ }, 
       physical: { short_margin: 0, long_margin: 0, scaling: 'fit', placement: 'center' /* display_unit: String */, printer_marin_bonus: [0,0]},
       page_orientation: null,
       display_unit: null, // what to show, ex: cm
@@ -302,6 +302,22 @@
         display: inline;
       }
     }
+    #imposition_layout {
+      #folio_arrangement_details {
+        .signature_info_block {
+          display: inline-block;
+          text-align: center;
+          padding: 0px;
+          line-height: 1em;
+          font-size: 10pt;
+          padding-right: 0.1em;
+          .center_folio_page_nums {
+            writing-mode: vertical-rl;
+            font-size: 6pt;
+          }
+        }
+      }
+    }
     #pdf_placement {
       small {
         margin-bottom: 0px;
@@ -429,7 +445,7 @@
     <main class="container">
       <section id="title">
         <h1>Villainous Imposer<BR><small id="version_info">
-          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.1.1</a>
+          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.1.2</a>
         </small>[VI]</h1>
         <details>
           <summary>information & glossary</summary>
@@ -659,6 +675,15 @@
           <tr>
             <td>
               Folios per Signature: <input type="text" placeholder="666" disabled id="folios_per_signature" oninput="vip.handleFoliosPerSigUpdate()">
+            </td>
+          </tr>
+          <tr>
+            <td colspan="3">
+              <div id="folio_arrangement_details"></div>
+              <div id="signature_count_smoothing_block" style="display:none;">
+                <input type='checkbox' oninput='vip.handleSignatureCountSmoothing(this)' id='signature_count_smoothing'>
+                <span id="signature_count_smoothing_desc">reduce folio count across final signatures in attempt to spread out the "+folio_deficit+" folio deficit in final signature</small>
+              </div>
             </td>
           </tr>
           <tr>
