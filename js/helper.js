@@ -121,7 +121,6 @@ export const form = {
     return [next_page_num, sheet_i, folio_i, new_sig]
   },
   _handleReArrangingCutQuartoSheets: function(sig_sequence) {
-    console.log("REBECCA >> I need to shuffle things. \n\t Signatues",window.book.imposed.signatures,"\n\t Sheets ",window.book.imposed.sheets)
     window.book.imposed.sheets = []
     const sigs = window.book.imposed.signatures
     for(var i = 0; i < sigs.length; i = i + 2) {
