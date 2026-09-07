@@ -105,6 +105,10 @@ export const vip = {
       return
     form.calImpositionInfo(window.book.unified_source.pageCount)
   },
+  handleSignatureCountSmoothing: function(el) {
+    window.book.imposition.shouldKate = el.checked
+    form.calImpositionInfo(window.book.unified_source.pageCount)
+  },
   /*{ pageSelection: String, precedingBlanks: Int , file: File }*/
   uploadBlockBlank: function(e) {
     let id = parseInt(e.getAttribute("data-upload-index"))
@@ -297,6 +301,7 @@ export const vip = {
           return [r[1].trim(), r[2].trim()]
         })
         changeSettingsBasedOnImport(result)
+        form.calImpositionInfo(window.book.unified_source.pageCount)
       } catch (e) {
         inputField.value= "There was a problem with your import code\n-----[error]\n"+e+"\n------[provided]\n"+userInput
         console.error(e)

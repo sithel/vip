@@ -69,9 +69,21 @@ const DEFAULT_VIP_SETTINGS = {
 		value: ""
 	},
 
+// 4. Imposition Layout
+	folios_per_signature: {
+		type: 'text',
+		value: ''
+	},
+	page_imposition: {
+		type: 'radio',
+		value: ''
+	},
+	signature_count_smoothing: {
+		type: 'checkbox',
+		value: 0
+	},
 
 // meh - I'll sort the rest of these later... 
-
 	unit_selector: {
 		type: 'selectlist',
 		value: 'points'
@@ -84,14 +96,7 @@ const DEFAULT_VIP_SETTINGS = {
 		type: 'selectlist',
 		value: 'LETTER'
 	},
-	folios_per_signature: {
-		type: 'text',
-		value: ''
-	},
-	page_imposition: {
-		type: 'radio',
-		value: ''
-	},
+
 	pdf_page_scaling: {
 		type: 'selectlist',
 		value: 'fit'
