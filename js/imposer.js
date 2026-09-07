@@ -503,8 +503,8 @@ export const imposerMagic = {
     const {pW, pH, renderPage, flip_short, renderCrosshair} = this._calcDimens(new_page)
     const cell_w = pW/2.0;
     const cell_h = pH/2.0;
-    const i = (is_front) ? [[0, 3], [0,0], [1,3], [1,0]] 
-        : (flip_short) ? [[1, 2], [1,1], [0,2], [0, 1]] 
+    const i = (is_front) ? [[0, 3], [0,0], [1,3], [1,0]]
+        : (flip_short) ? [[1, 2], [1,1], [0,2], [0, 1]]
             : [[0, 1], [0,2], [1,1], [1,2]]
     const orientation = (!is_front && flip_short) ? UP_SIDE_DOWN : RIGHT_SIDE_UP
     if (i[0][0] < folio_list.length) {
