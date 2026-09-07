@@ -120,6 +120,21 @@ export const form = {
     }
     return [next_page_num, sheet_i, folio_i, new_sig]
   },
+  _handleReArrangingCutQuartoSheets: function(sig_sequence) {
+    console.log("REBECCA >> I need to shuffle things. \n\t Signatues",window.book.imposed.signatures,"\n\t Sheets ",window.book.imposed.sheets)
+    window.book.imposed.sheets = []
+    const sigs = window.book.imposed.signatures
+    for(var i = 0; i < sigs.length; i = i + 2) {
+      const sig1 = sigs[i]
+      const sig2 = (sigs.length <= i + 1) ? [] : sigs[i+1]
+      const maxFolioCount = Math.max(sig1.length, sig2.length)
+      for(var j = 0; j < maxFolioCount; ++j) {
+        const folio1 = (j < sig1.length) ? sig1[j] : []
+        const folio2 = (j < sig2.length) ? sig2[j] : []
+       window.book.imposed.sheets.push([folio1, folio2])
+      }
+    }
+  },
   _populateSheets: function(sig_sequence) {
     console.log(" > _populateSheets: ["+sig_sequence+"]")
     window.book.imposed.sheets = [[]];
@@ -143,6 +158,9 @@ export const form = {
     }
     while (sig_start < max_page_num) {
       sig_start = sig_sequence.reduce(reducer, sig_start)
+    }
+    if (window.book.imposition.name == "cut_quarto") {
+      return this._handleReArrangingCutQuartoSheets()
     }
   },
   _customImposeSingle: function(pageCount) {

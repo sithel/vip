@@ -5,6 +5,7 @@ Launch February 4th 2025
 
 ## [Versions](#version-history)
 
+- v0.1.3 - some minor UI fixes & cut quarto (long intended as gift to Amy [`runawaymarbles`])
 - v0.1.2 - adding the folio count smoothing across final signatures feature (for `katethereader`!!)
 - v0.1.1 - forgot to include all that save settings code (embarrassing) & fixing duo sexto crosshairs 
 - v0.1.0 - fixed rotation ui indicators & now saving settings! (thanks [varve](https://www.write-on.org/) [`seasonal_lacustrine_sediment`]!)

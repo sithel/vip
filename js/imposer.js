@@ -499,6 +499,29 @@ export const imposerMagic = {
     if (is_front)
       this._renderFoldLine(new_page, 0, pH/2.0, pW, pH/2.0)
   },
+  _handleCutQuarto: function(new_page, pageMap, folio_list, sheet_index, is_front) {
+    const {pW, pH, renderPage, flip_short, renderCrosshair} = this._calcDimens(new_page)
+    const cell_w = pW/2.0;
+    const cell_h = pH/2.0;
+    const i = (is_front) ? [[0, 3], [0,0], [1,3], [1,0]] 
+        : (flip_short) ? [[1, 2], [1,1], [0,2], [0, 1]] 
+            : [[0, 1], [0,2], [1,1], [1,2]]
+    const orientation = (!is_front && flip_short) ? UP_SIDE_DOWN : RIGHT_SIDE_UP
+    if (i[0][0] < folio_list.length) {
+      const center_info = this._calcCenterInfo(folio_list[i[0][0]][i[0][1]])
+      renderPage(new_page, pageMap, folio_list[i[0][0]][i[0][1]], 0,      pH/2.0, cell_w, cell_h, orientation, center_info)
+      renderPage(new_page, pageMap, folio_list[i[1][0]][i[1][1]], pW/2.0, pH/2.0, cell_w, cell_h, orientation, center_info)
+    }
+    if (i[2][0] < folio_list.length) {
+      const center_info = this._calcCenterInfo(folio_list[i[2][0]][i[2][1]])
+      renderPage(new_page, pageMap, folio_list[i[2][0]][i[2][1]], 0,      0,    cell_w, cell_h, orientation, center_info)
+      renderPage(new_page, pageMap, folio_list[i[3][0]][i[3][1]], pW/2.0, 0,    cell_w, cell_h, orientation, center_info)
+    }
+    const targets = [ [cell_w, 0], [cell_w, pH/2.0], [cell_w, pH], [0, pH/2.0], [pW, pH/2.0] ];
+    targets.forEach( x => renderCrosshair(new_page, x[0], x[1]));
+    if (is_front)
+      this._renderFoldLine(new_page, 0, pH/2.0, pW, pH/2.0)
+  },
   _handleSexto: function(new_page, pageMap, folio_list, sheet_index, is_front) {
     const {pW, pH, renderPage, flip_short, renderCrosshair} = this._calcDimens(new_page)
     const cell_w = pW/2.0;
@@ -1128,6 +1151,7 @@ export const imposerMagic = {
       case 'single': this._handleSingle(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'folio': this._handleFolio(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'quarto': this._handleQuarto(new_page, pageMap, folio_list, sheet_index, is_front); break;
+      case 'cut_quarto': this._handleCutQuarto(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case '6_side': this._handleSexto(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case '12_side': this._handleDuoSexto(new_page, pageMap, folio_list, sheet_index, is_front); break;
       case 'octavo_fat': this._handleOctoFat(new_page, pageMap, folio_list, sheet_index, is_front); break;
