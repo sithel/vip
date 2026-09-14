@@ -281,6 +281,7 @@ export const builder = {
     const new_pdf = await PDFLib.PDFDocument.create();
     await pdf.save()
     const pages = pdf.getPages()
+    console.log("shifting the pages: x: "+x_shift+" & y: "+y_shift)
     for(var i = 0; i < pages.length; ++i) {
       const p = pages[i];
       const embeddedPage = await new_pdf.embedPage(p)
