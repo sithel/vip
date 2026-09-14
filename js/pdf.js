@@ -7,7 +7,6 @@ export const utils = {
   */
   _buildPageList : function(selectedPages, pageCount) {
     let fillAll = function() {
-      console.log("Running fill all "+pageCount)
       return new Array(pageCount).fill(0).map( (x, i) => i + 1)
     }
     if (selectedPages == undefined || selectedPages == "all" || selectedPages == "") {
@@ -282,7 +281,6 @@ export const builder = {
     const new_pdf = await PDFLib.PDFDocument.create();
     await pdf.save()
     const pages = pdf.getPages()
-    console.log("REBECCA!! we're starting the shift!! "+x_shift+" & "+y_shift)
     for(var i = 0; i < pages.length; ++i) {
       const p = pages[i];
       const embeddedPage = await new_pdf.embedPage(p)

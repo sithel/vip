@@ -33,11 +33,23 @@ export const testPrint = {
       end: { x: 0, y: h },
       thickness: 1, color: PDFLib.rgb(0,0,0), opacity: 1,
     })
+
+    // edge stripes
+    for(var i = -10; i <= 10; ++i) {
+      pdfPage.drawLine({thickness: 1, color: PDFLib.rgb(0,0,0), opacity: 1,
+        start: { x: w-20, y: h/2.0 + (i * 2) }, end: { x: w, y: h/2.0  + (i * 2)},})
+      pdfPage.drawLine({thickness: 1, color: PDFLib.rgb(0,0,0), opacity: 1,
+        start: { x: 20, y: h/2.0 + (i * 2) }, end: { x: 0, y: h/2.0  + (i * 2)},})
+      pdfPage.drawLine({thickness: 1, color: PDFLib.rgb(0,0,0), opacity: 1,
+        start: { x: w/2.0 + (i * 2), y: h-20 }, end: { x: w/2.0 + (i * 2), y: h,},})
+      pdfPage.drawLine({thickness: 1, color: PDFLib.rgb(0,0,0), opacity: 1,
+        start: { x: w/2.0 + (i * 2), y: 20 }, end: { x: w/2.0 + (i * 2), y: 0,},})
+    }
   },
   _renderText: function(pdfPage, w, h) {
     pdfPage.drawText("Top Front",
       {
-        x: w - (72*3),
+        x: w - (72*3)+20,
         y: h -72,
         size: 20,
         color: PDFLib.rgb(0,0,0),
@@ -45,6 +57,17 @@ export const testPrint = {
         opacity: 1,
       },
     )
+    pdfPage.drawText("each black & white line is 1pt",
+      {
+        x: w - (72*3),
+        y: h -92,
+        size: 10,
+        color: PDFLib.rgb(0,0,0),
+        lineHeight: 12,
+        opacity: 1,
+      },
+    )
+
     const startX = 72/2.0
     const startY = 72*1.6
     const gap = 72
