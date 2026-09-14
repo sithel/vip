@@ -261,7 +261,7 @@ export const builder = {
     }
     return [pageMap, sheets]
   },
-  _collectValueOrPlaceholder: async function(el) {
+  _collectValueOrPlaceholder: function(el) {
     if (el.type == 'color') {
       const c = this._hexToRgb(el.value)
       return PDFLib.rgb(c.r / 255.0, c.g / 255.0, c.b / 255.0);
@@ -273,16 +273,25 @@ export const builder = {
     if (side_coverage_mode == SIDE_COVERAGE_FRONT) {
       return pdf
     }
+    const x_shift = this._collectValueOrPlaceholder(document.getElementById("pp_shift_right"));
+    const y_shift = this._collectValueOrPlaceholder(document.getElementById("pp_shift_down")) * -1;
+    if (x_shift == 0 && y_shift == 0) {
+      return pdf
+    }
     const shift_all = side_coverage_mode == SIDE_COVERAGE_BACK;
     const new_pdf = await PDFLib.PDFDocument.create();
     await pdf.save()
     const pages = pdf.getPages()
-    console.log("REBECCA!! we're starting the shift!!")
+    console.log("REBECCA!! we're starting the shift!! "+x_shift+" & "+y_shift)
     for(var i = 0; i < pages.length; ++i) {
       const p = pages[i];
       const embeddedPage = await new_pdf.embedPage(p)
-      const new_p =  newPdf.addPage([p.getWidth(), p.getHeight()])
-      new_p.drawPage(embeddedPage, {x: 20, y: 100})
+      const new_p =  new_pdf.addPage([p.getWidth(), p.getHeight()])
+      if (!shift_all && i%2 == 0) {
+        new_p.drawPage(embeddedPage, {x: 0, y: 0})
+      } else {
+        new_p.drawPage(embeddedPage, {x: x_shift, y: y_shift})
+      }
     };
     return new_pdf
 
