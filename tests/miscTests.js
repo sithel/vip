@@ -17,6 +17,7 @@ function assertTrueS(given, expected) {
 }
 
 
+
 function buildPageListTests() {
   assertTrueS(utils._buildPageList("1,2", 6), [1,2])
   assertTrueS(utils._buildPageList("1-3", 10), [1,2,3])
@@ -33,11 +34,17 @@ function buildPageListTests() {
   assertTrueS(utils._buildPageList("-1,-6,0,1,2,b,3-10,6-11", 100), [1,2,-1,3,4,5,6,7,8,9,10,6,7,8,9,10,11])
   assertTrueS(utils._buildPageList("6,3-5,b,0-10,b,b,b,b,9-4", 100), [6,3,4,5,-1,1,2,3,4,5,6,7,8,9,10,-1,-1,-1,-1,9,8,7,6,5,4])
   assertTrueS(utils._buildPageList("asdfdsfad4", 100), undefined)
+  assertTrueS(utils._buildPageList("all", 5), [1,2,3,4,5])
+  assertTrueS(utils._buildPageList("b,b,all,b,b,b,all", 4), [-1,-1,1,2,3,4,-1,-1,-1,1,2,3,4])  // 2 + 4 + 3 + 4 = 13
   assertTrueS(utils._buildPageList("4,5,6,aowfla,-e", 100), undefined)
 
 }
 
 export function tests() {
-  assertTrue("a", "a")
-  buildPageListTests()
+  try {
+    assertTrue("a", "a")
+    buildPageListTests()
+  } catch(e) {
+    console.error("[[[ uncaught test exception : ",e)
+  }
 }

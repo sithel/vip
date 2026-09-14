@@ -11,7 +11,6 @@ export const imposerMagic = {
    * x / y - the LOWER LEFT position of that Imposition Cell on the SHEET
    * w / h - the CELL SPACE AVAILABLE 
    * orientation - one of the RIGHT_SIDE_UP/UP_SIDE_DOWN/BOTTOM_TO_LEFT/BOTTOM_TO_RIGHT - how to render page in cell
-   * is_odd - as viewed from page numbers in a book, starting w/ page 1.  Odd == right hand side of page, even == left hand side of page
    * center_info - emtpy list if not, [sig index, isOuter - true outer / false inner]
    */
   _renderPage: function(new_page, page_map, page_num, corner_x, corner_y, w, h, orientation, center_info) {

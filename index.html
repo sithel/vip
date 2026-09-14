@@ -245,7 +245,7 @@
         padding: 1px 5px;
         margin: 0px;
       }
-      }
+    }
       table {
         margin-left: 40px;
       }
@@ -258,9 +258,6 @@
     }
     #imposition_layout tr:nth-child(odd) td:nth-child(even) {
       background-color: transparent;
-    }
-    #printed_page_adjustment {
-      opacity: 0.5;
     }
     #pdf_signatures {
       .signature_block_size {
@@ -382,6 +379,20 @@
         vertical-align: middle;
       }
     }
+    #printed_page_adjustment {
+      #post_processing_options {
+        margin-left: 40px;
+        input {
+          width: 4em;
+          padding: 0px 4px;
+          margin-left: 10px;
+          margin-bottom: 4px;
+        }
+        label {
+          display: inline-block;
+        }
+      }
+    }
     #pdf_preview {
       #pdf_preview_size_warning {
         margin-left: 40px;
@@ -445,7 +456,7 @@
     <main class="container">
       <section id="title">
         <h1>Villainous Imposer<BR><small id="version_info">
-          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.1.3</a>
+          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.1.4</a>
         </small>[VI]</h1>
         <details>
           <summary>information & glossary</summary>
@@ -682,7 +693,7 @@
               <div id="folio_arrangement_details"></div>
               <div id="signature_count_smoothing_block" style="display:none;">
                 <input type='checkbox' oninput='vip.handleSignatureCountSmoothing(this)' id='signature_count_smoothing'>
-                <span id="signature_count_smoothing_desc">reduce folio count across final signatures in attempt to spread out the "+folio_deficit+" folio deficit in final signature</small>
+                <span id="signature_count_smoothing_desc"><label for="signature_count_smoothing">reduce folio count across final signatures in attempt to spread out the "+folio_deficit+" folio deficit in final signature</label></small>
               </div>
             </td>
           </tr>
@@ -708,7 +719,7 @@
                   ["tiny_4_by_4", "Tiny", "32 per side, 4 folio x 4", false, 4, [4,4,4,4], [4,8], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes (4 folio)", true, "tiny_fold"],
                   ["tiny_landscape_4_by_4", "Tiny Landscape", "32 per side, 4 folio x 4", false, 4, [4,4,4,4], [4,8], "Two rows of 2 signatures- only requires 1 cut to assemble if you're trimming the edges open later. Each half is 2 signatures folded up acordian style top-to-bottom, joined at the foredge between the signatures. Each half makes a W shape of 2 joined signatures. Imposition thanks to BB.", true, "tiny_landscape_fold"],
                   ["mini", "Mini", "60 per side, 2/3 folio x 6 ", false, "3,2", [2,3,2,3,2,3,2,3,2,3,2,3], [6,10], "Custom 'zig-zag' imposition - requires cutting the sheet into strips before folding them up into fixed signature sizes- each row is made up of two signatures ", true, null],
-                  ["lilliputian", "Lilliputian", "256 per side, 4 folio x 32 ", false, "4", [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4], [16,16], "Imposition designed by <a href='https://www.tumblr.com/little-cat-press' target='_new'>Aspen</a> (<code>nonbinary_octopus</code>) to really push the limits of little books! (still slightly WIP, needs cut/fold lines) The imposition is 32 signatures -- 2 signatures per row, each signature 4 folio in size.  It's advised that you leave the top and bottom strips/rows blank -- you can achieve this by injecting the correct number of blanks in the <code>page selection</code> up in <b>1. Source PDF(s)</b> -- <code>b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b</code> (32 blanks)", true, null],
+                  ["lilliputian", "Lilliputian", "256 per side, 4 folio x 32 ", true, "4", [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4], [16,16], "Imposition designed by <a href='https://www.tumblr.com/little-cat-press' target='_new'>Aspen</a> (<code>nonbinary_octopus</code>) to really push the limits of little books! (still slightly WIP, needs cut/fold lines) The imposition is 32 signatures -- 2 signatures per row, each signature 4 folio in size.  It's advised that you leave the top and bottom strips/rows blank -- you can achieve this by injecting the correct number of blanks in the <code>page selection</code> up in <b>1. Source PDF(s)</b> -- <code>b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b</code> (32 blanks)", true, null],
                 ]
                 imposition_options.forEach((o, i) => {
                   drawing.renderImpositionOptions(document.getElementById("imposition_options_list"), o, i)
@@ -815,10 +826,28 @@
         <details>
           <summary>Instructions/Details</summary>
           <p>
-            This is to address printer skew
+            <kbd>&#9888; new feature</kbd><br>
+            This is an attempt to address known, constant printer skew in the printer you're using via shifting things in the PDF. It's an act of desperation, specific to your machine, and not guarenteed to solve the problem as the skew could change print-by-print. <br>
+            <br>
+            Use the <b>Test Print</b> from <b>3. Printer Paper</b> to determine which values to enter below. The entire back (B) side of each sheet will be moved -- this happens <i>after</i> everything above has been calculated & laid out. If you specified <b>paper margins</b> in <b>3. Printer Paper</b>, they are applied <i>before</i> this step -- be careful not to shift your B side into the margin too far!<br>
+            <br>
+            When looking at the <b>Test Print</b> page, hold it up to a light and look at how things do or don't line up. Think about how the B side of the print needs to move in order for them to line up. Then enter the values below and hope. Possibly cross fingers. <br>
+            <br>
+            <mark>Some types of skew are rotational -- the page is pivoting around some point and a simple left/right or up/down shift alone wont help you. Addressing such skew is still a <kbd>TODO</kbd></mark><br>
+            <center>
+            <div style="border:1px solid black; background-color: white; width: 5em;height: 6.5em;line-height: 1em;padding-top:.5em">
+              - <br>
+              &uarr;<br>
+              - &larr;<b>B</b>&rarr; +<br>
+              &darr;<br>
+              +
+            </div>
           </p>
         </details>
-        <kbd>not implemented yet</kbd>
+        <section id="post_processing_options">
+          <input type="number" id="pp_shift_down" placeholder=0><label for="pp_shift_down" style="margin-right: 3em;"> shift B side up/down (pt)</label>
+          <input type="number" id="pp_shift_right" placeholder=0><label for="pp_shift_right">shift B side left/right (pt)</label>
+        </section>
       </section>
 
       <section id="pdf_preview" class="disabled">

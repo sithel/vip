@@ -5,6 +5,7 @@ Launch February 4th 2025
 
 ## [Versions](#version-history)
 
+- v0.1.4 - add in rudimentary post-processing and allow variable signature Lilliputian layout
 - v0.1.3 - some minor UI fixes & cut quarto (long intended as gift to Amy [`runawaymarbles`])
 - v0.1.2 - adding the folio count smoothing across final signatures feature (for `katethereader`!!)
 - v0.1.1 - forgot to include all that save settings code (embarrassing) & fixing duo sexto crosshairs 

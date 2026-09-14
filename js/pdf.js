@@ -7,6 +7,7 @@ export const utils = {
   */
   _buildPageList : function(selectedPages, pageCount) {
     let fillAll = function() {
+      console.log("Running fill all "+pageCount)
       return new Array(pageCount).fill(0).map( (x, i) => i + 1)
     }
     if (selectedPages == undefined || selectedPages == "all" || selectedPages == "") {
@@ -260,13 +261,31 @@ export const builder = {
     }
     return [pageMap, sheets]
   },
-  _collectValueOrPlaceholder: function(el) {
+  _collectValueOrPlaceholder: async function(el) {
     if (el.type == 'color') {
       const c = this._hexToRgb(el.value)
       return PDFLib.rgb(c.r / 255.0, c.g / 255.0, c.b / 255.0);
     }
     const v = parseFloat(el.value)
     return (isNaN(v)) ? parseFloat(el.placeholder) : v
+  },
+  _handlePrinterSkew: async function(side_coverage_mode, pdf) {
+    if (side_coverage_mode == SIDE_COVERAGE_FRONT) {
+      return pdf
+    }
+    const shift_all = side_coverage_mode == SIDE_COVERAGE_BACK;
+    const new_pdf = await PDFLib.PDFDocument.create();
+    await pdf.save()
+    const pages = pdf.getPages()
+    console.log("REBECCA!! we're starting the shift!!")
+    for(var i = 0; i < pages.length; ++i) {
+      const p = pages[i];
+      const embeddedPage = await new_pdf.embedPage(p)
+      const new_p =  newPdf.addPage([p.getWidth(), p.getHeight()])
+      new_p.drawPage(embeddedPage, {x: 20, y: 100})
+    };
+    return new_pdf
+
   },
   /**
    * @param signature_index - the signature to export as a file (printed as a full sheet) or -1 to print all of them
@@ -292,6 +311,6 @@ export const builder = {
         imposerMagic.imposePdf(new_page, pageMap, s, i, false);
       }
     });
-    return new_pdf;
+    return this._handlePrinterSkew(side_coverage_mode, new_pdf);
   }
 }
