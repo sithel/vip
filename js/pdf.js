@@ -268,6 +268,33 @@ export const builder = {
     const v = parseFloat(el.value)
     return (isNaN(v)) ? parseFloat(el.placeholder) : v
   },
+  _handlePrinterSkew: async function(side_coverage_mode, pdf) {
+    if (side_coverage_mode == SIDE_COVERAGE_FRONT) {
+      return pdf
+    }
+    const x_shift = this._collectValueOrPlaceholder(document.getElementById("pp_shift_right"));
+    const y_shift = this._collectValueOrPlaceholder(document.getElementById("pp_shift_down")) * -1;
+    if (x_shift == 0 && y_shift == 0) {
+      return pdf
+    }
+    const shift_all = side_coverage_mode == SIDE_COVERAGE_BACK;
+    const new_pdf = await PDFLib.PDFDocument.create();
+    await pdf.save()
+    const pages = pdf.getPages()
+    console.log("shifting the pages: x: "+x_shift+" & y: "+y_shift)
+    for(var i = 0; i < pages.length; ++i) {
+      const p = pages[i];
+      const embeddedPage = await new_pdf.embedPage(p)
+      const new_p =  new_pdf.addPage([p.getWidth(), p.getHeight()])
+      if (!shift_all && i%2 == 0) {
+        new_p.drawPage(embeddedPage, {x: 0, y: 0})
+      } else {
+        new_p.drawPage(embeddedPage, {x: x_shift, y: y_shift})
+      }
+    };
+    return new_pdf
+
+  },
   /**
    * @param signature_index - the signature to export as a file (printed as a full sheet) or -1 to print all of them
    */
@@ -292,6 +319,6 @@ export const builder = {
         imposerMagic.imposePdf(new_page, pageMap, s, i, false);
       }
     });
-    return new_pdf;
+    return this._handlePrinterSkew(side_coverage_mode, new_pdf);
   }
 }

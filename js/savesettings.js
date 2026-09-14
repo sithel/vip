@@ -83,6 +83,16 @@ const DEFAULT_VIP_SETTINGS = {
 		value: 0
 	},
 
+// 7. Post-Processing
+	pp_shift_down: {
+		type: 'number',
+		value: ""
+	},
+	pp_shift_right: {
+		type: 'number',
+		value: ""
+	},
+
 // meh - I'll sort the rest of these later... 
 	unit_selector: {
 		type: 'selectlist',
