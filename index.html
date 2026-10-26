@@ -391,6 +391,11 @@
         label {
           display: inline-block;
         }
+        table td {
+          border: 0px;
+          padding: 0px;
+          text-align: left;
+        }
       }
     }
     #pdf_preview {
@@ -456,7 +461,7 @@
     <main class="container">
       <section id="title">
         <h1>Villainous Imposer<BR><small id="version_info">
-          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.1.4</a>
+          <a href="https://github.com/sithel/vip?tab=readme-ov-file#versions" style="text-decoration:none;" target="_open">v0.1.5</a>
         </small>[VI]</h1>
         <details>
           <summary>information & glossary</summary>
@@ -845,8 +850,38 @@
           </p>
         </details>
         <section id="post_processing_options">
-          <input type="number" id="pp_shift_down" placeholder=0><label for="pp_shift_down" style="margin-right: 3em;"> shift B side up/down (pt)</label>
-          <input type="number" id="pp_shift_right" placeholder=0><label for="pp_shift_right">shift B side left/right (pt)</label>
+          <table>
+            <tr>
+              <td>
+                &nbsp;&nbsp;&nbsp;&nbsp;Shift Front Side
+              </td>
+              <td rowspan="3" style="text-align: center;">
+                <button id="post_processing_spread_gap" onclick="vip.refreshPreview()">Evently Distribute Delta</button>
+              </td>
+              <td>
+                &nbsp;&nbsp;&nbsp;&nbsp;Shift Back Side
+              </td>
+            <tr>
+              <td>
+                <input type="number" id="pp_shift_down_f" placeholder=0>
+                <label for="pp_shift_down_f" style="margin-right: 3em;">  up/down &#x2195; (pt)</label>
+              </td>
+              <td >
+                <input type="number" id="pp_shift_down_b" placeholder=0>
+                <label for="pp_shift_down_b" style="margin-right: 3em;">  up/down &#x2195; ((pt)</label>
+              </td>
+            </tr>
+            <tr>
+              <td >
+                <input type="number" id="pp_shift_right_f" placeholder=0>
+                <label for="pp_shift_right_f"> left/right &#x2194; (pt)</label>
+              </td>
+              <td >
+                <input type="number" id="pp_shift_right_b" placeholder=0>
+                <label for="pp_shift_right_b" style="margin-right: 3em;">  left/right &#x2194;  (pt)</label>
+              </td>
+            </tr>
+          </table>
         </section>
       </section>
 
@@ -891,6 +926,10 @@
           <label for="download-front-back">
             <input type="checkbox" role="switch" id="download-front-back" name="download-front-back">
             front / back of sheets as separate files
+          </label>
+          <label for="download-config">
+            <input type="checkbox" id="download-config" name="download-config">
+            imposer settings <code>config.txt</code> file
           </label>
           <BR>
           

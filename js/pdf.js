@@ -269,11 +269,8 @@ export const builder = {
     return (isNaN(v)) ? parseFloat(el.placeholder) : v
   },
   _handlePrinterSkew: async function(side_coverage_mode, pdf) {
-    if (side_coverage_mode == SIDE_COVERAGE_FRONT) {
-      return pdf
-    }
-    const x_shift = this._collectValueOrPlaceholder(document.getElementById("pp_shift_right"));
-    const y_shift = this._collectValueOrPlaceholder(document.getElementById("pp_shift_down")) * -1;
+    const x_shift = (side_coverage_mode == SIDE_COVERAGE_FRONT) ? this._collectValueOrPlaceholder(document.getElementById("pp_shift_right_f"))     : this._collectValueOrPlaceholder(document.getElementById("pp_shift_right_b"));
+    const y_shift = (side_coverage_mode == SIDE_COVERAGE_FRONT) ? this._collectValueOrPlaceholder(document.getElementById("pp_shift_down_f")) * -1 : this._collectValueOrPlaceholder(document.getElementById("pp_shift_down_b")) * -1;
     if (x_shift == 0 && y_shift == 0) {
       return pdf
     }

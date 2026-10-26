@@ -84,11 +84,19 @@ const DEFAULT_VIP_SETTINGS = {
 	},
 
 // 7. Post-Processing
-	pp_shift_down: {
+	pp_shift_down_f: {
 		type: 'number',
 		value: ""
 	},
-	pp_shift_right: {
+	pp_shift_right_f: {
+		type: 'number',
+		value: ""
+	},
+	pp_shift_down_b: {
+		type: 'number',
+		value: ""
+	},
+	pp_shift_right_b: {
 		type: 'number',
 		value: ""
 	},
@@ -97,10 +105,6 @@ const DEFAULT_VIP_SETTINGS = {
 	unit_selector: {
 		type: 'selectlist',
 		value: 'points'
-	},
-	pdf_pre_processing: {
-		type: 'selectlist',
-		value: 'none'
 	},
 	paper_size_options: {
 		type: 'selectlist',
@@ -404,9 +408,9 @@ function changeSettings(settingsSet) {
 				if (item.value == value.value) {
 					item.selected = true;
 					if (debug) { console.log("set ", item.value , " to selected"); };
-					item.dispatchEvent(sendUpdate);
-					item.dispatchEvent(sendChange);
-					item.dispatchEvent(sendInput);
+					sl.dispatchEvent(sendUpdate);
+					sl.dispatchEvent(sendChange);
+					sl.dispatchEvent(sendInput);
 				} else {
 					item.selected = false;
 				}
@@ -432,12 +436,25 @@ function changeSettings(settingsSet) {
 }
 
 
+function generateExportString(starter) {
+	const diffObj = {}
+    for (const [key, value] of Object.entries(DEFAULT_VIP_SETTINGS)) {
+      const differ = JSON.stringify(DEFAULT_VIP_SETTINGS[key]) != JSON.stringify(starter[key])
+      console.log(" for '"+key+"' : "+differ+" :: ",starter[key], " vs ",DEFAULT_VIP_SETTINGS[key])
+      if (differ && starter.hasOwnProperty(key)) {
+        diffObj[key] = starter[key].value
+      }
+    }
+
+    const exportString= Object.keys(diffObj).map(k => "["+k+"] "+diffObj[k]).join("\n")
+    return exportString
+}
 
 
-
-
-function saveImposerSettings(settings_name, loadResultsEl) {
-	if (debug) { console.log("saving the settings as '"+settings_name+"'"); };
+/**
+ * @return a set of ALL settings
+ */
+function generateCurrentSettingsSet() {
 	var newSet = {};
 	for (const [key, value] of Object.entries(DEFAULT_VIP_SETTINGS)) {
 		//only using the keys from defaultSettings, to know what to save
@@ -473,7 +490,13 @@ function saveImposerSettings(settings_name, loadResultsEl) {
 			}
 		}
 	}
+	return newSet
+}
 
+
+function saveImposerSettings(settings_name, loadResultsEl) {
+	if (debug) { console.log("saving the settings as '"+settings_name+"'"); };
+	const newSet = generateCurrentSettingsSet();
 	if (debug) { console.log("saved settings as '"+settings_name+"'",newSet) }; 
 	const savedImposerSettings = read_localStorage();
 	savedImposerSettings[settings_name] = JSON.stringify(newSet);

@@ -1100,7 +1100,6 @@ export const imposerMagic = {
 
   _handleLilliputian: function(new_page, pageMap, folio_list, sheet_index, is_front) {
     const {pW, pH, renderPage, flip_short, renderCrosshair, calcCenterInfo} = this._calcDimens(new_page)
-    console.log("~~ Rebecca")
     const cell_w = pW/16;
     const cell_h = pH/16;
     const drawPair = function(pageDeets, start_x, start_y, delta_x, delta_y, orientation) {
