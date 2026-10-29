@@ -249,6 +249,47 @@ export const vip = {
     document.getElementById("markup_sewing_stations_details").style.display = (display) ? '' : 'none';
 
   },
+  auditSkewDistributionValidity() {    
+    const getVal = function(id) {
+      const v = parseInt(document.getElementById(id).value)
+      return (isNaN(v)) ? 0 : v
+    }
+    const isBlank = function(side) { return side.toString() == "0,0"}
+
+    const front = [getVal("pp_shift_right_f"), getVal("pp_shift_down_f")]
+    const back = [getVal("pp_shift_right_b"), getVal("pp_shift_down_b")]
+
+
+    const canSkew = (isBlank(front) && !isBlank(back)) || (!isBlank(front) && isBlank(back))
+    const classList = document.getElementById("post_processing_spread_gap").classList
+    if (canSkew) {
+      classList.remove("disabled")
+    } else {
+      classList.add("disabled")
+    }
+
+  },
+  eventlyDistributeSkew() {
+    const getVal = function(id) {
+      const v = parseInt(document.getElementById(id).value)
+      return (isNaN(v)) ? 0 : v
+    }
+    const setVal = function(id, v) {
+      document.getElementById(id).value = v
+    }
+    const isBlank = function(side) { return side.toString() == "0,0"}
+
+    const front = [getVal("pp_shift_right_f"), getVal("pp_shift_down_f")]
+    const back = [getVal("pp_shift_right_b"), getVal("pp_shift_down_b")]
+    if (isBlank(front)) {
+      setVal("pp_shift_right_f", -1 * back[0]/2);    -1 * setVal("pp_shift_down_f", back[1]/2);
+      setVal("pp_shift_right_b", back[0]/2);    setVal("pp_shift_down_b", back[1]/2);
+    } else {
+      setVal("pp_shift_right_f", front[0]/2);    setVal("pp_shift_down_f", front[1]/2);
+      setVal("pp_shift_right_b", -1 * front[0]/2);    -1 * setVal("pp_shift_down_b", -1 *  front[1]/2);
+    }
+    this.auditSkewDistributionValidity();
+  },
   refreshPreview: async function() {
     if (window.book.unified_source.hasValidPdf()) {
       console.log("Starting Preview build...")

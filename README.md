@@ -119,6 +119,10 @@ You can find the logic handling this over in `helper.js` `calImpositionInfo()`
 
 Part of the `imposer.js` code - tacked on AFTER the pages have been laid out and AFTER masking -- leverages functions such as `_renderCrosshair`, `_renderFoldLine`
 
+## Post-Processing (step 7)
+
+This just makes a whole new PDF, embedding every page w/ the offsets defined. Takes into account the `SIDE_COVERAGE_BOTH, SIDE_COVERAGE_FRONT, SIDE_COVERAGE_BACK` values for which file is being exported/previewed 
+
 ## Preview (step 8) / Rendering
 
 Starts in `preview.js`'s `build` function, kicked off via `vip.refreshPreview()`. Has some initial corner case logic (first signature only?) and hard coded assumptions (always 'both sides') - but otherwise runs the same path as the Downloaded PDF (see next section)

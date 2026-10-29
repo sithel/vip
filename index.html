@@ -47,6 +47,7 @@
     document.getElementById("paper_size_options").value = "LETTER";
     document.getElementById("paper_size_options").dispatchEvent(new Event('change'));
     window.vip.listSettings()
+    window.vip.auditSkewDistributionValidity()
   </script>
   <!-- Pico.css -->
   <link
@@ -837,20 +838,22 @@
         <h2>7. Post-Processing</h2>
         <details>
           <summary>Instructions/Details</summary>
-          <p>
+          
             <center><kbd>NEW  - potential bugs</kbd></center>
-            This is an attempt to address known, constant printer skew in the printer you're using via shifting things in the PDF. It's an act of desperation, specific to your machine, and not guarenteed to solve the problem as the skew could change print-by-print. <br>
-            <br>
-            Use the <b>Test Print</b> from <b>3. Printer Paper</b> to determine which values to enter below. The entire back (B) side of each sheet will be moved -- this happens <i>after</i> everything above has been calculated & laid out. If you specified <b>paper margins</b> in <b>3. Printer Paper</b>, they are applied <i>before</i> this step -- be careful not to shift your B side into the margin too far! <i><sub>(this feature may change going forward)</sub></i><br>
-            <br>
-            When looking at the <b>Test Print</b> page, hold it up to a light and look at how things do or don't line up. Think about how the back side of the print needs to move in order for them to line up. Then enter the values below and hope. Possibly cross fingers. <br>
-            <br>
-            <mark>Some types of skew are rotational -- the page is pivoting around some point and a simple left/right or up/down shift alone wont help you. Addressing such skew is still a <kbd>TODO</kbd></mark><br>
+            <p>
+              This is an attempt to address known, constant printer skew in the printer you're using via shifting things in the PDF. It's an act of desperation, specific to your machine, and not guarenteed to solve the problem as the skew could change print-by-print. <br>
+              <br>
+              Use the <b>Test Print</b> from <b>3. Printer Paper</b> to determine which values to enter below. You can move the Front and Back of the sheet separately  -- this happens <i>after</i> everything above has been calculated & laid out. If you specified <b>paper margins</b> in <b>3. Printer Paper</b>, they are applied <i>before</i> this step --  if you download the front & back sides as separate files, that side's shift will be applied to every page<i><sub>(this feature may change going forward)</sub></i><br>
+              <br>
+              When looking at the <b>Test Print</b> page, hold it up to a light and look at how things do or don't line up. I find it's easiest to think about how the back side of the print needs to move in order for them to line up. Enter the values into the Shift Back Side fields. You might want to then evenly distribute the skew by clicking the button (moving the front side a bit to meet the back halfway).  Possibly cross fingers. <br>
+              <br>
+              <mark>Some types of skew are rotational -- the page is pivoting around some point and a simple left/right or up/down shift alone wont help you. Addressing such skew is still a <kbd>TODO</kbd></mark><br>
+            </p>
             <center>
             <div style="border:1px solid black; background-color: white; width: 5em;height: 6.5em;line-height: 1em;padding-top:.5em">
               - <br>
               &uarr;<br>
-              - &larr;<b>B</b>&rarr; +<br>
+              - &larr;<b>A</b>&rarr; +<br>
               &darr;<br>
               +
             </div>
@@ -863,7 +866,7 @@
                 &nbsp;&nbsp;&nbsp;&nbsp;Shift Front Side
               </td>
               <td rowspan="3" style="text-align: center;width: 5em">
-                <button id="post_processing_spread_gap" onclick="vip.refreshPreview()" style="margin: 0em 2em;">
+                <button id="post_processing_spread_gap" onclick="vip.eventlyDistributeSkew()" style="margin: 0em 2em;zoom: 0.75">
                   Evently Distribute Deltas
                 </button>
               </td>
@@ -872,21 +875,21 @@
               </td>
             <tr>
               <td>
-                <input type="number" id="pp_shift_down_f" placeholder=0>
+                <input type="number" id="pp_shift_down_f" placeholder=0 oninput="vip.auditSkewDistributionValidity()">
                 <label for="pp_shift_down_f">  up/down &#x2195; (pt)</label>
               </td>
               <td >
-                <input type="number" id="pp_shift_down_b" placeholder=0>
+                <input type="number" id="pp_shift_down_b" placeholder=0 oninput="vip.auditSkewDistributionValidity()">
                 <label for="pp_shift_down_b">  up/down &#x2195; ((pt)</label>
               </td>
             </tr>
             <tr>
               <td >
-                <input type="number" id="pp_shift_right_f" placeholder=0>
+                <input type="number" id="pp_shift_right_f" placeholder=0 oninput="vip.auditSkewDistributionValidity()">
                 <label for="pp_shift_right_f"> left/right &#x2194; (pt)</label>
               </td>
               <td >
-                <input type="number" id="pp_shift_right_b" placeholder=0>
+                <input type="number" id="pp_shift_right_b" placeholder=0 oninput="vip.auditSkewDistributionValidity()">
                 <label for="pp_shift_right_b">  left/right &#x2194;  (pt)</label>
               </td>
             </tr>
