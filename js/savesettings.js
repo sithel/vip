@@ -213,7 +213,7 @@ const DEFAULT_VIP_SETTINGS = {
 	},
 	markup_sewing_stations: {
 		type: 'selectlist',
-		value: 'inner_outer'
+		value: 'inner'
 	},
 	markup_sewing_stations_color: {
 		type: 'color',
