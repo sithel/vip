@@ -269,31 +269,35 @@ export const builder = {
     return (isNaN(v)) ? parseFloat(el.placeholder) : v
   },
   _handlePrinterSkew: async function(side_coverage_mode, pdf) {
-    const x_shift = (side_coverage_mode == SIDE_COVERAGE_FRONT) ? this._collectValueOrPlaceholder(document.getElementById("pp_shift_right_f"))     : this._collectValueOrPlaceholder(document.getElementById("pp_shift_right_b"));
-    const y_shift = (side_coverage_mode == SIDE_COVERAGE_FRONT) ? this._collectValueOrPlaceholder(document.getElementById("pp_shift_down_f")) * -1 : this._collectValueOrPlaceholder(document.getElementById("pp_shift_down_b")) * -1;
-    if (x_shift == 0 && y_shift == 0) {
+    /* [0] = x    [1] = y     */
+    const frontShift = [this._collectValueOrPlaceholder(document.getElementById("pp_shift_right_f")), this._collectValueOrPlaceholder(document.getElementById("pp_shift_down_f")) * -1 ]
+    const backShift = [this._collectValueOrPlaceholder(document.getElementById("pp_shift_right_b")), this._collectValueOrPlaceholder(document.getElementById("pp_shift_down_b")) * -1 ]
+    if (frontShift[0] == 0 && frontShift[1] == 0 && backShift[0] == 0 && backShift[1] == 0) {
       return pdf
     }
-    const shift_all = side_coverage_mode == SIDE_COVERAGE_BACK;
     const new_pdf = await PDFLib.PDFDocument.create();
     await pdf.save()
     const pages = pdf.getPages()
-    console.log("shifting the pages: x: "+x_shift+" & y: "+y_shift)
+    console.log("shifting the pages: FRONT (",frontShift,") \t & \t BACK (",backShift,")")
     for(var i = 0; i < pages.length; ++i) {
       const p = pages[i];
       const embeddedPage = await new_pdf.embedPage(p)
       const new_p =  new_pdf.addPage([p.getWidth(), p.getHeight()])
-      if (!shift_all && i%2 == 0) {
-        new_p.drawPage(embeddedPage, {x: 0, y: 0})
-      } else {
-        new_p.drawPage(embeddedPage, {x: x_shift, y: y_shift})
-      }
+      // front == odd, i%2 == 0
+      // back == even, i%2 == 1
+      // SIDE_COVERAGE_BOTH flip flops, the other 2 are constant
+      const shift = (side_coverage_mode == SIDE_COVERAGE_FRONT) ? frontShift :
+                      (side_coverage_mode == SIDE_COVERAGE_BACK) ? backShift : 
+                        (i%2 == 0) ? frontShift :
+                          backShift
+      new_p.drawPage(embeddedPage, {x: shift[0], y: shift[1]})
     };
     return new_pdf
-
   },
   /**
    * @param signature_index - the signature to export as a file (printed as a full sheet) or -1 to print all of them
+   * @param side_coverage_mode - the const SIDE_COVERAGE_BOTH, SIDE_COVERAGE_FRONT, SIDE_COVERAGE_BACK for generating the
+   *          front/back exports as seperate files 
    */
   buildPdf: async function(signature_index, side_coverage_mode) {
     console.log("Building PDF -- signature_index ["+signature_index+"] / side_coverage_mode ["+side_coverage_mode+"]")

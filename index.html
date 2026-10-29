@@ -391,10 +391,17 @@
         label {
           display: inline-block;
         }
-        table td {
-          border: 0px;
-          padding: 0px;
-          text-align: left;
+        table {
+          width: auto;
+          label {
+            padding: 0px;
+            margin: 0px;
+          }
+          td {
+            border: 0px;
+            padding: 0px;
+            text-align: left;
+          }
         }
       }
     }
@@ -852,23 +859,25 @@
         <section id="post_processing_options">
           <table>
             <tr>
-              <td>
+              <td style="width: 12em;">
                 &nbsp;&nbsp;&nbsp;&nbsp;Shift Front Side
               </td>
-              <td rowspan="3" style="text-align: center;">
-                <button id="post_processing_spread_gap" onclick="vip.refreshPreview()">Evently Distribute Delta</button>
+              <td rowspan="3" style="text-align: center;width: 5em">
+                <button id="post_processing_spread_gap" onclick="vip.refreshPreview()" style="margin: 0em 2em;">
+                  Evently Distribute Deltas
+                </button>
               </td>
-              <td>
+              <td style="width: 12em;">
                 &nbsp;&nbsp;&nbsp;&nbsp;Shift Back Side
               </td>
             <tr>
               <td>
                 <input type="number" id="pp_shift_down_f" placeholder=0>
-                <label for="pp_shift_down_f" style="margin-right: 3em;">  up/down &#x2195; (pt)</label>
+                <label for="pp_shift_down_f">  up/down &#x2195; (pt)</label>
               </td>
               <td >
                 <input type="number" id="pp_shift_down_b" placeholder=0>
-                <label for="pp_shift_down_b" style="margin-right: 3em;">  up/down &#x2195; ((pt)</label>
+                <label for="pp_shift_down_b">  up/down &#x2195; ((pt)</label>
               </td>
             </tr>
             <tr>
@@ -878,7 +887,7 @@
               </td>
               <td >
                 <input type="number" id="pp_shift_right_b" placeholder=0>
-                <label for="pp_shift_right_b" style="margin-right: 3em;">  left/right &#x2194;  (pt)</label>
+                <label for="pp_shift_right_b">  left/right &#x2194;  (pt)</label>
               </td>
             </tr>
           </table>
