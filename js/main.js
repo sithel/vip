@@ -45,10 +45,14 @@ export const vip = {
       savedSettingsEl.classList.remove("disabled");
       console.log("=== Processing Uploads Complete ")
       if (window.book.unified_source.hasValidPdf()) {
+        const names = book.upload_blocks.map(b => (b.file) ? b.file.name : "").filter(n => n.length > 0).map(f => f.replace(/\.pdf/i,""))[0]
+        document.getElementById('file_download_name').setAttribute('placeholder',names)
         document.getElementById("page_manipulation").setAttribute("class","")
         if (window.book.imposition.name != undefined) {
           form.calImpositionInfo(window.book.unified_source.pageCount)
         }
+      } else {
+        document.getElementById('file_download_name').setAttribute('placeholder','your_file_name')
       }
       window.book.unified_source.processUpdate()
       vip.auditDisabledStates()
@@ -245,6 +249,47 @@ export const vip = {
     document.getElementById("markup_sewing_stations_details").style.display = (display) ? '' : 'none';
 
   },
+  auditSkewDistributionValidity() {    
+    const getVal = function(id) {
+      const v = parseInt(document.getElementById(id).value)
+      return (isNaN(v)) ? 0 : v
+    }
+    const isBlank = function(side) { return side.toString() == "0,0"}
+
+    const front = [getVal("pp_shift_right_f"), getVal("pp_shift_down_f")]
+    const back = [getVal("pp_shift_right_b"), getVal("pp_shift_down_b")]
+
+
+    const canSkew = (isBlank(front) && !isBlank(back)) || (!isBlank(front) && isBlank(back))
+    const classList = document.getElementById("post_processing_spread_gap").classList
+    if (canSkew) {
+      classList.remove("disabled")
+    } else {
+      classList.add("disabled")
+    }
+
+  },
+  eventlyDistributeSkew() {
+    const getVal = function(id) {
+      const v = parseInt(document.getElementById(id).value)
+      return (isNaN(v)) ? 0 : v
+    }
+    const setVal = function(id, v) {
+      document.getElementById(id).value = v
+    }
+    const isBlank = function(side) { return side.toString() == "0,0"}
+
+    const front = [getVal("pp_shift_right_f"), getVal("pp_shift_down_f")]
+    const back = [getVal("pp_shift_right_b"), getVal("pp_shift_down_b")]
+    if (isBlank(front)) {
+      setVal("pp_shift_right_f", -1 * back[0]/2);    -1 * setVal("pp_shift_down_f", back[1]/2);
+      setVal("pp_shift_right_b", back[0]/2);    setVal("pp_shift_down_b", back[1]/2);
+    } else {
+      setVal("pp_shift_right_f", front[0]/2);    setVal("pp_shift_down_f", front[1]/2);
+      setVal("pp_shift_right_b", -1 * front[0]/2);    -1 * setVal("pp_shift_down_b", -1 *  front[1]/2);
+    }
+    this.auditSkewDistributionValidity();
+  },
   refreshPreview: async function() {
     if (window.book.unified_source.hasValidPdf()) {
       console.log("Starting Preview build...")
@@ -261,10 +306,12 @@ export const vip = {
   },
   downloadFile: async function(fileName, defaultFileName) {
     const nameToUse = (fileName == "") ? defaultFileName : fileName
+    console.log("using ",nameToUse," as I see ",fileName," vs ",defaultFileName)
     const downloadAggregate = document.getElementById("download-aggregate").checked
     const frontAndBackSeparate = document.getElementById("download-front-back").checked
     const signatureFiles = document.getElementById("download-signatures").checked
-    fileHandler.handleDownloadOptions(fileName, downloadAggregate, frontAndBackSeparate, signatureFiles);
+    const includeConfig = document.getElementById("download-config").checked
+    fileHandler.handleDownloadOptions(nameToUse, downloadAggregate, frontAndBackSeparate, signatureFiles, includeConfig);
   },
   settingsNameUpdate: function(settingsNameEl, settingsSaveBtn) {
     if (settingsNameEl.value.length > 0) {
@@ -281,9 +328,6 @@ export const vip = {
   listSettings: function() {
     listSettings(document.getElementById("load_settings_results"))
   },
-  loadSettings: function(saved_name) {
-    load_settings_form(document.getElementById("load_settings_results"))
-  },
   importSettings: function(importEl) {
     importEl.innerHTML = "paste in export code : <BR>";
     const inputField = document.createElement("textarea");
@@ -296,10 +340,13 @@ export const vip = {
       const userInput = inputField.value
       try {
         const regex = /\[(.*)\] (.*)/;
-        const result = userInput.split("\n").filter(l => l.trim().length > 0 ).map(l => {
-          const r = l.match(regex);
-          return [r[1].trim(), r[2].trim()]
-        })
+        const result = userInput.split("\n")
+          .filter(l => l.trim().length > 0 )
+          .filter(l => !l.startsWith("#"))
+          .map(l => {
+            const r = l.match(regex);
+            return [r[1].trim(), r[2].trim()]
+          })
         changeSettingsBasedOnImport(result)
         form.calImpositionInfo(window.book.unified_source.pageCount)
       } catch (e) {
@@ -318,16 +365,7 @@ export const vip = {
     }
     const ls = read_localStorage()
     const requested = JSON.parse(ls[settingsName])
-    const diffObj = {}
-    for (const [key, value] of Object.entries(DEFAULT_VIP_SETTINGS)) {
-      const differ = JSON.stringify(DEFAULT_VIP_SETTINGS[key]) != JSON.stringify(requested[key])// && requested[key] != undefined
-      console.log(" for '"+key+"' : "+differ+" :: ",requested[key], " vs ",DEFAULT_VIP_SETTINGS[key])
-      if (differ && requested.hasOwnProperty(key)) {
-        diffObj[key] = requested[key].value
-      }
-    }
-
-    const exportString= Object.keys(diffObj).map(k => "["+k+"] "+diffObj[k]).join("\n")
+    const exportString = generateExportString(requested)
     exportEl.innerHTML = "looking at <b>"+settingsName+"</b>:<br><pre id='settings_export_info'>" + exportString+"&nbsp;</pre>"
     const selectAllBtn = document.createElement("button");
     selectAllBtn.textContent = "Select All";   

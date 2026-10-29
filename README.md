@@ -5,6 +5,7 @@ Launch February 4th 2025
 
 ## [Versions](#version-history)
 
+- v0.2.0 - now optionally exporting settings/configuration into zip file, fixed saving paper size, allowing skew shift of front & back, and fixing the sewing station default to be `inner`
 - v0.1.4 - add in rudimentary post-processing, allow variable signature Lilliputian layout, and enhanced the Test Print
 - v0.1.3 - some minor UI fixes & cut quarto (long intended as gift to Amy [`runawaymarbles`])
 - v0.1.2 - adding the folio count smoothing across final signatures feature (for `katethereader`!!)
@@ -117,6 +118,10 @@ You can find the logic handling this over in `helper.js` `calImpositionInfo()`
 ## Markup (step 6)
 
 Part of the `imposer.js` code - tacked on AFTER the pages have been laid out and AFTER masking -- leverages functions such as `_renderCrosshair`, `_renderFoldLine`
+
+## Post-Processing (step 7)
+
+This just makes a whole new PDF, embedding every page w/ the offsets defined. Takes into account the `SIDE_COVERAGE_BOTH, SIDE_COVERAGE_FRONT, SIDE_COVERAGE_BACK` values for which file is being exported/previewed 
 
 ## Preview (step 8) / Rendering
 

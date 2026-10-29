@@ -12,14 +12,29 @@ export const fileHandler = {
       })
       ;
   },
-  handleDownloadOptions: async function(fileName, downloadAggregate, frontAndBackSeparate, signatureFiles) {
-    console.log("Exporting PDF under file name ["+fileName+"] -- downloadAggregate ["+downloadAggregate+"] / frontAndBackSeparate ["+frontAndBackSeparate+"] / signatureFiles["+signatureFiles+"]")
+  _buildConfigFileContents: function() {
+    const newSet = generateCurrentSettingsSet()
+
+    const meta = book.upload_blocks.map(b => "# "+b.file.name+" -- "+b.file.lastModifiedDate 
+      + ((b.precedingBlanks == undefined) ? "" : "\n# precedingBlanks: "+ b.precedingBlanks)
+      + ((b.pageSelection == undefined) ? "" : "\n# pageSelection: "+ b.pageSelection)
+      + ((b.preProcessing == undefined) ? "" : "\n# preProcessing: "+ b.preProcessing)
+      + "\n# ---------------------"
+    ).join("\n")
+    
+    return meta +"\n" + generateExportString(newSet)
+  },
+  handleDownloadOptions: async function(fileName, downloadAggregate, frontAndBackSeparate, signatureFiles, includeConfig) {
+    console.log("Exporting PDF under file name ["+fileName+"] -- downloadAggregate ["+downloadAggregate+"] / frontAndBackSeparate ["+frontAndBackSeparate+"] / signatureFiles["+signatureFiles+"] / includeConfig["+includeConfig+"]")
     const is_flip_short = document.getElementById("flip_paper_short").checked
     fileName += "_" + ((is_flip_short) ? "FlipShort" : "FlipLong") 
       //+ "_" + window.book.physical.paper_size[0] + "_x_" + window.book.physical.paper_size[1]
       + "_" + window.book.imposition.name
     try {
       const zip = new JSZip();
+      if (includeConfig) {
+        zip.file("config.txt", this._buildConfigFileContents())
+      }
       const addToZip = this._addToZip.bind(this)
       if (downloadAggregate && !frontAndBackSeparate) {
         const pdf = await builder.buildPdf(-1, SIDE_COVERAGE_BOTH)
