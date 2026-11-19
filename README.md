@@ -5,6 +5,7 @@ Launch February 4th 2025
 
 ## [Versions](#version-history)
 
+- v0.2.1 - fixing bugs introduced w/ skew correction code
 - v0.2.0 - now optionally exporting settings/configuration into zip file, fixed saving paper size, allowing skew shift of front & back, and fixing the sewing station default to be `inner`
 - v0.1.4 - add in rudimentary post-processing, allow variable signature Lilliputian layout, and enhanced the Test Print
 - v0.1.3 - some minor UI fixes & cut quarto (long intended as gift to Amy [`runawaymarbles`])

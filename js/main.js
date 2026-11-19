@@ -282,11 +282,11 @@ export const vip = {
     const front = [getVal("pp_shift_right_f"), getVal("pp_shift_down_f")]
     const back = [getVal("pp_shift_right_b"), getVal("pp_shift_down_b")]
     if (isBlank(front)) {
-      setVal("pp_shift_right_f", -1 * back[0]/2);    -1 * setVal("pp_shift_down_f", back[1]/2);
+      setVal("pp_shift_right_f", -1 * back[0]/2);    setVal("pp_shift_down_f", -1 *  back[1]/2);
       setVal("pp_shift_right_b", back[0]/2);    setVal("pp_shift_down_b", back[1]/2);
     } else {
       setVal("pp_shift_right_f", front[0]/2);    setVal("pp_shift_down_f", front[1]/2);
-      setVal("pp_shift_right_b", -1 * front[0]/2);    -1 * setVal("pp_shift_down_b", -1 *  front[1]/2);
+      setVal("pp_shift_right_b", -1 * front[0]/2);    setVal("pp_shift_down_b", -1 *  front[1]/2);
     }
     this.auditSkewDistributionValidity();
   },

@@ -273,15 +273,19 @@ export const builder = {
     const frontShift = [this._collectValueOrPlaceholder(document.getElementById("pp_shift_right_f")), this._collectValueOrPlaceholder(document.getElementById("pp_shift_down_f")) * -1 ]
     const backShift = [this._collectValueOrPlaceholder(document.getElementById("pp_shift_right_b")), this._collectValueOrPlaceholder(document.getElementById("pp_shift_down_b")) * -1 ]
     if (frontShift[0] == 0 && frontShift[1] == 0 && backShift[0] == 0 && backShift[1] == 0) {
+      console.log("[Printer Skew] none! skipping")
       return pdf
     }
+    console.log("[Printer Skew] shifting the pages: FRONT (",frontShift,") \t & \t BACK (",backShift,")")
     const new_pdf = await PDFLib.PDFDocument.create();
-    await pdf.save()
-    const pages = pdf.getPages()
-    console.log("shifting the pages: FRONT (",frontShift,") \t & \t BACK (",backShift,")")
+    // pretty sure we need to save and then reload PDF to avoid file bloat issue?
+    //    also related -- embedding all the pages in one go rather than one at a time? ¯\_(ツ)_/¯
+    const pdfBytes = await pdf.save()
+    const pdf_saved_copy = await PDFLib.PDFDocument.load(pdfBytes);
+    const pages = pdf_saved_copy.getPages()
+    const embedded_pages = await new_pdf.embedPages(pages)
     for(var i = 0; i < pages.length; ++i) {
       const p = pages[i];
-      const embeddedPage = await new_pdf.embedPage(p)
       const new_p =  new_pdf.addPage([p.getWidth(), p.getHeight()])
       // front == odd, i%2 == 0
       // back == even, i%2 == 1
@@ -290,9 +294,11 @@ export const builder = {
                       (side_coverage_mode == SIDE_COVERAGE_BACK) ? backShift : 
                         (i%2 == 0) ? frontShift :
                           backShift
-      new_p.drawPage(embeddedPage, {x: shift[0], y: shift[1]})
+      new_p.drawPage(embedded_pages[i], {x: shift[0], y: shift[1]})
     };
-    return new_pdf
+    // is it really needed to save and export again? ¯\_(ツ)_/¯   trying to avoid file bloat bug
+    const final_pdfBytes = await new_pdf.save()
+    return await PDFLib.PDFDocument.load(final_pdfBytes);
   },
   /**
    * @param signature_index - the signature to export as a file (printed as a full sheet) or -1 to print all of them
